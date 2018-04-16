@@ -7,6 +7,7 @@ env:
   matrix:
   - COMMAND="test-iOS"
   - COMMAND="test-native"
+  - COMMAND="examples"
 script:
 - set -o pipefail
 - xcodebuild -version
