@@ -73,6 +73,13 @@
 			remoteGlobalIDString = F6D80B581BBBB2ED008F8574;
 			remoteInfo = Future;
 		};
+		F6EB2C812084928D003AFB30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F6D80B501BBBB2ED008F8574 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F6D80B581BBBB2ED008F8574;
+			remoteInfo = Flow;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -339,6 +346,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				F6EB2C822084928D003AFB30 /* PBXTargetDependency */,
 			);
 			name = LoginSample;
 			productName = LoginSample;
@@ -536,6 +544,11 @@
 			isa = PBXTargetDependency;
 			target = F6D80B581BBBB2ED008F8574 /* Flow */;
 			targetProxy = F6D80B651BBBB2ED008F8574 /* PBXContainerItemProxy */;
+		};
+		F6EB2C822084928D003AFB30 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F6D80B581BBBB2ED008F8574 /* Flow */;
+			targetProxy = F6EB2C812084928D003AFB30 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
