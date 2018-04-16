@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "0930"
+   version = "1.3">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "NO">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F6D80B581BBBB2ED008F8574"
+               BuildableName = "Flow.framework"
+               BlueprintName = "Flow"
+               ReferencedContainer = "container:Flow.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F6D80B621BBBB2ED008F8574"
+               BuildableName = "FlowTests.xctest"
+               BlueprintName = "FlowTests"
+               ReferencedContainer = "container:Flow.xcodeproj">
+            </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "CallbackerPerformance">
+               </Test>
+               <Test
+                  Identifier = "FutureBasicTests/testRecursive()">
+               </Test>
+               <Test
+                  Identifier = "FutureBasicTests/testRecursiveFlatMap()">
+               </Test>
+               <Test
+                  Identifier = "FutureBasicTests/testRecursiveMap()">
+               </Test>
+               <Test
+                  Identifier = "FutureRepeatTests/testRepeatForeverDelayStackOverflowMain()">
+               </Test>
+               <Test
+                  Identifier = "SignalPerformance">
+               </Test>
+               <Test
+                  Identifier = "SignalPerformanceCompare">
+               </Test>
+               <Test
+                  Identifier = "SignalProviderTests/testStartWithTheRetriggerWithinOnEventMerge()">
+               </Test>
+            </SkippedTests>
+         </TestableReference>
+      </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "F6D80B581BBBB2ED008F8574"
+            BuildableName = "Flow.framework"
+            BlueprintName = "Flow"
+            ReferencedContainer = "container:Flow.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "F6D80B581BBBB2ED008F8574"
+            BuildableName = "Flow.framework"
+            BlueprintName = "Flow"
+            ReferencedContainer = "container:Flow.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "F6D80B581BBBB2ED008F8574"
+            BuildableName = "Flow.framework"
+            BlueprintName = "Flow"
+            ReferencedContainer = "container:Flow.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>
