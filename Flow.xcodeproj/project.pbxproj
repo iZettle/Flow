@@ -285,7 +285,7 @@
 				F610ABAB1D91743500A161AB /* Result.swift */,
 				F681B3471DB6566E00E44ABD /* Either.swift */,
 			);
-			path = Future;
+			name = Future;
 			sourceTree = "<group>";
 		};
 		F6D80B671BBBB2ED008F8574 /* Tests */ = {
@@ -309,7 +309,6 @@
 				F6C0FED1202B44360076B877 /* DelegateTests.swift */,
 			);
 			name = Tests;
-			path = FutureTests;
 			sourceTree = "<group>";
 		};
 		F6EDC6DE2066BD39007AC39B /* Documentation */ = {
