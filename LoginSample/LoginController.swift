@@ -134,9 +134,21 @@ class LoginController: UIViewController {
         navigationItem.leftBarButtonItem = cancelButton
         
         let outerStack = UIStackView(arrangedSubviews: [stack])
+        outerStack.translatesAutoresizingMaskIntoConstraints = false
         outerStack.alignment = .center
         
-        self.view = outerStack
+        let view = UIView()
+        view.backgroundColor = .white
+        view.addSubview(outerStack)
+        
+        NSLayoutConstraint.activate([
+            outerStack.topAnchor.constraint(equalTo: view.topAnchor),
+            outerStack.leftAnchor.constraint(equalTo: view.leftAnchor),
+            outerStack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            outerStack.rightAnchor.constraint(equalTo: view.rightAnchor)
+        ])
+
+        self.view = view
     }
 }
 
