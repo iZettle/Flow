@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name         = "Flow"
+  s.name         = "FlowFramework"
   s.version      = "1.0.0"
   s.summary      = "Working with asynchronous flows"
   s.description  = <<-DESC
