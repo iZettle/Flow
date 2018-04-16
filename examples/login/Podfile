@@ -1,0 +1,13 @@
+platform :ios, '11.0'
+
+target 'Example' do
+  use_frameworks!
+
+  pod 'FlowFramework', :path => '../..'
+
+  target 'ExampleTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+end

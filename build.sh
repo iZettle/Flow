@@ -51,6 +51,20 @@ case "$COMMAND" in
     exit 0;
   ;;
 
+  "examples" | "")
+    for example in examples/*/; do
+      echo "Building $example."
+      pod install --project-directory=$example
+      xcodebuild \
+          -workspace "${example}Example.xcworkspace" \
+          -scheme Example \
+          -sdk "${IOS_SDK}" \
+          -destination "${IOS_DESTINATION}" \
+          build
+    done
+    exit 0
+  ;;
+
    "test-iOS" | "test-ios")
     xcodebuild clean \
     -project $PROJECT \
