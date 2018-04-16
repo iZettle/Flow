@@ -133,22 +133,20 @@ class LoginController: UIViewController {
         
         navigationItem.leftBarButtonItem = cancelButton
         
-        let outerStack = UIStackView(arrangedSubviews: [stack])
-        outerStack.translatesAutoresizingMaskIntoConstraints = false
-        outerStack.alignment = .center
-        
         let view = UIView()
-        view.backgroundColor = .white
-        view.addSubview(outerStack)
+        view.backgroundColor = UIColor(white: 0.95, alpha: 1)
+
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stack)
         
         NSLayoutConstraint.activate([
-            outerStack.topAnchor.constraint(equalTo: view.topAnchor),
-            outerStack.leftAnchor.constraint(equalTo: view.leftAnchor),
-            outerStack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            outerStack.rightAnchor.constraint(equalTo: view.rightAnchor)
+            stack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
 
         self.view = view
+        
+        emailField.becomeFirstResponder()
     }
 }
 
