@@ -70,13 +70,6 @@
 			remoteGlobalIDString = F6D80B581BBBB2ED008F8574;
 			remoteInfo = Future;
 		};
-		F6EB2C812084928D003AFB30 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F6D80B501BBBB2ED008F8574 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F6D80B581BBBB2ED008F8574;
-			remoteInfo = Flow;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -129,7 +122,6 @@
 		F6B6A6642056B2CA00B9FC9D /* EventType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EventType.swift; path = Flow/EventType.swift; sourceTree = "<group>"; };
 		F6C0FED1202B44360076B877 /* DelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DelegateTests.swift; path = FlowTests/DelegateTests.swift; sourceTree = SOURCE_ROOT; };
 		F6C2E60E1C6A0E2C00453548 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		F6C5655A207F770D0030E5FF /* LoginSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoginSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6D80B591BBBB2ED008F8574 /* Flow.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Flow.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6D80B631BBBB2ED008F8574 /* FlowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6EDC6DF2066BD39007AC39B /* LifetimeManagement.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = LifetimeManagement.md; sourceTree = "<group>"; };
@@ -145,13 +137,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		F6C56557207F770D0030E5FF /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F6D80B551BBBB2ED008F8574 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -250,7 +235,6 @@
 			children = (
 				F6D80B591BBBB2ED008F8574 /* Flow.framework */,
 				F6D80B631BBBB2ED008F8574 /* FlowTests.xctest */,
-				F6C5655A207F770D0030E5FF /* LoginSample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -315,24 +299,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		F6C56559207F770D0030E5FF /* LoginSample */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F6C5656B207F770F0030E5FF /* Build configuration list for PBXNativeTarget "LoginSample" */;
-			buildPhases = (
-				F6C56556207F770D0030E5FF /* Sources */,
-				F6C56557207F770D0030E5FF /* Frameworks */,
-				F6C56558207F770D0030E5FF /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F6EB2C822084928D003AFB30 /* PBXTargetDependency */,
-			);
-			name = LoginSample;
-			productName = LoginSample;
-			productReference = F6C5655A207F770D0030E5FF /* LoginSample.app */;
-			productType = "com.apple.product-type.application";
-		};
 		F6D80B581BBBB2ED008F8574 /* Flow */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F6D80B6D1BBBB2ED008F8574 /* Build configuration list for PBXNativeTarget "Flow" */;
@@ -379,10 +345,6 @@
 				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = iZettle;
 				TargetAttributes = {
-					F6C56559207F770D0030E5FF = {
-						CreatedOnToolsVersion = 9.3;
-						ProvisioningStyle = Automatic;
-					};
 					F6D80B581BBBB2ED008F8574 = {
 						CreatedOnToolsVersion = 7.0.1;
 						DevelopmentTeam = G94FN7ACW4;
@@ -411,19 +373,11 @@
 			targets = (
 				F6D80B581BBBB2ED008F8574 /* Flow */,
 				F6D80B621BBBB2ED008F8574 /* FlowTests */,
-				F6C56559207F770D0030E5FF /* LoginSample */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		F6C56558207F770D0030E5FF /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F6D80B571BBBB2ED008F8574 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -444,13 +398,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		F6C56556207F770D0030E5FF /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F6D80B541BBBB2ED008F8574 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -522,66 +469,9 @@
 			target = F6D80B581BBBB2ED008F8574 /* Flow */;
 			targetProxy = F6D80B651BBBB2ED008F8574 /* PBXContainerItemProxy */;
 		};
-		F6EB2C822084928D003AFB30 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F6D80B581BBBB2ED008F8574 /* Flow */;
-			targetProxy = F6EB2C812084928D003AFB30 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		F6C56569207F770F0030E5FF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = LoginSample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.izettle.LoginSample;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		F6C5656A207F770F0030E5FF /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = LoginSample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.izettle.LoginSample;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		F6D80B6B1BBBB2ED008F8574 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -769,15 +659,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F6C5656B207F770F0030E5FF /* Build configuration list for PBXNativeTarget "LoginSample" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F6C56569207F770F0030E5FF /* Debug */,
-				F6C5656A207F770F0030E5FF /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		F6D80B531BBBB2ED008F8574 /* Build configuration list for PBXProject "Flow" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
