@@ -49,9 +49,6 @@
 		F6B6A6632056AF4300B9FC9D /* ReadWriteSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B6A6622056AF4300B9FC9D /* ReadWriteSignal.swift */; };
 		F6B6A6652056B2CA00B9FC9D /* EventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B6A6642056B2CA00B9FC9D /* EventType.swift */; };
 		F6C0FED2202B44360076B877 /* DelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C0FED1202B44360076B877 /* DelegateTests.swift */; };
-		F6C5655D207F770D0030E5FF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C5655C207F770D0030E5FF /* AppDelegate.swift */; };
-		F6C5656D207F79DF0030E5FF /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C5656C207F79DF0030E5FF /* LoginController.swift */; };
-		F6C56572207F9D4E0030E5FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F6C56571207F9D4E0030E5FF /* LaunchScreen.storyboard */; };
 		F6D80B641BBBB2ED008F8574 /* Flow.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6D80B591BBBB2ED008F8574 /* Flow.framework */; };
 		F6EDC6E22066BD39007AC39B /* LifetimeManagement.md in Resources */ = {isa = PBXBuildFile; fileRef = F6EDC6DF2066BD39007AC39B /* LifetimeManagement.md */; };
 		F6EDC6E32066BD39007AC39B /* Signals.md in Resources */ = {isa = PBXBuildFile; fileRef = F6EDC6E02066BD39007AC39B /* Signals.md */; };
@@ -133,10 +130,6 @@
 		F6C0FED1202B44360076B877 /* DelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DelegateTests.swift; path = FlowTests/DelegateTests.swift; sourceTree = SOURCE_ROOT; };
 		F6C2E60E1C6A0E2C00453548 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F6C5655A207F770D0030E5FF /* LoginSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoginSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F6C5655C207F770D0030E5FF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		F6C56568207F770F0030E5FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F6C5656C207F79DF0030E5FF /* LoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
-		F6C56571207F9D4E0030E5FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F6D80B591BBBB2ED008F8574 /* Flow.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Flow.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6D80B631BBBB2ED008F8574 /* FlowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6EDC6DF2066BD39007AC39B /* LifetimeManagement.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = LifetimeManagement.md; sourceTree = "<group>"; };
@@ -232,17 +225,6 @@
 			name = "Signal+UI";
 			sourceTree = "<group>";
 		};
-		F6C5655B207F770D0030E5FF /* LoginSample */ = {
-			isa = PBXGroup;
-			children = (
-				F6C5655C207F770D0030E5FF /* AppDelegate.swift */,
-				F6C5656C207F79DF0030E5FF /* LoginController.swift */,
-				F6C56568207F770F0030E5FF /* Info.plist */,
-				F6C56571207F9D4E0030E5FF /* LaunchScreen.storyboard */,
-			);
-			path = LoginSample;
-			sourceTree = "<group>";
-		};
 		F6D80B4F1BBBB2ED008F8574 = {
 			isa = PBXGroup;
 			children = (
@@ -258,7 +240,6 @@
 				F66F8527205AADEE00347601 /* Utilities */,
 				F6AD20551E2FB4F70082CF27 /* Signal+UI */,
 				F6D80B671BBBB2ED008F8574 /* Tests */,
-				F6C5655B207F770D0030E5FF /* LoginSample */,
 				F6D80B5A1BBBB2ED008F8574 /* Products */,
 				F610ABAA1D91743500A161AB /* Info.plist */,
 			);
@@ -440,7 +421,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F6C56572207F9D4E0030E5FF /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -468,8 +448,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F6C5655D207F770D0030E5FF /* AppDelegate.swift in Sources */,
-				F6C5656D207F79DF0030E5FF /* LoginController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
