@@ -15,4 +15,5 @@ Pod::Spec.new do |s|
 
   s.source       = { :git => "https://github.com/iZettle/Flow.git", :tag => "#{s.version}" }
   s.source_files = "Flow/*.{swift}"
+  s.swift_version = '4.1'
 end
