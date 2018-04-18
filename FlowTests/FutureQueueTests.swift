@@ -157,8 +157,10 @@ class FutureQueueTests: FutureTest {
             var concurrentCount: Int = 0
             var values = [Int]()
             for i in 1...100 {
-                let f = queue.enqueue { () -> Future<Int> in  
+                let sync = ReadWriteSignal(false) // Use sync point to not let `values.append(val)` sneak past `f.cancel()`
+                _ = queue.enqueue { sync.atOnce().filter { $0 }.future }
 
+                let f = queue.enqueue { () -> Future<Int> in
                     concurrentCount += 1
                     maxConcurrentCount = max(maxConcurrentCount, concurrentCount)
                     return Future(i).delay(by: 0.001).onValue { val in
@@ -174,6 +176,8 @@ class FutureQueueTests: FutureTest {
                 if i % 2 == 0 {
                     f.cancel()
                 }
+                
+                sync.value = true
             }
             
             return queue.didBecomeEmpty.future.onValue {
