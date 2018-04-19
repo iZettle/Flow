@@ -2097,7 +2097,7 @@ class SignalProviderStressTests: XCTestCase {
                 ]
             
             for (time, value) in signals {
-                Scheduler.main.async(after: time) {
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + time) {
                     signal.value = value
                 }
             }
@@ -2172,7 +2172,7 @@ class SignalProviderStressTests: XCTestCase {
             ]
             
             for (time, value) in signals {
-                Scheduler.main.async(after: time) {
+                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + time) {
                     signal.value = value
                 }
             }
