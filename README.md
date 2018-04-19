@@ -1,5 +1,5 @@
 <p align="center">
-<img src="flow-logo.png" width="140px" />
+<img src="https://github.com/iZettle/Flow/blob/master/flow-logo.png" width="140px" />
 </p>
 
 [![Build Status](https://travis-ci.org/iZettle/Flow.svg?branch=master)](https://travis-ci.org/iZettle/Flow)
