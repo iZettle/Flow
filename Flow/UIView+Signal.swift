@@ -32,10 +32,66 @@ public extension UIView {
         return signal(for: \.traitCollectionCallbacker).readable(capturing: self.traitCollection)
     }
     
+    /// Will use traitCollectionWithFallback as source
+    var traitCollectionWithFallbackSignal: ReadSignal<UITraitCollection> {
+        return traitCollectionSignal.map { _ in self.traitCollectionWithFallback }
+    }
+    
     var didLayoutSignal: Signal<()> {
         return signal(for: \.didLayoutCallbacker)
     }
 }
+
+public extension UITraitEnvironment {
+    /// Returns the current traitCollection or the screen's traitCollection if `self` has no window
+    var traitCollectionWithFallback: UITraitCollection {
+        return hasWindowTraitCollection ?? UIScreen.main.traitCollection
+    }
+}
+
+public extension UIView {
+    /// Returns a signal signaling self's subviews when it updates
+    var subviewsSignal: ReadSignal<[UIView]> {
+        return ReadSignal(capturing: self.subviews) { c in
+            self.signal(for: \.layer.sublayers).onValue { _ in
+                DispatchQueue.main.async { // Since we listen on sublayers, there could be a mismatch when moving a subview (subview counted twice)
+                    c(self.subviews)
+                }
+            }
+        }
+    }
+    
+    /// Returns a signal signaling all of self's subviews when it updates
+    var allSubviewsSignal: ReadSignal<[UIView]> {
+        return ReadSignal(capturing: self.allSubviews) { callback in
+            let bag = DisposeBag()
+            let treeChangeBag = DisposeBag()
+            bag += treeChangeBag
+            let updateSignal: () -> Void = recursive { updateSignal in
+                treeChangeBag.dispose()
+                let treeChangeSignal = merge(self.allSubviews.compactMap { $0.subviewsSignal })
+                treeChangeBag += treeChangeSignal.onFirstValue { _ in
+                    callback(self.allSubviews)
+                    updateSignal()
+                }
+            }
+            bag += { _ = updateSignal }
+            updateSignal()
+            return bag
+        }
+    }
+}
+
+private extension UITraitEnvironment {
+    var hasWindowTraitCollection: UITraitCollection? {
+        switch self {
+        case let v as UIView where v.window != nil: return v.traitCollection
+        case let v as UIViewController where v.isViewLoaded && v.view?.window != nil: return v.traitCollection
+        default: return nil
+        }
+    }
+}
+
 
 private extension UIView {
     func signal<T>(for keyPath: KeyPath<CallbackerView, Callbacker<T>>) -> Signal<T> {

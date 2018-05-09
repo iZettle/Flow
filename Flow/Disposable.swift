@@ -107,10 +107,17 @@ public final class DisposeBag: Disposable {
 
 public extension DisposeBag {
     /// Creates a new bag, adds it to self, and returns it
-    public func innerBag() -> DisposeBag {
+    func innerBag() -> DisposeBag {
         let bag = DisposeBag()
         add(bag)
         return bag
+    }
+    
+    /// Will hold a reference to `object` until self is disposed.
+    ///
+    ///     bag.hold(delegate)
+    func hold(_ object: AnyObject...) {
+        self += { _ = object }
     }
 }
 

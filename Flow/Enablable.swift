@@ -32,12 +32,6 @@ public extension SignalProvider where Kind == ReadWrite, Value == Bool {
     }
 }
 
-/// Whether the conforming class has event listeners.
-public protocol HasEventListeners: class {
-    /// Boolean value indicating whether the instance has event listeners.
-    var hasEventListeners: Bool { get }
-}
-
 /// Whether the conforming object supports auto enabling.
 public protocol AutoEnablable: Enablable {
     /// Boolean value indicating whether the instance should be automatically enabled while having listeners

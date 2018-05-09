@@ -46,7 +46,7 @@ public extension CoreSignal where Kind == Plain, Value == () {
             
             let timer = DispatchSource.makeTimerSource(queue: .concurrentBackground)
             
-            bag += { _ = timer } // DispatchSourceTimer is automatically cancelled after being released
+            bag.hold(timer) // DispatchSourceTimer is automatically cancelled after being released
             timer.setEventHandler {
                 c(())
             }
