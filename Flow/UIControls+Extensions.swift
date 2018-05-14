@@ -74,6 +74,22 @@ extension UIRefreshControl: SignalProvider {
         return signal(for: .valueChanged)
     }
 }
+
+public extension UIRefreshControl {
+    /// Will animated `self` until the returned `Disposable` is being disposed
+    func animate() -> Disposable {
+        beginRefreshing()
+        return Disposer {
+            self.endRefreshing()
+        }
+    }
+    
+    /// Will trigger a refresh by trigger the action .valueChanged
+    func refresh() {
+        sendActions(for: .valueChanged)
+    }
+}
+
     
 extension UIPasteboard: SignalProvider {
     public var providedSignal: ReadWriteSignal<String?> {
@@ -136,6 +152,77 @@ extension UIGestureRecognizer: SignalProvider {
         return filter { $0 == state }.toVoid()
     }
 }
+
+public extension UIView {
+    /// Will add `recognizer` and remove it when the returned `Disposable` is being diposed.
+    func install(_ recognizer: UIGestureRecognizer) -> Disposable {
+        addGestureRecognizer(recognizer)
+        return Disposer {
+            self.removeGestureRecognizer(recognizer)
+        }
+    }
+}
+
+public extension UITextField {
+    /// Delegate for asking if editing should stop in the specified text field
+    /// - See: UITextFieldDelegate.textFieldShouldEndEditing()
+    /// - Note: Any currently set delegate will be overridden, unless the delegate was set by `shouldEndEditing` or `shouldReturn`.
+    var shouldEndEditing: Delegate<String, Bool> {
+        return Delegate { c in self.usingDelegate { $0.shouldEndEditing.set(c) } }
+    }
+    
+    /// Delegate for asking whether the text field should process the pressing of the return button
+    /// - See: UITextFieldDelegate.textFieldShouldReturn()
+    /// - Note: Any currently set delegate will be overridden, unless the delegate was set by `shouldEndEditing` or `shouldReturn`.
+    var shouldReturn: Delegate<String, Bool> {
+        return Delegate { c in self.usingDelegate { $0.shouldReturn.set(c) } }
+    }
+    
+    // A signal whether or not `self` is Editing.
+    var isEditingSignal: ReadSignal<Bool> {
+        return signal(for: [.editingDidBegin, .editingDidEnd]).readable().map { self.isEditing }
+    }
+}
+
+/// Returns a signal that will signal on orientation changes.
+public var orientationSignal: ReadSignal<UIInterfaceOrientation> {
+    return NotificationCenter.default.signal(forName: .UIApplicationDidChangeStatusBarOrientation).map { _ in UIApplication.shared.statusBarOrientation }.readable(capturing: UIApplication.shared.statusBarOrientation)
+}
+
+
+private extension UITextField {
+    class TextFieldDelegate: NSObject, UITextFieldDelegate {
+        var shouldEndEditing = Delegate<String, Bool>()
+        var shouldReturn = Delegate<String, Bool>()
+        
+        func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+            return shouldEndEditing.call(textField.value) ?? true
+        }
+        
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            return shouldReturn.call(textField.value) ?? true
+        }
+    }
+    
+    // Make sure to only have one delegate setup (share between users) and release it when done.
+    func usingDelegate(_ function: (TextFieldDelegate) -> Disposable) -> Disposable {
+        class Weak<T> where T: AnyObject {
+            weak var value: T?
+            init(_ value: T) { self.value = value }
+        }
+
+        let d = objc_getAssociatedObject(self, &delegateKey) as? Weak<TextFieldDelegate> 
+        let delegate = d?.value ?? TextFieldDelegate()
+        objc_setAssociatedObject(self, &delegateKey, Weak(delegate), .OBJC_ASSOCIATION_RETAIN)
+        let bag = DisposeBag()
+        self.delegate = delegate
+        bag.hold(delegate)
+        bag += function(delegate)
+        return bag
+    }
+}
+
+private var delegateKey = 0
 
 private extension _KeyValueCodingAndObserving where Self: UIControl {
     func signal<T>(for controlEvents: UIControlEvents, keyPath: ReferenceWritableKeyPath<Self, T>) -> ReadWriteSignal<T> {

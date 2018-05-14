@@ -27,6 +27,8 @@
 		F64E975F201888EB00865380 /* Future+Combiners.swift in Sources */ = {isa = PBXBuildFile; fileRef = F64E975E201888EB00865380 /* Future+Combiners.swift */; };
 		F662C0A71FDFDEB300E5F869 /* Signal+Scheduling.swift in Sources */ = {isa = PBXBuildFile; fileRef = F662C0A61FDFDEB300E5F869 /* Signal+Scheduling.swift */; };
 		F667FCD8200604570014DA7D /* Enablable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F667FCD7200604570014DA7D /* Enablable.swift */; };
+		F66835CF2091B887002D2676 /* UIView+EditingMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66835CE2091B887002D2676 /* UIView+EditingMenu.swift */; };
+		F66835D42091C29C002D2676 /* UIViewSignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66835D32091C29C002D2676 /* UIViewSignalTests.swift */; };
 		F66C47A720077B2500333410 /* Signal+Combiners.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66C47A620077B2500333410 /* Signal+Combiners.swift */; };
 		F66C47A920077BC700333410 /* Signal+Listeners.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66C47A820077BC700333410 /* Signal+Listeners.swift */; };
 		F6714C711F25E97600C96931 /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABA61D91743500A161AB /* Future.swift */; };
@@ -50,9 +52,11 @@
 		F6B6A6652056B2CA00B9FC9D /* EventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B6A6642056B2CA00B9FC9D /* EventType.swift */; };
 		F6C0FED2202B44360076B877 /* DelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C0FED1202B44360076B877 /* DelegateTests.swift */; };
 		F6D80B641BBBB2ED008F8574 /* Flow.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6D80B591BBBB2ED008F8574 /* Flow.framework */; };
+		F6E752312099B60A0092EDAA /* HasEventListeners.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E752302099B60A0092EDAA /* HasEventListeners.swift */; };
 		F6EDC6E22066BD39007AC39B /* LifetimeManagement.md in Resources */ = {isa = PBXBuildFile; fileRef = F6EDC6DF2066BD39007AC39B /* LifetimeManagement.md */; };
 		F6EDC6E32066BD39007AC39B /* Signals.md in Resources */ = {isa = PBXBuildFile; fileRef = F6EDC6E02066BD39007AC39B /* Signals.md */; };
 		F6EDC6E42066BD39007AC39B /* Futures.md in Resources */ = {isa = PBXBuildFile; fileRef = F6EDC6E12066BD39007AC39B /* Futures.md */; };
+		F6F679A320A966D1004C7AA7 /* EventListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F679A220A966D1004C7AA7 /* EventListenerTests.swift */; };
 		F6FF03DE1D926AC300B93771 /* Callbacker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6FF03D41D926AC300B93771 /* Callbacker.swift */; };
 		F6FF03DF1D926AC300B93771 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6FF03D51D926AC300B93771 /* Disposable.swift */; };
 		F6FF03E21D926AC300B93771 /* Signal+Transforms.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6FF03D81D926AC300B93771 /* Signal+Transforms.swift */; };
@@ -96,6 +100,8 @@
 		F64E975E201888EB00865380 /* Future+Combiners.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Future+Combiners.swift"; path = "Flow/Future+Combiners.swift"; sourceTree = SOURCE_ROOT; };
 		F662C0A61FDFDEB300E5F869 /* Signal+Scheduling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Signal+Scheduling.swift"; path = "Flow/Signal+Scheduling.swift"; sourceTree = "<group>"; };
 		F667FCD7200604570014DA7D /* Enablable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Enablable.swift; path = Flow/Enablable.swift; sourceTree = "<group>"; };
+		F66835CE2091B887002D2676 /* UIView+EditingMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIView+EditingMenu.swift"; path = "Flow/UIView+EditingMenu.swift"; sourceTree = "<group>"; };
+		F66835D32091C29C002D2676 /* UIViewSignalTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UIViewSignalTests.swift; path = FlowTests/UIViewSignalTests.swift; sourceTree = "<group>"; };
 		F66C47A620077B2500333410 /* Signal+Combiners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Signal+Combiners.swift"; path = "Flow/Signal+Combiners.swift"; sourceTree = "<group>"; };
 		F66C47A820077BC700333410 /* Signal+Listeners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Signal+Listeners.swift"; path = "Flow/Signal+Listeners.swift"; sourceTree = "<group>"; };
 		F67C4797206CDDCC00BEBDFD /* FiniteSignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FiniteSignal.swift; path = Flow/FiniteSignal.swift; sourceTree = "<group>"; };
@@ -124,9 +130,11 @@
 		F6C2E60E1C6A0E2C00453548 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F6D80B591BBBB2ED008F8574 /* Flow.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Flow.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6D80B631BBBB2ED008F8574 /* FlowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6E752302099B60A0092EDAA /* HasEventListeners.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HasEventListeners.swift; path = Flow/HasEventListeners.swift; sourceTree = "<group>"; };
 		F6EDC6DF2066BD39007AC39B /* LifetimeManagement.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = LifetimeManagement.md; sourceTree = "<group>"; };
 		F6EDC6E02066BD39007AC39B /* Signals.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Signals.md; sourceTree = "<group>"; };
 		F6EDC6E12066BD39007AC39B /* Futures.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Futures.md; sourceTree = "<group>"; };
+		F6F679A220A966D1004C7AA7 /* EventListenerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EventListenerTests.swift; path = FlowTests/EventListenerTests.swift; sourceTree = "<group>"; };
 		F6FF03D41D926AC300B93771 /* Callbacker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Callbacker.swift; path = Flow/Callbacker.swift; sourceTree = "<group>"; };
 		F6FF03D51D926AC300B93771 /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Disposable.swift; path = Flow/Disposable.swift; sourceTree = "<group>"; };
 		F6FF03D81D926AC300B93771 /* Signal+Transforms.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Signal+Transforms.swift"; path = "Flow/Signal+Transforms.swift"; sourceTree = "<group>"; };
@@ -202,10 +210,12 @@
 		F6AD20551E2FB4F70082CF27 /* Signal+UI */ = {
 			isa = PBXGroup;
 			children = (
-				F667FCD7200604570014DA7D /* Enablable.swift */,
-				F6FF03DB1D926AC300B93771 /* TargetActionable.swift */,
 				F6AD20561E2FB5320082CF27 /* UIControls+Extensions.swift */,
 				F68EF3541FD58FD20001129C /* UIView+Signal.swift */,
+				F66835CE2091B887002D2676 /* UIView+EditingMenu.swift */,
+				F667FCD7200604570014DA7D /* Enablable.swift */,
+				F6FF03DB1D926AC300B93771 /* TargetActionable.swift */,
+				F6E752302099B60A0092EDAA /* HasEventListeners.swift */,
 			);
 			name = "Signal+UI";
 			sourceTree = "<group>";
@@ -272,6 +282,8 @@
 				F610ABBB1D91747000A161AB /* MultipleContinuationsTests.swift */,
 				215DEF351DEC367E00CEB724 /* RecursiveTests.swift */,
 				F6C0FED1202B44360076B877 /* DelegateTests.swift */,
+				F66835D32091C29C002D2676 /* UIViewSignalTests.swift */,
+				F6F679A220A966D1004C7AA7 /* EventListenerTests.swift */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -406,6 +418,7 @@
 				F610ABB01D91743500A161AB /* FutureQueue.swift in Sources */,
 				21E1D41C1D9502A300A91CA0 /* Future+Signal.swift in Sources */,
 				215DEF311DEC365900CEB724 /* Recursive.swift in Sources */,
+				F6E752312099B60A0092EDAA /* HasEventListeners.swift in Sources */,
 				F610ABAE1D91743500A161AB /* Future+Additions.swift in Sources */,
 				F68EF3571FD590110001129C /* SignalProvider.swift in Sources */,
 				F6B57E891E30B01700703CA7 /* OrderedCallbacker.swift in Sources */,
@@ -432,6 +445,7 @@
 				F66C47A920077BC700333410 /* Signal+Listeners.swift in Sources */,
 				F64E975F201888EB00865380 /* Future+Combiners.swift in Sources */,
 				F6714C711F25E97600C96931 /* Future.swift in Sources */,
+				F66835CF2091B887002D2676 /* UIView+EditingMenu.swift in Sources */,
 				F6FF03E51D926AC300B93771 /* TargetActionable.swift in Sources */,
 				F699C483205C1A5C001378C0 /* Signal+Utilities.swift in Sources */,
 				F667FCD8200604570014DA7D /* Enablable.swift in Sources */,
@@ -455,7 +469,9 @@
 				F610ABBE1D91747000A161AB /* FutureRepeatTests.swift in Sources */,
 				F610ABC01D91747000A161AB /* FutureSplitTests.swift in Sources */,
 				215DEF371DEC368700CEB724 /* RecursiveTests.swift in Sources */,
+				F66835D42091C29C002D2676 /* UIViewSignalTests.swift in Sources */,
 				F6C0FED2202B44360076B877 /* DelegateTests.swift in Sources */,
+				F6F679A320A966D1004C7AA7 /* EventListenerTests.swift in Sources */,
 				F610ABBD1D91747000A161AB /* FutureQueueTests.swift in Sources */,
 				F610ABC11D91747000A161AB /* FutureUtilitiesTests.swift in Sources */,
 			);

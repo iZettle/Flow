@@ -30,7 +30,7 @@ public extension SignalProvider where Self: TargetActionable {
             action = TargetAction.selector
         }
         
-        (self as? AutoEnablable&HasEventListeners)?.updateAutomaticEnabling()
+        (self as? AutoEnablable & HasEventListeners)?.updateAutomaticEnabling()
         
         return Signal { callback in
             let d = targetAction.addCallback(callback)
@@ -39,7 +39,7 @@ public extension SignalProvider where Self: TargetActionable {
                 if targetAction.callbacker.isEmpty {
                     self.target = nil
                     self.action = nil
-                    (self as? AutoEnablable&HasEventListeners)?.updateAutomaticEnabling()
+                    (self as? AutoEnablable & HasEventListeners)?.updateAutomaticEnabling()
                 }
             }
         }.readable()

@@ -5,9 +5,4 @@ target 'Example' do
 
   pod 'FlowFramework', :path => '../..'
 
-  target 'ExampleTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
 end

@@ -1,6 +1,4 @@
-<p align="center">
-<img src="https://github.com/iZettle/Flow/blob/master/flow-logo.png?raw=true" width="140px" />
-</p>
+<img src="https://github.com/iZettle/Flow/blob/master/flow-logo.png?raw=true" height="140px" />
 
 [![Build Status](https://travis-ci.org/iZettle/Flow.svg?branch=master)](https://travis-ci.org/iZettle/Flow)
 [![Platforms](https://img.shields.io/badge/platform-%20iOS%20|%20macOS%20|%20tvOS%20|%20linux-gray.svg)](https://img.shields.io/badge/platform-%20iOS%20|%20macOS%20|%20tvOS%20|%20linux-gray.svg)
@@ -147,6 +145,15 @@ Introductions to the main areas of Flow can be found at:
 - [Asynchronous operations](Documentation/Futures.md)
 
 To learn even more about available functionality you are encouraged to explore the source files that are extensively documented. Code-completion should also help you to discover many of the transformations available on signals and futures. 
+
+## Learn more
+
+To learn more about the design behind Flow's APIs we recommend reading the following articles. They go more into depth about why Flow's types and APIs look and behave the way they do and give you some insights into how they are implemented:
+
+- [Introducing Flow](https://medium.com/izettle-engineering/introducing-flow-42de51988aea)
+- [Deriving Signals](https://medium.com/izettle-engineering/deriving-signal-2adb8687e9bf)
+- [Deriving Future](https://medium.com/izettle-engineering/deriving-future-607aea9abdee)
+- [Expanding on Signals](https://medium.com/izettle-engineering/expanding-on-signals-ad25daee4d64)
 
 ## Requirements
 
