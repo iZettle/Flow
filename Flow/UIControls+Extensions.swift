@@ -166,12 +166,14 @@ public extension UIView {
 public extension UITextField {
     /// Delegate for asking if editing should stop in the specified text field
     /// - See: UITextFieldDelegate.textFieldShouldEndEditing()
+    /// - Note: Any currently set delegate will be overridden, unless the delegate was set by `shouldEndEditing` or `shouldReturn`.
     var shouldEndEditing: Delegate<String, Bool> {
         return Delegate { c in self.usingDelegate { $0.shouldEndEditing.set(c) } }
     }
     
     /// Delegate for asking whether the text field should process the pressing of the return button
     /// - See: UITextFieldDelegate.textFieldShouldReturn()
+    /// - Note: Any currently set delegate will be overridden, unless the delegate was set by `shouldEndEditing` or `shouldReturn`.
     var shouldReturn: Delegate<String, Bool> {
         return Delegate { c in self.usingDelegate { $0.shouldReturn.set(c) } }
     }
