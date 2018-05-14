@@ -17,6 +17,7 @@ Usage: sh $0 command
 
   iOS           Build iOS framework
   native		Build using `swift build`
+  examples      Build examples
   clean         Clean up all un-neccesary files
 
   [Testing]
