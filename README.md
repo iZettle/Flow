@@ -1,4 +1,4 @@
-<img src="https://github.com/iZettle/Presentation/blob/master/flow-logo.png?raw=true" height="140px" />
+<img src="https://github.com/iZettle/Flow/blob/master/flow-logo.png?raw=true" height="140px" />
 
 [![Build Status](https://travis-ci.org/iZettle/Flow.svg?branch=master)](https://travis-ci.org/iZettle/Flow)
 [![Platforms](https://img.shields.io/badge/platform-%20iOS%20|%20macOS%20|%20tvOS%20|%20linux-gray.svg)](https://img.shields.io/badge/platform-%20iOS%20|%20macOS%20|%20tvOS%20|%20linux-gray.svg)
