@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// Options used to customize the behaviours of constructed signals.
 public struct SignalOptions: OptionSet {
     public let rawValue: Int
@@ -27,7 +26,7 @@ public extension SignalOptions {
     /// Shared signals are useful when the work performed when registering a callback is relatively expensive.
     /// If the work performed when registering a callback is trivial, it might be more efficient to not setup the signal to be shared.
     static let shared = SignalOptions(rawValue: 1<<0)
-    
+
     /// Defaults to `[ .shared ]`
     static let `default`: SignalOptions = [ .shared ]
 }
@@ -109,13 +108,13 @@ private final class CallbackState<Value>: Disposable {
     var getValue: (() -> Value)?
     private var exclusiveCount = 0
     private var eventQueue = [Event<Value>]()
-    
+
     private var shared: SharedState<Value>?
     let sharedKey: Key
 
     private var _mutex = pthread_mutex_t()
     private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
-    
+
     init(shared: SharedState<Value>? = nil, getValue: (() -> Value)?, callback: @escaping (EventType<Value>) -> Void) {
         self.shared = shared
         self.sharedKey = shared == nil ? 0 : generateKey()
@@ -128,15 +127,15 @@ private final class CallbackState<Value>: Disposable {
         mutex.deinitialize()
         shared?.remove(key: sharedKey)
     }
-    
+
     func lock() {
         mutex.lock()
     }
-    
+
     func unlock() {
         mutex.unlock()
     }
-    
+
     // For efficiency `Self` could also also behave as a `NoLockKeyDisposer``, saving us an allocation for each listener.
     func dispose() {
         lock()
@@ -148,7 +147,7 @@ private final class CallbackState<Value>: Disposable {
                 shared.remove(key: sharedKey)
                 return
             }
-            
+
             self.shared = nil
              // Release references, as we might be a disposable that outlives the signal
             getValue = nil
@@ -170,10 +169,10 @@ private final class CallbackState<Value>: Disposable {
             if case .end = event {
                 hasTerminated = true
             }
-            
+
             /// If we get immediate events before completing the `onEvent` call, make sure to inject the initial value before the first event.
             shouldCallInitial = false
-            
+
             beginExclusivity()
             let getValue = self.getValue
             unlock()
@@ -190,10 +189,10 @@ private final class CallbackState<Value>: Disposable {
             eventQueue.append(event)
             unlock()
         }
-        
+
         endExclusivity()
     }
-    
+
     private func call(with event: Event<Value>) {
         if let shared = shared {
             if case .value(let value) = event, getValue != nil {
@@ -206,17 +205,17 @@ private final class CallbackState<Value>: Disposable {
             guard let callback = callback else { // No already diposed?
                 return unlock()
             }
-            
+
             unlock()
 
             callback(.event(event))
         }
-        
+
         if case .end = event {
             dispose()
         }
     }
-    
+
     func runExclusiveWithState(onEvent: @escaping (@escaping (Event<Value>) -> Void) -> Disposable) -> Disposable {
         guard let callback = callback else {
             return NilDisposer()
@@ -224,23 +223,23 @@ private final class CallbackState<Value>: Disposable {
         shared?.lock()
 
         let disposable: Disposable
-        
+
         // If shared and we already have listener we shuold not skip listening.
         if shared?.firstCallback == nil {
             shared?.firstCallback = (sharedKey, callback)
             shared?.unlock()
 
-            let d = onEvent(handleEventExclusiveWithState)
-            
+            let onEventDisposable = onEvent(handleEventExclusiveWithState)
+
             if let shared = shared {
                 shared.lock()
-                shared.disposable = d
+                shared.disposable = onEventDisposable
                 shared.unlock()
                 disposable = self
             } else {
-                disposable = d
+                disposable = onEventDisposable
             }
-            
+
             if hasTerminated { // If terminated before returning from `onEvent`, make sure to dispose().
                 unlock()
                 disposable.dispose()
@@ -263,20 +262,20 @@ private final class CallbackState<Value>: Disposable {
         } else {
             fatalError("We could impossibly end up here")
         }
-        
+
         return disposable
     }
-    
+
     var isImmediate: Bool {
         return exclusiveCount <= 1
     }
-    
+
     private func releaseQueue() {
         guard exclusiveCount == 0, !eventQueue.isEmpty else { return unlock() }
-        
+
         let events = eventQueue
         eventQueue = []
-        
+
         exclusiveCount += 1
         unlock()
         for event in events {
@@ -284,15 +283,15 @@ private final class CallbackState<Value>: Disposable {
         }
         lock()
         exclusiveCount -= 1
-        
+
         // While releasing, more might have been queued up, so make sure to release those as well.
         releaseQueue()
     }
-    
+
     func beginExclusivity() {
         exclusiveCount += 1
     }
-    
+
     func endExclusivity() {
         lock()
         exclusiveCount -= 1
@@ -307,24 +306,24 @@ final class SharedState<Value> {
     private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
 
     typealias Callback = (EventType<Value>) -> Void
-    var firstCallback: (key: Key, value: Callback)? = nil
+    var firstCallback: (key: Key, value: Callback)?
     var remainingCallbacks = [Key: Callback]()
-    var lastReceivedValue: Value? = nil
+    var lastReceivedValue: Value?
     var disposable: Disposable?
 
     init(getValue: (() -> Value)? = nil) {
         self.getValue = getValue
         mutex.initialize()
     }
-    
+
     deinit {
         mutex.deinitialize()
     }
-    
+
     func lock() {
         mutex.lock()
     }
-    
+
     func unlock() {
         mutex.unlock()
     }
@@ -337,11 +336,11 @@ final class SharedState<Value> {
                 remainingCallbacks[key] = nil
                 unlock()
             } else {
-                let d = disposable
+                let disosable = self.disposable
                 lastReceivedValue = nil
-                disposable = nil
+                self.disposable = nil
                 unlock()
-                d?.dispose()
+                disosable?.dispose()
             }
         } else {
             remainingCallbacks[key] = nil
@@ -352,16 +351,16 @@ final class SharedState<Value> {
     var initial: Value? {
         guard let getValue = getValue else { return nil }
         lock()
-        
+
         if let last = lastReceivedValue {
             unlock()
             return last
         }
-        
+
         unlock()
         let value = getValue() // Don't hold lock while calling out.
         lock()
-        
+
         defer {
             unlock()
         }
@@ -381,19 +380,18 @@ final class SharedState<Value> {
         let callbacks = self.remainingCallbacks
         unlock()
 
-        if let (key, c) = first {
+        if let (key, callback) = first {
             if case .event(.end) = eventType {
                 remove(key: key)
             }
-            c(eventType)
+            callback(eventType)
         }
 
-        for (key, c) in callbacks {
+        for (key, callback) in callbacks {
             if case .event(.end) = eventType {
                 remove(key: key)
             }
-            c(eventType)
+            callback(eventType)
         }
     }
 }
-

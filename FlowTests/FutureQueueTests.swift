@@ -9,7 +9,6 @@
 import XCTest
 import Flow
 
-
 class FutureQueueTests: FutureTest {
     func testSimpleQueue() {
         testQueue { queue in
@@ -45,12 +44,11 @@ class FutureQueueTests: FutureTest {
         testQueueResult([1], timeout: 1.5, allDoneDelay: 1) { (queue, add) -> Future<()> in
             queue.enqueueValue(1, delay: 0.01).onValue(add)
             Scheduler.main.async(after: 0.7) { queue.abortQueuedOperations(with: TestError.fatal, shouldCloseQueue: true) }
-            Scheduler.main.async(after: 0.9) { queue.enqueueValue(2, assertValue:false).onValue(add).assertError() }
+            Scheduler.main.async(after: 0.9) { queue.enqueueValue(2, assertValue: false).onValue(add).assertError() }
             return queue.didBecomeEmpty.future.delay(by: 1.2)
         }
     }
 
-    
     func testQueueAsync() {
         testQueueResult([1, 2], timeout: 1.5, allDoneDelay: 1) { (queue, add) -> Future<()> in
             Scheduler.main.async(after: 0.1) { print("A"); queue.enqueue { Future(1, delay: 0.2).onValue(add) } }
@@ -58,8 +56,7 @@ class FutureQueueTests: FutureTest {
             return queue.didBecomeEmpty.future.always { print("End") }
         }
     }
-    
-    
+
     func testBatchQueue() {
         testQueue { queue in
             join(
@@ -139,9 +136,9 @@ class FutureQueueTests: FutureTest {
                         print(values.count)
                     }
                 }
-                
+
             }
-            
+
             return queue.didBecomeEmpty.future.onValue {
                 XCTAssertEqual(maxConcurrentCount, 5)
                 XCTAssertEqual(concurrentCount, 0)
@@ -172,14 +169,14 @@ class FutureQueueTests: FutureTest {
                         concurrentCount -= 1
                     }
                 }
-                
+
                 if i % 2 == 0 {
                     f.cancel()
                 }
-                
+
                 sync.value = true
             }
-            
+
             return queue.didBecomeEmpty.future.onValue {
                 XCTAssertEqual(maxConcurrentCount, 5)
                 XCTAssertEqual(concurrentCount, 0)
@@ -188,11 +185,11 @@ class FutureQueueTests: FutureTest {
             }
         }
     }
-    
+
     func recursive(repeatCount: Int) -> Future<()> {
         return Future().delay(by: 0.1).always(printAliveCounts).flatMap { repeatCount == 0 ? Future() : self.recursive(repeatCount: repeatCount-1) }
     }
-    
+
     func testRecursive() {
         testFuture(timeout: 1) {
             recursive(repeatCount: 4)

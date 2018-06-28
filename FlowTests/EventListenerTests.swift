@@ -17,19 +17,18 @@ class EventListenerTests: XCTestCase {
             l.hasEventListeners = $1
             return l
         }
-        
+
         XCTAssertEqual(listeners.map { $0.isEnabled }, [false, true, false, true])
-        
+
         let d = listeners.disableActiveEventListeners()
 
         XCTAssertEqual(listeners.map { $0.isEnabled }, [false, true, false, false])
-        
+
         d.dispose()
 
         XCTAssertEqual(listeners.map { $0.isEnabled }, [false, true, false, true])
     }
 }
-
 
 class Listener: HasEventListeners, Enablable {
     var isEnabled = false
@@ -39,4 +38,3 @@ class Listener: HasEventListeners, Enablable {
 extension Array: HasEnablableEventListeners where Element: HasEventListeners & Enablable {
     public var enablableEventListeners: [Enablable & HasEventListeners] { return self }
 }
-

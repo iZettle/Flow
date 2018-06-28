@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// A value indicating either a `left` or a `right` value.
 public enum Either<Left, Right> {
     case left(Left)
@@ -19,8 +18,8 @@ public extension Either {
     /// Returns the left value if available, otherwise nil
     var left: Left? {
         get {
-            guard case .left(let l) = self else { return nil }
-            return l
+            guard case .left(let left) = self else { return nil }
+            return left
         }
         set {
             guard let val = newValue else {
@@ -29,12 +28,12 @@ public extension Either {
             self = .left(val)
         }
     }
-    
+
     /// Returns the left value if available, otherwise nil
     var right: Right? {
         get {
-            guard case .right(let r) = self else { return nil }
-            return r
+            guard case .right(let right) = self else { return nil }
+            return right
         }
         set {
             guard let val = newValue else {
@@ -49,16 +48,29 @@ public extension Either where Left == Right {
     /// Returns a new instance where either the left or right value will be transform using `transform`.
     func map<T>(transform: (Left) -> T) -> Either<T, T> {
         switch self {
-        case let .left(v): return .left(transform(v))
-        case let .right(v): return .right(transform(v))
+        case .left(let left): return .left(transform(left))
+        case .right(let right): return .right(transform(right))
         }
     }
-    
+
     /// Returns either left or right.
     var any: Left {
         switch self {
-        case let .left(v): return v
-        case let .right(v): return v
+        case .left(let left): return left
+        case .right(let right): return right
+        }
+    }
+}
+
+extension Either: Equatable where Left: Equatable, Right: Equatable {
+    public static func == (lhs: Either, rhs: Either) -> Bool {
+        switch (lhs, rhs) {
+        case (.right(let left), .right(let right)):
+            return left == right
+        case (.left(let left), .left(let right)):
+            return left == right
+        default:
+            return false
         }
     }
 }

@@ -14,40 +14,40 @@ class SignalTests: XCTestCase {
         let notificationName = "TestNotification"
         let bag = DisposeBag()
         let signal = NotificationCenter.default.signal(forName: NSNotification.Name(rawValue: notificationName))
-        
+
         let expectation = self.expectation(description: "Signal notification")
-        
+
         bag += signal.onValue { _ in
             expectation.fulfill()
         }
-        
+
         NotificationCenter.default.post(name: Notification.Name(rawValue: notificationName), object: nil)
-        
+
         waitForExpectations(timeout: 10) { error in
             bag.dispose()
         }
     }
-    
+
     func testSequenceTypeSignal() {
         let a = [1, 2, 3, 4, 5, 6]
         var b = [Int]()
-        
+
         let bag = DisposeBag()
-        
+
         let expectation = self.expectation(description: "Signal sent sequence")
         let signal = a.signal()
-        
+
         bag += signal.onValue { v in
             b.append(v)
-            
+
             if a == b { expectation.fulfill() }
         }
-        
+
         waitForExpectations(timeout: 10) { _ in
             bag.dispose()
         }
     }
-    
+
     func testSignalDelay() {
         let e = self.expectation(description: "after delay")
 
@@ -58,7 +58,7 @@ class SignalTests: XCTestCase {
                 e.fulfill()
             }
         }
-        
+
         waitForExpectations(timeout: 1) { error in
             bag.dispose()
         }

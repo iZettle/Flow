@@ -23,12 +23,11 @@ public extension NotificationCenter {
 public extension Sequence {
     /// Returns a signal that will immedialty signals all `self`'s elements and then terminate.
     func signal() -> FiniteSignal<Iterator.Element> {
-        return FiniteSignal(onEventType: { c in
-            c(.initial(nil))
-            self.forEach { c(.event(.value($0))) }
-            c(.event(.end))
+        return FiniteSignal(onEventType: { callback in
+            callback(.initial(nil))
+            self.forEach { callback(.event(.value($0))) }
+            callback(.event(.end))
             return NilDisposer()
         })
     }
 }
-

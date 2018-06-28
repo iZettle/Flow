@@ -10,17 +10,17 @@ import Foundation
 
 // Generate a new key
 func generateKey() -> Key {
-    _nextKeyMutex.lock()
-    defer { _nextKeyMutex.unlock() }
-    _nextKey = _nextKey &+ 1
-    return _nextKey
+    nextKeyMutex.lock()
+    defer { nextKeyMutex.unlock() }
+    nextKey = nextKey &+ 1
+    return nextKey
 }
 
 typealias Key = UInt64
-private var _nextKey: Key = 0
-private var __nextKeyMutex = pthread_mutex_t()
-private var _nextKeyMutex: PThreadMutex = {
-    let m = PThreadMutex(&__nextKeyMutex)
-    m.initialize()
-    return m
+private var nextKey: Key = 0
+private var nextRawKeyMutex = pthread_mutex_t()
+private var nextKeyMutex: PThreadMutex = {
+    let mutex = PThreadMutex(&nextRawKeyMutex)
+    mutex.initialize()
+    return mutex
 }()

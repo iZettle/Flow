@@ -1,6 +1,6 @@
-# 1.0
+# 1.2
 
-This is the first public release of the Flow library.
+- Added `NSManagedObjectContext.scheduler` property for scheduling work on managed object contexts when CoreData is available.
 
 # 1.1
 
@@ -12,3 +12,8 @@ This is the first public release of the Flow library.
 - Added `orientationSignal`  that  will signal on orientation changes.
 - Added `UIRefreshControl`  `animate()` and `refersh()` helpers.
 - Added `disableActiveEventListeners()` helper
+
+# 1.0
+
+This is the first public release of the Flow library.
+

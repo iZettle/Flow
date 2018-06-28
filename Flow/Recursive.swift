@@ -21,28 +21,26 @@ import Foundation
 ///     let fact: (Int) -> Int = recursive { n, fact in
 ///       return n > 1 ? n*(fact(n - 1) ?? 0) : 1
 ///     }
-public func recursive<A, R>(_ f: @escaping (A,  @escaping (A) -> R?) -> R) -> (A) -> R {
-    let r = Recursive(f)
-    return { a in r.function(a) }
+public func recursive<A, R>(_ recursiveFunction: @escaping (A, @escaping (A) -> R?) -> R) -> (A) -> R {
+    let recursive = Recursive(recursiveFunction)
+    return { argument in recursive.function(argument) }
 }
 
-public func recursive<R>(_ f: @escaping (@escaping () -> R?) -> R) -> () -> R {
-    let r = Recursive<(), R> { _, r in
-        f(r)
+public func recursive<R>(_ recursiveFunction: @escaping (@escaping () -> R?) -> R) -> () -> R {
+    let recursive = Recursive<(), R> { _, function in
+        recursiveFunction(function)
     }
-    return { r.function(()) }
+    return { recursive.function(()) }
 }
 
 private final class Recursive<A, R> {
     fileprivate var function: ((A) -> R)!
-    
-    init(_ f: @escaping (A, @escaping (A) -> R?) -> R) {
-        self.function = { [weak self] a in
-            return f(a, { a in
-                self?.function(a)
+
+    init(_ recursiveFunction: @escaping (A, @escaping (A) -> R?) -> R) {
+        self.function = { [weak self] argument in
+            return recursiveFunction(argument, { argument in
+                self?.function(argument)
             })
         }
     }
 }
-
-

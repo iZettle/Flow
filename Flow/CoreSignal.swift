@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// Used to share functionality and implementations between the four kinds of signals, `Signal`, `ReadSignal`, `ReadWriteSignal` and `FiniteSignal`.
 ///
 ///     typealias Signal<Value> = CoreSignal<Plain, Value>
@@ -21,7 +20,7 @@ import Foundation
 /// allow sharing of implemtenations.
 public final class CoreSignal<Kind: SignalKind, Value> {
     internal let onEventType: (@escaping (EventType) -> Void) -> Disposable
-    
+
     public typealias Event = Flow.Event<Value>
     typealias EventType = Flow.EventType<Value>
 

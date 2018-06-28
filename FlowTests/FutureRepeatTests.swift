@@ -19,16 +19,16 @@ class FutureRepeatTests: FutureTest {
     func testRepeat() {
         testFuture(repeatCount: 0) { () -> Future<[Int]> in
             var initial = 1
-            let initialFuture = Future<Int> { c in
-                c(.success(initial));
-                initial += 1;
+            let initialFuture = Future<Int> { completion in
+                completion(.success(initial))
+                initial += 1
                 return NilDisposer()
             }
-            
+
             let f = initialFuture.map { v in
                 v * 5
             }
-            
+
             return f.repeatAndCollect(repeatCount: 3).assertValue([1, 2, 3, 4].map { $0*5 })
         }
     }
@@ -42,7 +42,7 @@ class FutureRepeatTests: FutureTest {
             return Future { sum1 += 1 }.flatMap {
                 Future().onValue { sum2 += 1 }
             }.flatMap { _ -> Future<()>  in
-                Future { c in sum3 += 1; c(.success); return NilDisposer() }
+                Future { completion in sum3 += 1; completion(.success); return NilDisposer() }
             }.repeatAndCollect(repeatCount: 3).onValue { _ in
                 XCTAssertEqual(sum1, 4)
                 XCTAssertEqual(sum2, 4)
@@ -57,25 +57,25 @@ class FutureRepeatTests: FutureTest {
             let e = expectation(description: "Sums up")
             var sum1 = 0
             return Future().flatMap {
-                Future { c in
-                    sum1 += 1;
-                    print(sum1);
-                    c(.success);
+                Future { completion in
+                    sum1 += 1
+                    print(sum1)
+                    completion(.success)
                     return NilDisposer()
                 }.map { }
-                
+
                 }.repeatAndCollect(repeatCount: 3).onValue { _ in
                     XCTAssertEqual(sum1, 4)
                     e.fulfill()
                 }.toVoid()
         }
     }
-    
+
 //    func testRepeatCountToCrash() {
 //        _ = expectationWithDescription("Sums up")
 //        var sum1 = 0
 //        Future().flatMap {
-//            Future { c in sum1 += 1; print(sum1); c(.success()); return {} }.map { }
+//            Future { completion in sum1 += 1; print(sum1); completion(.success()); return {} }.map { }
 //        }.repeatCount(3)
 //    }
 
@@ -88,7 +88,7 @@ class FutureRepeatTests: FutureTest {
             return Future().delay(by: 0.1).map { sum1 += 1 }.flatMap {
                 Future().delay(by: 0.1).onValue { sum2 += 1 }
                 }.flatMap { _ -> Future<()>  in
-                    Future { c in sum3 += 1; c(.success); return NilDisposer() }.delay(by: 0.1)
+                    Future { completion in sum3 += 1; completion(.success); return NilDisposer() }.delay(by: 0.1)
                 }.repeatAndCollect(repeatCount: 3).onValue { _ in
                     XCTAssertEqual(sum1, 4)
                     XCTAssertEqual(sum2, 4)
@@ -97,7 +97,7 @@ class FutureRepeatTests: FutureTest {
                 }.toVoid()
         }
     }
-    
+
     func testRepeatCountDelayShort() {
         testFuture(timeout: 5) { () -> Future<()> in
             return Future().delay(by: 0.1).repeatAndCollect(repeatCount: 3).onValue {
@@ -105,19 +105,21 @@ class FutureRepeatTests: FutureTest {
             }.toVoid()
         }
     }
-    
+
     func testRepeatCollect() {
         testFuture(repeatCount: 0) { () -> Future<[Int]> in
             var result = [Int]()
             var initial = 1
-            let initialFuture = Future<Int> { c in c(.success(initial)); initial += 1; return NilDisposer() }
+            let initialFuture = Future<Int> { completion in
+                completion(.success(initial)); initial += 1; return NilDisposer()
+            }
             var initial2 = 1
             let f = initialFuture.map { v in v * 2 }.map { v in initial2 += 1; print("initial2", initial2); return v * initial2 }.onValue { result.append($0) }
-            
+
             return f.repeatAndCollect(repeatCount: 3).assertValue([4, 12, 24, 40])
         }
     }
-    
+
     func testRepeatRepeat() {
         testFuture { () -> Future<()> in
             var count = 0
@@ -128,8 +130,7 @@ class FutureRepeatTests: FutureTest {
             }.toVoid()
         }
     }
-    
-    
+
     func testRepeatForeverStackOverflowMain() {
         testFuture(timeout: 2, allDoneDelay: 2, cancelAfterDelay: 0.3) { () -> Future<Int> in
             var cancelResult = 1
@@ -143,22 +144,22 @@ class FutureRepeatTests: FutureTest {
                 }.onCancel {
                     print("b"); cancelResult += 10
                 }.onResultRepeat().always {
-                    e.fulfill();
-                    print("c");
+                    e.fulfill()
+                    print("c")
                     XCTAssertEqual(cancelResult, 20)
             }
-            
+
             return f
         }
     }
-    
+
     func testRepeatForeverDelayStackOverflowMainDelay() {
         testFuture(repeatCount: 0, timeout: 2, allDoneDelay: 2, cancelAfterDelay: 0.1) { () -> Future<Int> in
             let f = Future(1).delay(by: 0.01).onResultRepeat()
             return f
         }
     }
-    
+
     // Not sure it we can always catch up?
     // With new immediate repeat handling this one will never come past repeatForever()
     func _testRepeatForeverDelayStackOverflowMain() {
@@ -167,14 +168,14 @@ class FutureRepeatTests: FutureTest {
             return f
         }
     }
-    
+
     func testRepeatForeverStackOverflowBackgroundDelay() {
         testFuture(repeatCount: 0, timeout: 2, allDoneDelay: 2, cancelAfterDelay: 0.1) { () -> Future<Int> in
             let f = Future(1).onValue(on: .concurrentBackground) { _ in }.delay(by: 0.01).onResultRepeat()
             return f
         }
     }
-    
+
     // cancel seems to never be able to catch up
     func _testRepeatForeverStackOverflowBackground() {
         testFuture(repeatCount: 0, timeout: 2, allDoneDelay: 20, cancelAfterDelay: 0.1) { () -> Future<Int> in
@@ -182,13 +183,12 @@ class FutureRepeatTests: FutureTest {
             return f
         }
     }
-    
+
     func testRepeatStackOverflow() {
         testFuture(timeout: 20, allDoneDelay: 20) { () -> Future<[Int]> in
             Future(1).repeatAndCollect(repeatCount: 1000).assertValue(Array<Int>(repeating: 1, count: 1001))
         }
     }
-
 
     func testRepeatOnValueCloning() {
         testFuture { () -> Future<[Int]> in
@@ -197,26 +197,26 @@ class FutureRepeatTests: FutureTest {
             return Future(1).onValue { _ in print(count); count += 1 }.repeatAndCollect(repeatCount: repeatCount-1).always { XCTAssertEqual(count, repeatCount) }.assertValue(Array(repeating: 1, count: repeatCount))
         }
     }
-    
+
     func testRepeatInitialScheduled() {
         testFuture(timeout: 5) { () -> Future<[Int]> in
             var count = 0
             let repeatCount = 10
-            let f = Future<Int>(on: .concurrentBackground) { c in
-                XCTAssertFalse(isMain, "Not on background queue");
-                c(.success(1));
+            let f = Future<Int>(on: .concurrentBackground) { completion in
+                XCTAssertFalse(isMain, "Not on background queue")
+                completion(.success(1))
                 return NilDisposer()
             }
             return f.onValue { _ in
                 assertMain()
-                print(count);
+                print(count)
                 count += 1
             }.repeatAndCollect(repeatCount: repeatCount-1).always {
                 XCTAssertEqual(count, repeatCount)
             }.assertMain().assertValue(Array(repeating: 1, count: repeatCount))
         }
     }
-    
+
     func testRepeatAll() {
         testFuture(timeout: 1, allDoneDelay: 2) { () -> Future<[(Int, Int)]> in
             var count = 0
@@ -233,21 +233,20 @@ class FutureRepeatTests: FutureTest {
         }
     }
 
-    
     func testRepeatWithSubFutures() {
         testFuture(timeout: 15, allDoneDelay: 2) { () -> Future<[()]> in
             var count = 0
             return Future(1).delay(by: 0.01).flatMap { _ -> Future<()> in
-                Future { c in
+                Future { completion in
                     Future().delay(by: 0.01).onValue { count += 1 }
                     Future().onValue { count += 1 }
-                    c(.success)
+                    completion(.success)
                     return NilDisposer()
                 }
             }.delay(by: 0.01).repeatAndCollect(repeatCount: 9).delay(by: 2).always { XCTAssertEqual(count, 20) }
         }
     }
-    
+
     func testRepeatWithDelay() {
         testFuture(timeout: 5) { () -> Future<()> in
             let e = expectation(description: "Sums up")
@@ -280,7 +279,7 @@ class FutureRepeatTests: FutureTest {
             }
         }
     }
-    
+
     func testRepeatAbortExternal() {
         testFuture(timeout: 5) { () -> Future<Int> in
             let internalFuture = Future(5).delay(by: 0.1)
@@ -288,11 +287,10 @@ class FutureRepeatTests: FutureTest {
                 XCTAssertFalse(true)
                 return true
             }
-            
+
             externalFuture.cancel()
-            
+
             return externalFuture.assertError()
         }
     }
 }
-

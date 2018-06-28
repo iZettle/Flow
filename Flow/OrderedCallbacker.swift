@@ -13,14 +13,14 @@ import Foundation
 /// Use `addCallback` to register a new callback and orderedValue, and dispose the returned `Disposable` to unregister.
 /// - Note: Is thread safe.
 public final class OrderedCallbacker<OrderedValue, CallbackValue> {
-    private var callbacks: [Key : (OrderedValue, (CallbackValue) -> Future<()>)] = [:]
+    private var callbacks: [Key: (OrderedValue, (CallbackValue) -> Future<()>)] = [:]
     private var _mutex = pthread_mutex_t()
     private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
-    
+
     public init() {
         mutex.initialize()
     }
-    
+
     deinit {
         mutex.deinitialize()
     }
@@ -43,7 +43,7 @@ public final class OrderedCallbacker<OrderedValue, CallbackValue> {
             }
         }
     }
-    
+
     /// Will call all registered callbacks with `value` in the order set by `isOrderedBefore`
     /// - Returns: A `Future` that will complete when all callbacks has been called.
     @discardableResult
@@ -59,7 +59,7 @@ public extension OrderedCallbacker {
     /// - Parameter orderedValue: The value used to order this callback
     /// - Returns: A `Disposable` to be disposed to unregister the callback.
     func addCallback(_ callback: @escaping (CallbackValue) -> Void, orderedBy orderedValue: OrderedValue) -> Disposable {
-        return addCallback({ v -> Future<()> in callback(v); return Future() }, orderedBy: orderedValue)
+        return addCallback({ value -> Future<()> in callback(value); return Future() }, orderedBy: orderedValue)
     }
 }
 
@@ -71,5 +71,3 @@ public extension OrderedCallbacker where OrderedValue: Comparable {
         return callAll(with: value, isOrderedBefore: <)
     }
 }
-
-

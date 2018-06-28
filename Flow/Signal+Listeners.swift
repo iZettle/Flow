@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 public extension SignalProvider {
     /// Start listening on values via the provided `callback`.
     /// - Returns: A disposable that will stop listening on values when being disposed.
@@ -18,7 +17,7 @@ public extension SignalProvider {
             callback(val)
         }
     }
-    
+
     /// Start listening on values via the provided `callback` and dispose the disposable previously returned from the `callback` when a new value is signaled.
     /// - Returns: A disposable that will stop listening on values when being disposed.
     func onValueDisposePrevious(on scheduler: Scheduler = .current, _ callback: @escaping (Value) -> Disposable?) -> Disposable {
@@ -41,13 +40,13 @@ public extension SignalProvider where Kind == Finite {
             callback(event)
         }
     }
-    
+
     /// Wait for an end event and call `callback`.
     /// - Returns: A disposable that will stop listening on values when being disposed.
     func onEnd(on scheduler: Scheduler = .current, _ callback: @escaping () -> Void) -> Disposable {
         return onEvent(on: scheduler) { $0.isEnd ? callback() : () }
     }
-    
+
     /// Wait for an error event and call `callback` with that error.
     /// - Returns: A disposable that will stop listening on values when being disposed.
     func onError(on scheduler: Scheduler = .current, _ callback: @escaping (Error) -> Void) -> Disposable {
@@ -71,13 +70,13 @@ public extension SignalProvider {
     func bindTo(on scheduler: Scheduler = .current, _ setValue: @escaping (Value) -> ()) -> Disposable {
         return onValue(on: scheduler, setValue)
     }
-    
+
     /// Start listening on values and update `signal`'s value with the latest signaled value.
     /// - Returns: A disposable that will stop listening on values when being disposed.
     func bindTo<WriteSignal: SignalProvider>(_ signal: WriteSignal) -> Disposable where WriteSignal.Value == Value, WriteSignal.Kind == ReadWrite {
         return onValue { signal.providedSignal.value = $0 }
     }
-    
+
     /// Start listening on values and update the value at the `keyPath` of `value`.
     ///
     ///     bindTo(button, \.isEnabled)
@@ -96,12 +95,12 @@ public extension SignalProvider where Kind == ReadWrite {
     /// - Returns: A disposable that will stop listening on values when being disposed.
     func bidirectionallyBindTo<WriteSignal: SignalProvider>(_ signal: WriteSignal, isSame: @escaping (Value, Value) -> Bool) -> Disposable where WriteSignal.Value == Value, WriteSignal.Kind == ReadWrite {
         let bag = DisposeBag()
-        
+
         // Use `distinct()` to avoid infinite recursion
         /// Make `self` and `signal` plain to allow `distinct()` to not filter out intitial values, such as `atOnce()`.
         bag += Signal(self).distinct(isSame).bindTo(signal)
         bag += Signal(signal).distinct(isSame).bindTo(self)
-        
+
         return bag
     }
 }

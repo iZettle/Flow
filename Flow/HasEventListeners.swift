@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// Whether the conforming class has event listeners.
 public protocol HasEventListeners: class {
     /// Boolean value indicating whether the instance currently has event listeners.
@@ -26,10 +25,7 @@ public extension HasEnablableEventListeners {
     /// - Returns: A `Disposable` that will upon dispose re-enable the views/items being disabled.
     func disableActiveEventListeners() -> Disposable {
         let activeListeners = enablableEventListeners.filter { $0.hasEventListeners }.filter { ($0 as Enablable).isEnabled }
-        activeListeners.forEach { $0.isEnabled = false }
-        return Disposer {
-            activeListeners.filter { $0.hasEventListeners }.forEach { $0.isEnabled = true }
-        }
+        return DisposeBag(activeListeners.map { $0.disable() })
     }
 }
 
@@ -39,13 +35,13 @@ import UIKit
 
 extension UIView: HasEnablableEventListeners {
     public var enablableEventListeners: [Enablable & HasEventListeners] {
-        return allSubviews(ofType: (Enablable & HasEventListeners).self)
+        return allDescendants(ofType: (Enablable & HasEventListeners).self)
     }
 }
 
 extension UINavigationItem: HasEnablableEventListeners {
     public var enablableEventListeners: [Enablable & HasEventListeners] {
-        return allItemsOrViews(ofType: (Enablable & HasEventListeners).self)
+        return allItemsAndDecendants(ofType: (Enablable & HasEventListeners).self)
     }
 }
 
@@ -56,27 +52,25 @@ extension UIViewController: HasEnablableEventListeners {
 }
 
 private extension UINavigationItem {
-    func allItemsOrViews<T>(ofType type: T.Type) -> [T] {
+    func allItemsAndDecendants<T>(ofType type: T.Type) -> [T] {
         var result = [T]()
         let items = (leftBarButtonItems ?? []) + (rightBarButtonItems ?? [])
         result += items.compactMap { $0 as? T }
-        result += items.compactMap { $0.customView }.flatMap { $0.allSubviews(ofType: T.self) }
+        result += items.compactMap { $0.customView }.flatMap { $0.allDescendants(ofType: T.self) }
         return result
     }
 }
 
 internal extension UIView {
-    var allSubviews: [UIView] {
+    var allDescendants: [UIView] {
         return subviews + subviews.flatMap {
-            $0.allSubviews
+            $0.allDescendants
         }
     }
-    
-    func allSubviews<T>(ofType type: T.Type) -> [T] {
-        return allSubviews.compactMap { $0 as? T }
+
+    func allDescendants<T>(ofType type: T.Type) -> [T] {
+        return allDescendants.compactMap { $0 as? T }
     }
 }
 
 #endif
-
-

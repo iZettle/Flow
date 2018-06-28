@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// An encapsulation of a result that might not yet has been generated.
 ///
 /// A future represents a future result, a result that might take time to asynchronously produce.
@@ -55,7 +54,7 @@ public final class Future<Value> {
         case multipleListeners(Disposable, [Key: (Result<Value>) -> Void])
         case completed(Result<Value>)
     }
-    
+
     private var state: State
     private let clone: () -> Future
     private var _mutex = pthread_mutex_t()
@@ -101,7 +100,7 @@ public final class Future<Value> {
     public init(on scheduler: Scheduler = .current, onResult: @escaping (@escaping (Result<Value>) -> Void, Mover) throws -> Disposable) {
         OSAtomicIncrement32(&futureUnitTestAliveCount)
         memPrint("Future init", futureUnitTestAliveCount)
-        
+
         state = .noListeners(NilDisposer())
         clone = {
             Future(on: scheduler) { completion, _ in
@@ -109,23 +108,23 @@ public final class Future<Value> {
             }
         }
         mutex.initialize()
-        
+
         scheduler.async {
             do {
                 let disposer = try onResult(self.completeWithResult, Mover(shouldClone: false))
 
                 self.lock()
-                
+
                 // If we have not already been completed while calling `function`, store the returned disposer.
                 switch self.state {
                 case .noListeners:
                     self.state = .noListeners(disposer)
                     self.unlock()
-                case .oneListener(_, let k, let c):
-                    self.state = .oneListener(disposer, k, c)
+                case .oneListener(_, let key, let completion):
+                    self.state = .oneListener(disposer, key, completion)
                     self.unlock()
-                case .multipleListeners(_, let cs):
-                    self.state = .multipleListeners(disposer, cs)
+                case .multipleListeners(_, let completions):
+                    self.state = .multipleListeners(disposer, completions)
                     self.unlock()
                 case .completed: // ... otherwise we are already done and should dispose()
                     self.unlock()
@@ -136,17 +135,17 @@ public final class Future<Value> {
             }
         }
     }
-    
+
     /// Creates a new instance already completed with `result`.
     public init(result: Result<Value>) {
         OSAtomicIncrement32(&futureUnitTestAliveCount)
         memPrint("Future init", futureUnitTestAliveCount)
-        
+
         state = .completed(result)
         clone = { Future(result: result) }
         mutex.initialize()
     }
-    
+
     deinit {
         OSAtomicDecrement32(&futureUnitTestAliveCount)
         memPrint("Future deinit", futureUnitTestAliveCount)
@@ -201,7 +200,7 @@ public extension Future {
             return bag
         }
     }
-    
+
     /// Returns a new future with the result of calling `transform` with the result of `self´.
     /// - Note: If `transform` throws, the returned future will fail with the thrown error.
     @discardableResult
@@ -231,17 +230,17 @@ public extension Future {
     /// - Note: If the future has any continuations (any transforms applied to it and hence other users), the cancel will be ignored.
     func cancel() {
         guard case .noListeners = protectedState else { return }
-        
+
         completeWithResult(.failure(FutureError.aborted))
     }
-    
+
     /// Returns a new future where `callback` will be called if the returned future is canceled.
     @discardableResult
     func onCancel(on scheduler: Scheduler = .current, _ callback: @escaping () -> Void) -> Future {
         return Future<Value>(on: .none) { completion, mover in
             let clone = mover.moveInside(self)
             let disposer = clone.onComplete(completion)
-            
+
             return Disposer {
                 if case .completed = clone.protectedState {
                     disposer.dispose()
@@ -263,58 +262,58 @@ public extension Future {
     @discardableResult
     func onResultRepeat(on scheduler: Scheduler = .current, maxRepetitions: Int? = nil, when predicateFuture: @escaping (Result<Value>) -> Future<Bool>) -> Future {
         return Future(on: scheduler) { completion, mover in
-            let s = StateAndCallback(state: 0, callback: completion)
+            let state = StateAndCallback(state: 0, callback: completion)
 
             func predicate(_ result: Result<Value>) -> Future<Bool> {
-                s.lock()
-                if let maxRepetitions = maxRepetitions, s.val >= maxRepetitions {
-                    s.unlock()
+                state.lock()
+                if let maxRepetitions = maxRepetitions, state.val >= maxRepetitions {
+                    state.unlock()
                     return Future<Bool>(false)
                 }
-                s.val += 1
-                s.unlock()
+                state.val += 1
+                state.unlock()
                 return predicateFuture(result)
             }
-            
+
             let exec: (Future) -> () = recursive { future, exec in
                 var future = future
-                var pf: Future<Bool>? = nil
-                
+                var predicateFuture: Future<Bool>? = nil
+
                 // Avoid recursion (and stack overflows) if both self of predicateFuture has immediate results.
                 while true {
-                    pf = nil
-                    guard case let .completed(r) = future.protectedState else { break }
-                    pf = predicate(r)
-                    guard let s = pf?.protectedState, case let .completed(r2) = s, r2.value == true else { break }
+                    predicateFuture = nil
+                    guard case let .completed(result) = future.protectedState else { break }
+                    predicateFuture = predicate(result)
+                    guard let state = predicateFuture?.protectedState, case let .completed(stateResult) = state, stateResult.value == true else { break }
                     future = self.clone()
                 }
-                
-                let f = future.flatMapResult(on: scheduler) { result -> Future<Bool> in
-                    return (pf ?? predicate(result)).onValue(on: .none) { shouldRepeat in
-                        guard shouldRepeat else { return s.callback(result) }
+
+                let repeatFuture = future.flatMapResult(on: scheduler) { result -> Future<Bool> in
+                    return (predicateFuture ?? predicate(result)).onValue(on: .none) { shouldRepeat in
+                        guard shouldRepeat else { return state.callback(result) }
                         exec(self.clone())
-                    }.onError(on: .none) { e in
-                        return s.callback(result)
+                    }.onError(on: .none) { _ in
+                        return state.callback(result)
                     }
                 }
 
-                s += Disposer { [weak f] in f?.cancel() }
+                state += Disposer { [weak repeatFuture] in repeatFuture?.cancel() }
             }
-            
+
             exec(mover.moveInside(self))
-            s += Disposer { _ = exec } // hold on to reference
-            
-            return s
+            state += Disposer { _ = exec } // hold on to reference
+
+            return state
         }
     }
-    
+
     /// Returns a new future that will replace `self`'s result with `result` if `self` does not complete before `timeout`.
     @discardableResult
     func replace(with result: Result<Value>, after timeout: TimeInterval) -> Future {
         return Future(on: .none) { completion, mover in
-            let f = mover.moveInside(self).onResult(completion)
+            let future = mover.moveInside(self).onResult(completion)
             return disposableAsync(after: timeout) {
-                f.cancel()
+                future.cancel()
                 completion(result)
             }
         }
@@ -333,11 +332,11 @@ private extension Future {
     private var protectedState: State {
         return mutex.protect { state }
     }
-    
+
     func lock() {
         mutex.lock()
     }
-    
+
     func unlock() {
         mutex.unlock()
     }
@@ -345,52 +344,52 @@ private extension Future {
     func completeWithResult(_ result: Result<Value>) {
         lock()
         let state = self.state
-        
+
         if case .completed = state {
             unlock()
             return
         }
-        
+
         self.state = .completed(result)
-        
+
         unlock()
-        
+
         switch state {
-        case .noListeners(let d):
-            d.dispose()
-        case .oneListener(let d, _, let c):
-            d.dispose()
-            c(result)
-        case .multipleListeners(let d, let cs):
-            d.dispose()
-            for c in cs.values {
-                c(result)
+        case .noListeners(let disposable):
+            disposable.dispose()
+        case .oneListener(let disposable, _, let completion):
+            disposable.dispose()
+            completion(result)
+        case .multipleListeners(let disposable, let completions):
+            disposable.dispose()
+            for completion in completions.values {
+                completion(result)
             }
         case .completed:
             return
         }
     }
-    
+
     /// Returns a disposable to be called on dispose or cancel. If it was the last onComplete being disposed the future itself will be disposed.
     func onComplete(_ completion: @escaping (Result<Value>) -> Void) -> Disposable {
         lock()
         defer { unlock() }
-        
+
         let state = self.state
         switch state {
-        case .noListeners(let d):
+        case .noListeners(let disposable):
             let key = generateKey()
-            self.state = .oneListener(d, key, completion)
+            self.state = .oneListener(disposable, key, completion)
             return NoLockKeyDisposer(key, self.remove)
-        case .oneListener(let d, let k, let c):
+        case .oneListener(let disposable, let oneKey, let oneCompletion):
             let key = generateKey()
-            self.state = .multipleListeners(d, [k: c, key: completion])
+            self.state = .multipleListeners(disposable, [oneKey: oneCompletion, key: completion])
             return NoLockKeyDisposer(key, self.remove)
-        case .multipleListeners(let d, var cs):
-            self.state = .noListeners(d) // let go of reference to cs to allow modification to not cause copy-on-write
+        case .multipleListeners(let disposable, var completions):
+            self.state = .noListeners(disposable) // let go of reference to cs to allow modification to not cause copy-on-write
             let key = generateKey()
-            cs[key] = completion
-            self.state = .multipleListeners(d, cs)
+            completions[key] = completion
+            self.state = .multipleListeners(disposable, completions)
             return NoLockKeyDisposer(key, self.remove)
         case .completed(let result):
             unlock()
@@ -399,26 +398,26 @@ private extension Future {
             return NilDisposer()
         }
     }
-    
+
     func remove(for key: Key) {
         lock()
-        
+
         switch state {
         case .noListeners:
             fatalError()
-        case .oneListener(let d, let k, _) where k == key:
+        case .oneListener(let disposable, let oneKey, _) where oneKey == key:
             state = .completed(.failure(FutureError.aborted))
             unlock()
-            d.dispose()
-        case .multipleListeners(let d, var cs):
-            state = .noListeners(d) // let go of reference to cs to allow modification to not cause copy-on-write
-            cs.removeValue(forKey: key)
-            if cs.isEmpty {
+            disposable.dispose()
+        case .multipleListeners(let disposable, var completions):
+            state = .noListeners(disposable) // let go of reference to cs to allow modification to not cause copy-on-write
+            completions.removeValue(forKey: key)
+            if completions.isEmpty {
                 state = .completed(.failure(FutureError.aborted))
                 unlock()
-                d.dispose()
+                disposable.dispose()
             } else {
-                state = .multipleListeners(d, cs)
+                state = .multipleListeners(disposable, completions)
                 unlock()
             }
         case .completed, .oneListener: // oneListener: trying to remove the key a second time (NoLockKeyDisposer can be called more than once)
@@ -426,4 +425,3 @@ private extension Future {
         }
     }
 }
-

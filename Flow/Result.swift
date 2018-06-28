@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// A value indicating either a `success` value or a `failure` error.
 public enum Result<Value> {
     case success(Value)
@@ -42,13 +41,13 @@ public extension Result {
         if case .success(let value) = self { return value }
         return nil
     }
-    
+
     /// Returns the error if `self` is .failure or nil otherwise.
     var error: Error? {
         if case .failure(let error) = self { return error }
         return nil
     }
-    
+
     /// Returns the value if `self` is .success or throw the error if self is `.failure`.
     func getValue() throws -> Value {
         switch self {

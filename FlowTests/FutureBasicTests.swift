@@ -11,9 +11,9 @@ import Flow
 
 extension Future {
     convenience init(_ value: Value, delay: TimeInterval, queue: DispatchQueue = backgroundQueue) {
-        self.init { c in
+        self.init { completion in
             queue.asyncAfter(deadline: .now() + delay) {
-                c(.success(value))
+                completion(.success(value))
             }
             return NilDisposer()
         }
@@ -25,13 +25,13 @@ class FutureTest: XCTestCase {
         super.setUp()
         clearAliveCounts()
     }
-    
+
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
-        
+
         super.tearDown()
     }
-    
+
     func errorExpectation() -> XCTestExpectation {
         return expectation(description: "Receive error")
     }
@@ -48,11 +48,11 @@ class FutureBasicTests: FutureTest {
         let d = Disposer {
             e.fulfill()
         }
-        let f = Future<()> { c in
-            c(.success)
+        let f = Future<()> { completion in
+            completion(.success)
             return d
         }
-        
+
         waitForExpectations(timeout: 0.01, handler: { _ in
             _ = f
             _ = d
@@ -64,23 +64,23 @@ class FutureBasicTests: FutureTest {
         let d = Disposer {
             e.fulfill()
         }
-        let f = Future<()> { c in
+        let f = Future<()> { completion in
             Scheduler.main.async(after: 0.1) {
-                c(.success)
+                completion(.success)
             }
             return d
         }
-        
+
         waitForExpectations(timeout: 0.5, handler: { _ in
             _ = f
             _ = d
         })
     }
-    
+
     func testFutureValue() {
         testFuture { Future(4711).onValue { XCTAssertEqual($0, 4711) } }
     }
-    
+
     func testflatMap() {
         testFuture {
             Future(4).map { $0*2 }.assertValue(8)
@@ -106,20 +106,20 @@ class FutureBasicTests: FutureTest {
             return select(between: [Future(1).delay(by: 1), Future(2), Future(3).delay(by: 1)]).assertValue(2)
         }
     }
-    
+
     func testAnyError() {
         let e = errorExpectation()
         testFuture {
             return select(Future<Int>(error: TestError.fatal), or: Future(4711)).onValue { _ in XCTAssertFalse(true) }.onError { _ in e.fulfill() }
         }
     }
-    
+
     func testLastWillDispose() {
         testFuture { () -> Future<()> in
             let e = expectation(description: "Last will dispose")
-            let f = Future<()> { c in
-                
-                c(.success)
+            let f = Future<()> { completion in
+
+                completion(.success)
                 return Disposer(e.fulfill)
             }
             return f
@@ -129,15 +129,15 @@ class FutureBasicTests: FutureTest {
     func testLastWillDisposeAsync() {
         testFuture { () -> Future<()> in
             let e = expectation(description: "Last will dispose")
-            let f = Future<()> { c in
-                
-                mainQueue.async { c(.success) }
+            let f = Future<()> { completion in
+
+                mainQueue.async { completion(.success) }
                 return Disposer(e.fulfill)
             }
             return f
         }
     }
-    
+
     func testMapToFuture() {
         testFuture(timeout: 3) {
             return Array(repeating: 1, count: 10000).mapToFuture { Future($0*2) }.assertValue(Array(repeating: 2, count: 10000))
@@ -162,7 +162,7 @@ class FutureBasicTests: FutureTest {
             return f
         }
     }
-    
+
     func testAlwaysIfCancelled() {
         testFuture { () -> Future<Int> in
             let e = cancelExpectation()
@@ -171,7 +171,7 @@ class FutureBasicTests: FutureTest {
             return f
         }
     }
-    
+
     func testCancelWithRecursionBreak() {
         testFuture { () -> Future<Int> in
             let e = cancelExpectation()
@@ -209,7 +209,7 @@ class FutureBasicTests: FutureTest {
             return f1.join(with: f2).assertError()
         }
     }
-    
+
     func testJoinErrorDontCancel() {
         let e = expectation(description: "Complete")
         testFuture { () -> Future<(Int, Int)> in
@@ -218,7 +218,7 @@ class FutureBasicTests: FutureTest {
             return f1.join(with: f2, cancelNonCompleted: false).assertError().delay(by: 0.3)
         }
     }
-    
+
     func testAllTuple() {
         testFuture { () -> Future<(Int, Int)> in
             let f1 = Future(1).delay(by: 0.1)
@@ -242,7 +242,7 @@ class FutureBasicTests: FutureTest {
             return join(f1, f2).assertValue((1, 2), isSame: ==)
         }
     }
-    
+
     func _testRecursiveImmediateFlatMap() {
         testFuture(timeout: 1000) { () -> Future<Int> in
             func test(_ val: Int) -> Future<Int> {
@@ -256,7 +256,7 @@ class FutureBasicTests: FutureTest {
             return test(1000)
         }
     }
-    
+
     func _testRecursiveImmediateMap() {
         testFuture(timeout: 1000) { () -> Future<Int> in
             var f = Future(4711).delay(by: 1)
@@ -268,7 +268,7 @@ class FutureBasicTests: FutureTest {
             }
         }
     }
-    
+
     func testRecursiveFlatMap() {
         testFuture(timeout: 1000) { () -> Future<Int> in
             func test(_ val: Int) -> Future<Int> {
@@ -282,7 +282,7 @@ class FutureBasicTests: FutureTest {
             return test(1000)
         }
     }
-    
+
     func testRecursiveMap() {
         testFuture(timeout: 1000) { () -> Future<Int> in
             var f = Future(4711)
@@ -294,8 +294,7 @@ class FutureBasicTests: FutureTest {
             }
         }
     }
-    
-    
+
     func _testRecursiveMapCancel() {
         testFuture(timeout: 1000) { () -> Future<Int> in
             var f = Future(4711).delay(by: 1)
@@ -319,7 +318,7 @@ class FutureBasicTests: FutureTest {
             return f
         }
     }
-    
+
     func testFromBackground() {
         let e = expectation(description: "complete")
         backgroundQueue.async {
@@ -327,10 +326,10 @@ class FutureBasicTests: FutureTest {
                 e.fulfill()
             }
         }
-        
+
         waitForExpectations(timeout: 1)
     }
-    
+
     func testImmediate() {
         var i = 0
         testFuture {
@@ -350,12 +349,12 @@ class FutureBasicTests: FutureTest {
             }
         }
     }
-    
+
     func testContinueBeforeImmediateComplete() {
         testFuture(repeatCount: 100) { () -> Future<Int> in
             let e = expectation(description: "Expect to complete")
-            return Future<Int>(on: .concurrentBackground) { c in
-                backgroundQueue.async { c(.success(5)) }
+            return Future<Int>(on: .concurrentBackground) { completion in
+                backgroundQueue.async { completion(.success(5)) }
                 return NilDisposer()
             }.onValue { value in
                 XCTAssertEqual(value, 5)
@@ -368,8 +367,8 @@ class FutureBasicTests: FutureTest {
         testFuture(repeatCount: 100) { () -> Future<Int> in
             let e1 = expectation(description: "Expect to complete")
             let e2 = expectation(description: "Expect to complete")
-            let future = Future<Int>(on: .concurrentBackground) { c in
-                backgroundQueue.async { c(.success(5)) }
+            let future = Future<Int>(on: .concurrentBackground) { completion in
+                backgroundQueue.async { completion(.success(5)) }
                 return NilDisposer()
             }
             future.onValue { value in
@@ -383,6 +382,3 @@ class FutureBasicTests: FutureTest {
         }
     }
 }
-
-
-

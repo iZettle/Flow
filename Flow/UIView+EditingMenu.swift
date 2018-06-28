@@ -10,36 +10,35 @@
 
 import UIKit
 
-
 public extension UIView {
     /// Returns a signal that will signal when user selects the copy command from the editing menu.
     /// - Note: Will display an editing menu on long press including the pasteboard actions currently listened on.
     var copySignal: Signal<()> {
-        return Signal { c in
+        return Signal { callback in
             let bag = DisposeBag()
-            bag += self.copyingView.copyCallbacker.addCallback(c)
+            bag += self.copyingView.copyCallbacker.addCallback(callback)
             bag += { self.cleanUpCopyingView() }
             return bag
         }
     }
-    
+
     /// Returns a signal that will signal when user selects the paste command from the editing menu.
     /// - Note: Will display an editing menu on long press including the pasteboard actions currently listened on.
     var pasteSignal: Signal<()> {
-        return Signal { c in
+        return Signal { callback in
             let bag = DisposeBag()
-            bag += self.copyingView.pasteCallbacker.addCallback(c)
+            bag += self.copyingView.pasteCallbacker.addCallback(callback)
             bag += { self.cleanUpCopyingView() }
             return bag
         }
     }
-    
+
     /// Returns a signal that will signal when user selects the cut command from the editing menu.
     /// - Note: Will display an editing menu on long press including the pasteboard actions currently listened on.
     var cutSignal: Signal<()> {
-        return Signal { c in
+        return Signal { callback in
             let bag = DisposeBag()
-            bag += self.copyingView.cutCallbacker.addCallback(c)
+            bag += self.copyingView.cutCallbacker.addCallback(callback)
             bag += { self.cleanUpCopyingView() }
             return bag
         }
@@ -48,9 +47,9 @@ public extension UIView {
 
 private extension UIView {
     var copyingView: CopyingView {
-        return subviews.compactMap { $0 as? CopyingView }.first ?? { let v = CopyingView(); insertSubview(v, at: 0); return v }()
+        return subviews.compactMap { $0 as? CopyingView }.first ?? { let view = CopyingView(); insertSubview(view, at: 0); return view }()
     }
-    
+
     func cleanUpCopyingView() {
         let copyingView = self.copyingView
         if !copyingView.hasListeners { copyingView.removeFromSuperview() }
@@ -59,23 +58,23 @@ private extension UIView {
 
 private class CopyingView: UIView {
     private let bag = DisposeBag()
-    
+
     fileprivate let copyCallbacker = Callbacker<()>()
     fileprivate let pasteCallbacker = Callbacker<()>()
     fileprivate let cutCallbacker = Callbacker<()>()
-    
+
     required init() {
         super.init(frame: .zero)
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     var hasListeners: Bool {
         return !copyCallbacker.isEmpty || !pasteCallbacker.isEmpty || !cutCallbacker.isEmpty
     }
-    
+
     override func didMoveToSuperview() {
         bag.dispose()
         bag += attachLongPressRecognizer()
@@ -101,7 +100,7 @@ private class CopyingView: UIView {
         }
         return bag
     }
-    
+
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         switch action {
         case #selector(copy(_:)):
@@ -114,23 +113,23 @@ private class CopyingView: UIView {
             return false
         }
     }
-    
+
     override func copy(_ sender: Any?) {
         copyCallbacker.callAll(with: ())
     }
-    
+
     override func paste(_ sender: Any?) {
         pasteCallbacker.callAll(with: ())
     }
-    
+
     override func cut(_ sender: Any?) {
         cutCallbacker.callAll(with: ())
     }
-    
+
     override var canBecomeFirstResponder: Bool {
         return true
     }
-    
+
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         return true
     }

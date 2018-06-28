@@ -13,7 +13,7 @@ public extension Future {
     convenience init(_ value: Value) {
         self.init(result: .success(value))
     }
-    
+
     /// Creates a new instance already failed with `error`.
     convenience init(error: Error) {
         self.init(result: .failure(error))
@@ -39,7 +39,7 @@ public extension Future {
     /// Returns a new future with the result of calling `transform` with the success value of `self´.
     /// - Note: If `transform` throws, the returned future will fail with the thrown error.
     @discardableResult
-    func map<O>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) throws -> O) -> Future<O>  {
+    func map<O>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) throws -> O) -> Future<O> {
         return mapResult(on: scheduler) { result in
             switch result {
             case .success(let value): return try transform(value)
@@ -47,11 +47,11 @@ public extension Future {
             }
         }
     }
-    
+
     /// Returns a new future with the result of calling `transform` with the failure error of `self´.
     /// - Note: If `transform` throws, the returned future will fail with the thrown error.
     @discardableResult
-    func mapError(on scheduler: Scheduler = .current, _ transform: @escaping (Error) throws -> Value) -> Future  {
+    func mapError(on scheduler: Scheduler = .current, _ transform: @escaping (Error) throws -> Value) -> Future {
         return mapResult(on: scheduler) { result in
             switch result {
             case .success(let value): return value
@@ -65,7 +65,7 @@ public extension Future {
     /// Returns a new future with the result of the future being returned from calling `transform` with the success value of `self´.
     /// - Note: If `transform` throws, the returned future will fail with the thrown error.
     @discardableResult
-    func flatMap<O>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) throws -> Future<O>) -> Future<O>  {
+    func flatMap<O>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) throws -> Future<O>) -> Future<O> {
         return flatMapResult(on: scheduler) { result in
             switch result {
             case .success(let value): return try transform(value)
@@ -73,11 +73,11 @@ public extension Future {
             }
         }
     }
-    
+
     /// Returns a new future with the result of the future being returned from calling `transform` with the failure error of `self´.
     /// - Note: If `transform` throws, the returned future will fail with the thrown error.
     @discardableResult
-    func flatMapError(on scheduler: Scheduler = .current, _ transform: @escaping (Error) throws -> Future) -> Future  {
+    func flatMapError(on scheduler: Scheduler = .current, _ transform: @escaping (Error) throws -> Future) -> Future {
         return flatMapResult(on: scheduler) { result in
             switch result {
             case .success(let value): return Future(value)
@@ -92,31 +92,31 @@ public extension Future {
     /// - Note: The returned future will maintain the result of `self` unless `callback` throws, where the returned future will fail with the thrown error.
     /// - Note: The returned future will not complete until the call to `callback` has returned.
     @discardableResult
-    func onValue(on scheduler: Scheduler = .current, _ callback: @escaping (Value) throws -> ()) -> Future  {
+    func onValue(on scheduler: Scheduler = .current, _ callback: @escaping (Value) throws -> ()) -> Future {
         return onResult(on: scheduler) { result in
             if case .success(let value) = result {
                 try callback(value)
             }
         }
     }
-    
+
     /// Returns a new future that will call `callback` with the failure error of `self`.
     /// - Note: The returned future will maintain the result of `self` unless `callback` throws, where the returned future will fail with the thrown error.
     /// - Note: The returned future will not complete until the call to `callback` has returned.
     @discardableResult
-    func onError(on scheduler: Scheduler = .current, _ callback: @escaping (Error) throws -> ()) -> Future  {
+    func onError(on scheduler: Scheduler = .current, _ callback: @escaping (Error) throws -> ()) -> Future {
         return onResult(on: scheduler) { result in
             if case .failure(let error) = result {
                 try callback(error)
             }
         }
     }
-    
+
     /// Returns a new future that will call `callback` with the result of `self`.
     /// - Note: The returned future will maintain the result of `self` unless `callback` throws, where the returned future will fail with the thrown error.
     /// - Note: The returned future will not complete until the call to `callback` has returned.
     @discardableResult
-    func onResult(on scheduler: Scheduler = .current, _ callback: @escaping (Result<Value>) throws -> ()) -> Future  {
+    func onResult(on scheduler: Scheduler = .current, _ callback: @escaping (Result<Value>) throws -> ()) -> Future {
         return mapResult(on: scheduler) { result in
             try callback(result)
             switch result {
@@ -136,7 +136,7 @@ public extension Future {
     public func always(on scheduler: Scheduler = .current, _ callback: @escaping () -> ()) -> Future {
         return onCancel(on: scheduler, callback).onResult(on: scheduler) { _ in callback() }
     }
-    
+
     /// Returns a new future that will call `callback` when `self` either fails with an error or is being canceled.
     /// - Note: The returned future will not complete until the call to `callback` has returned.
     @discardableResult
@@ -155,7 +155,7 @@ public extension Future {
             try callback(result).map { _ in try result.getValue() }
         }
     }
-    
+
     /// Returns a new future that will call `callback` with the success value of `self`.
     /// - Note: The returned future will maintain the result of `self` unless `callback` throws, or the future retuned from `callback` fails, where the returned future will fail with that error.
     /// - Note: The returned future will not complete until the future returned from `callback` has completed.
@@ -191,7 +191,7 @@ public extension Future {
     func toVoid() -> Future<Void> {
         return map { _ in return Void() }
     }
-    
+
     /// Returns a new future that will not cancel `self` if being canceled
     @discardableResult
     func ignoreCanceling() -> Future {
@@ -209,7 +209,7 @@ public extension Future where Value == () {
     }
 
     enum Forever { case forever }
-    
+
     /// Creates a new instance that will never complete.
     /// - Note: Pass `.forever` as an argument: `Future(.forever)`
     convenience init(_ forever: Forever) {
@@ -233,7 +233,7 @@ public extension Future {
             }
         }
     }
-    
+
     /// Will perform `work´ while the future is executing.
     /// - Parameter delay: Delays the execution of `work`.
     /// - Parameter work: The work to be performed. The `Disposable` returned from `work` will be disposed when `self` completes or the returned future is canceled.
@@ -250,7 +250,7 @@ public extension Future {
             let bag = DisposeBag(NilDisposer()) // make non-empty
 
             bag += future.onResult(completion).disposable
-            
+
             guard let delay = delay else {
                 let disposable = work()
                 bag += {
@@ -258,7 +258,7 @@ public extension Future {
                 }
                 return bag
             }
-            
+
             bag += scheduler.disposableAsync(after: delay) {
                 guard !bag.isEmpty else { return } // Already disposed?
                 let disposable = work()
@@ -266,7 +266,7 @@ public extension Future {
                     scheduler.async(execute: disposable.dispose) // make sure to schedule disposable as well
                 }
             }
-            
+
             return bag
         }
     }
@@ -284,7 +284,7 @@ public extension Future {
             Future<Bool>(predicate(result)).delay(by: delay)
         }
     }
-    
+
     /// Returns a new future that will repeat `self` if the future returned from `predicate`, called if `self` fails, completes with `true`.
     /// if `predicateFuture` returned future completes with `true`.
     /// - Parameter maxRepetitions: Will never repeat more than `maxRepetitions`, defaults to nil, hence no limit.
@@ -316,23 +316,23 @@ public extension Future {
     ///   However, passing a nil `delayBetweenRepeats` will repeat at once.
     @discardableResult
     func repeatAndCollect(repeatCount count: NSInteger, delayBetweenRepetitions delay: TimeInterval? = nil) -> Future<[Value]> {
-        let s = StateAndCallback(state: (count: count, result: [Value]()))
-        
+        let state = StateAndCallback(state: (count: count, result: [Value]()))
+
         return onResultRepeat(on: .none, delayBetweenRepetitions: delay) { result in
             guard case .success(let value) = result else { return false }
-            s.lock()
-            s.val.result.append(value)
+            state.lock()
+            state.val.result.append(value)
             defer {
-                s.val.count -= 1
-                s.unlock()
+                state.val.count -= 1
+                state.unlock()
             }
-            return s.val.count > 0
-        }.map(on: .none) { _ in s.protectedVal.result }.always(on: .none) {
+            return state.val.count > 0
+        }.map(on: .none) { _ in state.protectedVal.result }.always(on: .none) {
              // If being repeated, make sure to reset values
-            s.lock()
-            s.val.count = count
-            s.val.result = []
-            s.unlock()
+            state.lock()
+            state.val.count = count
+            state.val.result = []
+            state.unlock()
         }
     }
 
@@ -341,7 +341,7 @@ public extension Future {
     func succeed(with value: Value, after timeout: TimeInterval) -> Future {
         return replace(with: .success(value), after: timeout)
     }
-    
+
     /// Will return a new future that will replace `self`'s result with a failure `error` if `self` does not complete before `timeout`
     @discardableResult
     func fail(with error: Error, after timeout: TimeInterval) -> Future {

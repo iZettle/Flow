@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// A queue for futures.
 ///
 /// Future queues are useful for handling exclusive access to a resource, and/or when it is important that independent operations are performed one after the other.
@@ -27,7 +26,7 @@ public final class FutureQueue<Resource> {
             isEmptyCallbacker.callAll(with: isEmpty)
         }
     }
-    
+
     /// The resource protected by this queue
     public let resource: Resource
 
@@ -43,7 +42,7 @@ public final class FutureQueue<Resource> {
         OSAtomicIncrement32(&futureQueueUnitTestAliveCount)
         memPrint("Queue init", futureQueueUnitTestAliveCount)
     }
-    
+
     deinit {
         OSAtomicDecrement32(&futureQueueUnitTestAliveCount)
         memPrint("Queue deinit", futureQueueUnitTestAliveCount)
@@ -58,27 +57,27 @@ public extension FutureQueue {
         if let error = closedError {
             return Future(error: error)
         }
-        
+
         return Future { completion in
             let item = QueueItem<Output>(operation: operation, completion: completion)
-            
+
             self.mutex.protect {
                 self.items.append(item)
             }
-            
+
             self.executeNextItem()
-            
+
             return Disposer(item.cancel)
         }
     }
-    
+
     /// Enqueues an `operation` that will be executed when or once the queue becomes empty.
     /// - Returns: A future that will complete with the result from `operation`.
     @discardableResult
     public func enqueue<Output>(_ operation: @escaping () throws -> Output) -> Future<Output> {
         return enqueue { return Future(try operation()) }
     }
-    
+
     /// Enqueues an `operation` that will be executed with a new sub-queue when or once the queue becomes empty.
     ///
     /// Once the `operation` is ready to be executed it will be called with a new insance of `self` holding a copy of `self`'s resource.
@@ -89,21 +88,21 @@ public extension FutureQueue {
     @discardableResult
     public func enqueueBatch<Output>(_ operation: @escaping (FutureQueue) throws -> Future<Output>) -> Future<Output> {
         let childQueue = FutureQueue(resource: resource, executeOn: queueScheduler)
-        return enqueue() {
-            try operation(childQueue).flatMapResult { r in
-                Future<Output> { c in
+        return enqueue {
+            try operation(childQueue).flatMapResult { result in
+                Future<Output> { completion in
                     childQueue.isEmptySignal.atOnce().filter { $0 }.onValue { _ in
-                        c(r)
+                        completion(result)
                     }
                 }
             }
         }.onError { error in
             childQueue.abortQueuedOperations(with: error, shouldCloseQueue: true)
         }.onCancel {
-            childQueue.abortQueuedOperations(with: NSError(domain: "com.izettle.future.error", code:1, userInfo: [ NSLocalizedDescriptionKey : "No more queueing allowed on closed child queue" ]), shouldCloseQueue: true)
+            childQueue.abortQueuedOperations(with: NSError(domain: "com.izettle.future.error", code: 1, userInfo: [ NSLocalizedDescriptionKey: "No more queueing allowed on closed child queue" ]), shouldCloseQueue: true)
         }
     }
-    
+
     /// Enqueues an `operation` that will be executed with a new sub-queue when or once the queue becomes empty.
     ///
     /// Once the `operation` is ready to be executed it will be called with a new insance of `self` holding a copy of `self`'s resource.
@@ -122,7 +121,7 @@ public extension FutureQueue {
     var isEmpty: Bool {
         return mutex.protect { items.isEmpty }
     }
-    
+
     /// Returns a signal that will signal when `isEmpty` is changed.
     var isEmptySignal: ReadSignal<Bool> {
         return ReadSignal(getValue: { self.isEmpty }, callbacker: isEmptyCallbacker).distinct()
@@ -153,16 +152,16 @@ public extension FutureQueue {
         if shouldCloseQueue {
             _closedError = error
         }
-            
+
         let items = self.items
         self.items = []
         unlock()
-        
+
         for item in items {
             item.abort(with: error)
         }
     }
-    
+
     /// The error passed to `abortQueuedExecutionWithError()` if called with `shouldCloseQueue` as true.
     var closedError: Error? {
         return mutex.protect { _closedError }
@@ -173,21 +172,21 @@ private extension FutureQueue {
     var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
     func lock() { mutex.lock() }
     func unlock() { mutex.unlock() }
-    
+
     func removeItem(_ item: Executable) {
         mutex.protect {
             _ = items.index { $0 === item }.map { items.remove(at: $0) }
         }
     }
-    
+
     func executeNextItem() {
         lock()
         guard concurrentCount < maxConcurrentCount else { return unlock() }
         guard let item = items.filter({ !$0.isExecuting }).first else { return unlock() }
-        
+
         concurrentCount += 1
         unlock()
-        
+
         item.execute(on: queueScheduler) {
             self.mutex.protect {
                 self.concurrentCount -= 1
@@ -205,7 +204,7 @@ var futureQueueUnitTestAliveCount: Int32 = 0
 private protocol Executable: class {
     func execute(on scheduler: Scheduler, completion: @escaping () -> Void)
     var isExecuting: Bool { get }
-    
+
     func abort(with error: Error)
     func cancel()
 }
@@ -216,7 +215,7 @@ private final class QueueItem<Output> : Executable {
     private weak var future: Future<Output>?
     private var hasBeenCancelled = false
     private var _mutex = pthread_mutex_t()
-    
+
     init(operation: @escaping () throws -> Future<Output>, completion: @escaping (Result<Output>) -> ()) {
         self.completion = completion
         self.operation = operation
@@ -238,43 +237,42 @@ private final class QueueItem<Output> : Executable {
 
     private func complete(_ result: (Result<Output>)) {
         lock()
-        let f = future
+        let future = self.future
         unlock()
-        f?.cancel()
+        future?.cancel()
         completion(result)
     }
-    
+
     func execute(on scheduler: Scheduler, completion: @escaping () -> Void) {
-        let f = Future().flatMap(on: scheduler, operation).onResult { r in
-            self.complete(r)
+        let future = Future().flatMap(on: scheduler, operation).onResult { result in
+            self.complete(result)
         }.always(completion)
-        
+
         lock()
-        future = f
+        self.future = future
         if hasBeenCancelled {
             unlock()
-            f.cancel()
+            future.cancel()
         } else {
             unlock()
         }
     }
-    
+
     func abort(with error: Error) {
         complete(.failure(error))
     }
-    
+
     var isExecuting: Bool {
         lock()
         defer { unlock() }
         return future != nil
     }
-    
+
     func cancel() {
         lock()
         hasBeenCancelled = true
-        let f = future
+        let future = self.future
         unlock()
-        f?.cancel()
+        future?.cancel()
     }
 }
-

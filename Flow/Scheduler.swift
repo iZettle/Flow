@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// Encapsulates how to asynchronously and synchronously scheduler work and allows comparing if two instances are representing the same scheduler.
 public final class Scheduler {
     private let identifyingObject: AnyObject
@@ -45,30 +44,30 @@ public extension Scheduler {
         guard !isImmediate else {
             return work()
         }
-        
+
         let state = threadState
         state.syncScheduler = self
         var result: T!
-        _sync  {
+        _sync {
             result = work()
         }
         state.syncScheduler = nil
         return result
     }
-    
+
     /// Returns true if `async()` and `sync()` will execute work immediately and hence not be scheduled.
     var isImmediate: Bool {
         if (self == .main && Thread.isMainThread) || self == .none { return true }
         let state = threadState
         return self == state.scheduler || self == state.syncScheduler
     }
-    
+
     /// Returns true if `self` is currently execute work
     var isExecuting: Bool {
         let state = threadState
         return self == state.scheduler  || (Thread.isMainThread && self == .main) || self == state.syncScheduler
     }
-    
+
     /// Synchronously schedules `work` unless we are already currently scheduling work on `self`, where the `work` be immediately called.
     /// - Throws: If `work` throws.
     func sync<T>(execute work: () throws -> T) throws -> T {
@@ -76,7 +75,7 @@ public extension Scheduler {
             Result { try work() }
         }.getValue()
     }
-    
+
     /// Will asynchronously schedule `work` on `self` after `delay` seconds
     func async(after delay: TimeInterval, execute work: @escaping () -> ()) {
         return DispatchQueue.concurrentBackground.asyncAfter(deadline: DispatchTime.now() + delay) {
@@ -124,17 +123,16 @@ extension Scheduler: Equatable {
     }
 }
 
-// Below breaks fastlane builds
-//#if canImport(CoreData)
-//import CoreData
-//
-//pubic extension NSManagedObjectContext {
-//    var scheduler: Scheduler {
-//        return concurrencyType == .mainQueueConcurrencyType ? .main : Scheduler(identifyingObject: self, async: perform, sync: performAndWait)
-//    }
-//}
-//#endif
+#if canImport(CoreData)
+import CoreData
 
+public extension NSManagedObjectContext {
+    var scheduler: Scheduler {
+        return concurrencyType == .mainQueueConcurrencyType ? .main : Scheduler(identifyingObject: self, async: perform, sync: performAndWait)
+    }
+}
+
+#endif
 
 /// Used for scheduling delays and might be overridend in unit test with simulatated delays
 func disposableAsync(after delay: TimeInterval, execute work: @escaping () -> ()) -> Disposable {
@@ -158,20 +156,20 @@ extension Scheduler {
     /// - Note: There is no guarantee that `work` will not be called after disposing the returned `Disposable`
     func disposableAsync(after delay: TimeInterval, execute work: @escaping () -> ()) -> Disposable {
         precondition(delay >= 0)
-        let s = StateAndCallback(state: Optional(work))
+        let state = StateAndCallback(state: Optional(work))
 
-        async(after: delay) { [weak s] in
-            guard let s = s else { return }
-            s.lock()
-            let work = s.val
-            s.val = nil
-            s.unlock()
+        async(after: delay) { [weak state] in
+            guard let state = state else { return }
+            state.lock()
+            let work = state.val
+            state.val = nil
+            state.unlock()
 
             // We can not hold a lock while calling out (risk of deadlock if callout calls dispose), hence dispose might be called just after releasing a lock but before calling out. This means there is guarantee `work` would be called after a dispose.
             work?()
         }
-        
-        return Disposer { s.protectedVal = nil }
+
+        return Disposer { state.protectedVal = nil }
     }
 }
 
@@ -179,7 +177,6 @@ extension DispatchQueue {
     static let concurrentBackground = DispatchQueue(label: "flow.background.concurrent", attributes: .concurrent)
     static let serialBackground = DispatchQueue(label: "flow.background.serial")
 }
-
 
 final class ThreadState {
     var scheduler: Scheduler?
@@ -189,12 +186,12 @@ final class ThreadState {
 
 var threadState: ThreadState {
     guard !Thread.isMainThread else { return mainThreadState }
-    if let p = pthread_getspecific(threadStateKey) {
-        return Unmanaged<ThreadState>.fromOpaque(p).takeUnretainedValue()
+    if let state = pthread_getspecific(threadStateKey) {
+        return Unmanaged<ThreadState>.fromOpaque(state).takeUnretainedValue()
     }
-    let s = ThreadState()
-    pthread_setspecific(threadStateKey, Unmanaged.passRetained(s).toOpaque())
-    return s
+    let state = ThreadState()
+    pthread_setspecific(threadStateKey, Unmanaged.passRetained(state).toOpaque())
+    return state
 }
 
 private let mainThreadState = ThreadState()
@@ -203,4 +200,3 @@ private var threadStateKey: pthread_key_t = {
     pthread_key_create(&_threadStateKey, nil)
     return _threadStateKey
 }()
-

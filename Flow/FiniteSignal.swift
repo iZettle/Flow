@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// An abstraction for observing values over time where the signal can terminate
 ///
 /// A finite signal allows observing events over time by registering of a callback:
@@ -34,7 +33,7 @@ public extension CoreSignal where Kind == Finite {
     convenience init(options: SignalOptions = .default, onEvent: @escaping (@escaping (Event) -> Void) -> Disposable) {
         self.init(options: options, onInternalEvent: onEvent)
     }
-    
+
     /// Creates a new instance that will use the provided `callbacker` to register listeners.
     ///
     ///     let callbacker = ...
@@ -42,11 +41,11 @@ public extension CoreSignal where Kind == Finite {
     ///     ...
     ///     callbacker.callAll(with: event) // Will signal `event` to all signal's listeners.
     convenience init(callbacker: Callbacker<Event>) {
-        self.init(options: [], onInternalEvent: { c in
-            return callbacker.addCallback(c)
+        self.init(options: [], onInternalEvent: { callback in
+            return callbacker.addCallback(callback)
         })
     }
-    
+
     /// Creates a new instance that will never signal any events.
     convenience init() {
         self.init(onEventType: { callback in
@@ -54,7 +53,7 @@ public extension CoreSignal where Kind == Finite {
             return NilDisposer()
         })
     }
-    
+
     /// Creates a new instance wrapping `signal`.
     convenience init<S: SignalProvider>(_ signal: S) where S.Value == Value {
         let signal = signal.providedSignal
@@ -76,5 +75,3 @@ public extension SignalProvider where Kind == Finite {
         return Signal(self)
     }
 }
-
-

@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 public extension SignalProvider {
     /// Returns a future that will succeed for when `self` signals its first value, or fail if `self` is terminated.
     /// - Note: If the signal is terminated without an error, the return future will fail with `FutureError.aborted`
@@ -47,7 +46,7 @@ public extension Future {
         // And canceling a completed future has no effect anyway.
         return Disposer { [weak self] in self?.cancel() }
     }
-    
+
     /// Returns a signal that at the completion of `self` will signal the result.
     var resultSignal: Signal<Result<Value>> {
         return Signal { callback in
@@ -59,7 +58,7 @@ public extension Future {
     var valueSignal: FiniteSignal<Value> {
         return resultSignal.map { try $0.getValue() }
     }
-    
+
     /// Returns a signal that at the completion of `self` will signal the success value and thereafter terminate the signal, unless a failure where the signal will be terminated with that failure error.
     var valueThenEndSignal: FiniteSignal<Value> {
         return FiniteSignal(onEvent: { callback in
@@ -78,7 +77,7 @@ public extension Future {
         let signal = signal.providedSignal
         return onValue { signal.value = $0 }
     }
-    
+
     /// Returns a new future, where the success value will be hold until `signal`'s value is or becomes true.
     func hold<S>(until signal: S) -> Future where S: SignalProvider, S.Value == Bool, S.Kind.DropWrite == Read {
         return flatMap { val in

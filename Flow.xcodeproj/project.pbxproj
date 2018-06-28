@@ -22,6 +22,8 @@
 		F610ABC11D91747000A161AB /* FutureUtilitiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABB91D91747000A161AB /* FutureUtilitiesTests.swift */; };
 		F610ABC31D91747000A161AB /* MultipleContinuationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABBB1D91747000A161AB /* MultipleContinuationsTests.swift */; };
 		F610ABC51D9175F400A161AB /* TestUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABC41D9175F400A161AB /* TestUtilities.swift */; };
+		F6442D7420C6C9A500319327 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6442D7320C6C9A500319327 /* CoreData.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		F6442D7620C6C9CF00319327 /* libswiftCoreData.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F6442D7520C6C9CF00319327 /* libswiftCoreData.tbd */; settings = {ATTRIBUTES = (Weak, ); }; };
 		F6462A401EFA5065007E2198 /* Signal+Construction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6462A3F1EFA5065007E2198 /* Signal+Construction.swift */; };
 		F6462A421EFAAD06007E2198 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6462A411EFAAD06007E2198 /* Scheduler.swift */; };
 		F64E975F201888EB00865380 /* Future+Combiners.swift in Sources */ = {isa = PBXBuildFile; fileRef = F64E975E201888EB00865380 /* Future+Combiners.swift */; };
@@ -53,9 +55,6 @@
 		F6C0FED2202B44360076B877 /* DelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C0FED1202B44360076B877 /* DelegateTests.swift */; };
 		F6D80B641BBBB2ED008F8574 /* Flow.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6D80B591BBBB2ED008F8574 /* Flow.framework */; };
 		F6E752312099B60A0092EDAA /* HasEventListeners.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E752302099B60A0092EDAA /* HasEventListeners.swift */; };
-		F6EDC6E22066BD39007AC39B /* LifetimeManagement.md in Resources */ = {isa = PBXBuildFile; fileRef = F6EDC6DF2066BD39007AC39B /* LifetimeManagement.md */; };
-		F6EDC6E32066BD39007AC39B /* Signals.md in Resources */ = {isa = PBXBuildFile; fileRef = F6EDC6E02066BD39007AC39B /* Signals.md */; };
-		F6EDC6E42066BD39007AC39B /* Futures.md in Resources */ = {isa = PBXBuildFile; fileRef = F6EDC6E12066BD39007AC39B /* Futures.md */; };
 		F6F679A320A966D1004C7AA7 /* EventListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F679A220A966D1004C7AA7 /* EventListenerTests.swift */; };
 		F6FF03DE1D926AC300B93771 /* Callbacker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6FF03D41D926AC300B93771 /* Callbacker.swift */; };
 		F6FF03DF1D926AC300B93771 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6FF03D51D926AC300B93771 /* Disposable.swift */; };
@@ -95,6 +94,8 @@
 		F610ABBA1D91747000A161AB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = FlowTests/Info.plist; sourceTree = SOURCE_ROOT; };
 		F610ABBB1D91747000A161AB /* MultipleContinuationsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MultipleContinuationsTests.swift; path = FlowTests/MultipleContinuationsTests.swift; sourceTree = SOURCE_ROOT; };
 		F610ABC41D9175F400A161AB /* TestUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TestUtilities.swift; path = FlowTests/TestUtilities.swift; sourceTree = SOURCE_ROOT; };
+		F6442D7320C6C9A500319327 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		F6442D7520C6C9CF00319327 /* libswiftCoreData.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftCoreData.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/PrivateFrameworks/Swift/libswiftCoreData.tbd; sourceTree = DEVELOPER_DIR; };
 		F6462A3F1EFA5065007E2198 /* Signal+Construction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Signal+Construction.swift"; path = "Flow/Signal+Construction.swift"; sourceTree = "<group>"; };
 		F6462A411EFAAD06007E2198 /* Scheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Scheduler.swift; path = Flow/Scheduler.swift; sourceTree = SOURCE_ROOT; };
 		F64E975E201888EB00865380 /* Future+Combiners.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Future+Combiners.swift"; path = "Flow/Future+Combiners.swift"; sourceTree = SOURCE_ROOT; };
@@ -149,6 +150,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6442D7620C6C9CF00319327 /* libswiftCoreData.tbd in Frameworks */,
+				F6442D7420C6C9A500319327 /* CoreData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,6 +166,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F6442D7220C6C9A400319327 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F6442D7520C6C9CF00319327 /* libswiftCoreData.tbd */,
+				F6442D7320C6C9A500319327 /* CoreData.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		F66F8527205AADEE00347601 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -237,6 +249,7 @@
 				F6D80B671BBBB2ED008F8574 /* Tests */,
 				F6D80B5A1BBBB2ED008F8574 /* Products */,
 				F610ABAA1D91743500A161AB /* Info.plist */,
+				F6442D7220C6C9A400319327 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -394,9 +407,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F6EDC6E32066BD39007AC39B /* Signals.md in Resources */,
-				F6EDC6E42066BD39007AC39B /* Futures.md in Resources */,
-				F6EDC6E22066BD39007AC39B /* LifetimeManagement.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -611,6 +621,7 @@
 				INFOPLIST_FILE = Flow/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.iZettle.Flow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -634,6 +645,7 @@
 				INFOPLIST_FILE = Flow/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.iZettle.Flow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

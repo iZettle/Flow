@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// A value indicating either a regular `event` or an `initial` event, optionally with a value.
 enum EventType<Value> {
     case initial(Value?)
@@ -24,7 +23,7 @@ extension EventType {
         case .event(.end(let error)): return .event(.end(error))
         }
     }
-    
+
     func flatMap<O>(_ transform: (Value) throws -> O?) rethrows -> EventType<O>? {
         switch self {
         case .initial(nil): return .initial(nil)
@@ -33,7 +32,7 @@ extension EventType {
         case .event(.end(let error)): return .event(.end(error))
         }
     }
-    
+
     var value: Value? {
         switch self {
         case .initial(let val?): return val

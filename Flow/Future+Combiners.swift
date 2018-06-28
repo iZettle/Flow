@@ -8,33 +8,32 @@
 
 import Foundation
 
-
 public extension Future {
     /// Returns a new future joining `self` and `other`. If both `self` and `other` succeed, the returned future will succeed with both's results. If either `self` or `other` fails, the returned future will fail as well.
     /// - Parameter cancelNonCompleted: If true (default), as the returned future completes, `self` and `other` will be canceled if possible.
     @discardableResult
     func join<T>(with other: Future<T>, cancelNonCompleted: Bool = true) -> Future<(Value, T)> {
         return Future<(Value, T)> { completion, mover in
-            let s = StateAndCallback(state: (left: Value?.none, right: T?.none), callback: completion)
-            
-            let leftFuture = mover.moveInside(self).onError(on: .none) { completion(.failure($0)) }.onValue { l in
-                s.lock()
-                s.val.left = l
-                guard let r = s.val.right else { return s.unlock() }
-                
-                s.unlock()
-                s.callback(.success((l, r)))
+            let state = StateAndCallback(state: (left: Value?.none, right: T?.none), callback: completion)
+
+            let leftFuture = mover.moveInside(self).onError(on: .none) { completion(.failure($0)) }.onValue { left in
+                state.lock()
+                state.val.left = left
+                guard let right = state.val.right else { return state.unlock() }
+
+                state.unlock()
+                state.callback(.success((left, right)))
             }
-            
-            let rightFuture = mover.moveInside(other).onError(on: .none) { completion(.failure($0)) }.onValue { r in
-                s.lock()
-                s.val.right = r
-                guard let l = s.val.left else { return s.unlock() }
-                
-                s.unlock()
-                s.callback(.success((l, r)))
+
+            let rightFuture = mover.moveInside(other).onError(on: .none) { completion(.failure($0)) }.onValue { right in
+                state.lock()
+                state.val.right = right
+                guard let left = state.val.left else { return state.unlock() }
+
+                state.unlock()
+                state.callback(.success((left, right)))
             }
-            
+
             return Disposer {
                 guard cancelNonCompleted else { return }
                 leftFuture.cancel()
@@ -44,16 +43,16 @@ public extension Future {
     }
 }
 
-/// Returns a new future joining `a` and `b`. If both `a` and `b` succeed, the returned future will succeed with both's results. If either `a` or `b` fails, the returned future will fail as well.
+/// Returns a new future joining `left` and `right`. If both `left` and `right` succeed, the returned future will succeed with both's results. If either `left` or `right` fails, the returned future will fail as well.
 /// - Parameter cancelNonCompleted: If true (default), as the returned future completes, `a` and `b` will be canceled if possible
-public func join<A, B>(_ a: Future<A>, _ b: Future<B>, cancelNonCompleted: Bool = true) -> Future<(A, B)> {
-    return a.join(with: b, cancelNonCompleted: cancelNonCompleted)
+public func join<A, B>(_ left: Future<A>, _ right: Future<B>, cancelNonCompleted: Bool = true) -> Future<(A, B)> {
+    return left.join(with: right, cancelNonCompleted: cancelNonCompleted)
 }
 
-/// Returns a new future joining `a`, `b` and `c`. If `a`, `b` and `c` all succeed, the returned future will succeed with all three's results. If either `a`, `b` or `c` fails, the returned future will fail as well.
+/// Returns a new future joining `left`, `middle` and `right`. If `left`, `middle` and `right` all succeed, the returned future will succeed with all three's results. If either `left`, `middle` or `right` fails, the returned future will fail as well.
 /// - Parameter cancelNonCompleted: If true (default), as the returned future completes, `a`, `b` and `b` will be canceled if possible
-public func join<A, B, C>(_ a: Future<A>, _ b: Future<B>, _ c: Future<C>, cancelNonCompleted: Bool = true) -> Future<(A, B, C)> {
-    return a.join(with: b, cancelNonCompleted: cancelNonCompleted).join(with: c, cancelNonCompleted: cancelNonCompleted).map { ($0.0, $0.1, $1) }
+public func join<A, B, C>(_ left: Future<A>, _ middle: Future<B>, _ right: Future<C>, cancelNonCompleted: Bool = true) -> Future<(A, B, C)> {
+    return left.join(with: middle, cancelNonCompleted: cancelNonCompleted).join(with: right, cancelNonCompleted: cancelNonCompleted).map { ($0.0, $0.1, $1) }
 }
 
 /// Returns a new future joining `futures`. Id all the futures in `futures` succeed, the returned future will succeed with the results from the futures. If any future in `futures` fail, the returned future will fail as well.
@@ -67,13 +66,13 @@ public func join<T>(_ futures: [Future<T>], cancelNonCompleted: Bool = true) -> 
             results[i] = val
         }
     }
-    
+
     var future = futures.first!.onValue(on: .none) { onValue(0, $0) }
-    
-    for (i, f) in futures.dropFirst().enumerated() {
-        future = future.join(with: f, cancelNonCompleted: cancelNonCompleted).map(on: .none) { $0.1 }.onValue(on: .none) { onValue(i+1, $0) }
+
+    for (index, joinFuture) in futures.dropFirst().enumerated() {
+        future = future.join(with: joinFuture, cancelNonCompleted: cancelNonCompleted).map(on: .none) { $0.1 }.onValue(on: .none) { onValue(index + 1, $0) }
     }
-    
+
     return future.map { _ in results.compactMap { $0 } }
 }
 
@@ -85,7 +84,7 @@ public extension Future {
         return Future<Either<Value, T>> { completion, mover in
             let leftFuture = mover.moveInside(self).onValue(on: .none) { completion(.success(Either.left($0))) }.onError(on: .none) { completion(.failure($0)) }
             let rightFuture = mover.moveInside(other).onValue(on: .none) { completion(.success((Either.right($0)))) }.onError(on: .none) { completion(.failure($0)) }
-            
+
             return Disposer {
                 guard cancelNonCompleted else { return }
                 leftFuture.cancel()
@@ -107,10 +106,10 @@ public func select<L, R>(_ left: Future<L>, or right: Future<R>, cancelNonComple
 @discardableResult
 public func select<T>(between futures: [Future<T>], cancelNonCompleted: Bool = true) -> Future<T> {
     precondition(!futures.isEmpty, "At least one future must be provided")
-    
+
     var future = futures.first!
-    for f in futures.dropFirst() {
-        future = future.select(between: f, cancelNonCompleted: cancelNonCompleted).map(on: .none) {
+    for selectFuture in futures.dropFirst() {
+        future = future.select(between: selectFuture, cancelNonCompleted: cancelNonCompleted).map(on: .none) {
             switch $0 {
             case let .right(val):
                 return val
@@ -119,7 +118,7 @@ public func select<T>(between futures: [Future<T>], cancelNonCompleted: Bool = t
             }
         }
     }
-    
+
     return future
 }
 
@@ -132,9 +131,9 @@ public extension Sequence {
     func mapToFuture<T>(on scheduler: Scheduler = .current, _ transform: @escaping (Iterator.Element) throws -> Future<T>) -> Future<[T]> {
         var generator = makeIterator()
         guard let first = generator.next() else { return Future([]) }
-        
+
         var result = [T]()
-        
+
         var prevFuture = Future().flatMap(on: scheduler) { try transform(first) }
         while let next = generator.next() {
             prevFuture = prevFuture.flatMap(on: scheduler) { val in
@@ -142,13 +141,13 @@ public extension Sequence {
                 return try transform(next)
             }
         }
-        
+
         return prevFuture.map(on: .none) { val -> [T] in
             result.append(val)
-            return result;
+            return result
         }
     }
-    
+
     /// Returns a new future where `self`'s elements are transformed one at the time using `transform`.
     /// An element will not be transformed using `transform` until the previous elements future has completed.
     /// The returning future is the collection of the results from all the futures transformed by `transform`.
@@ -156,9 +155,9 @@ public extension Sequence {
     func mapToFutureResults<T>(on scheduler: Scheduler = .current, _ transform: @escaping (Iterator.Element) throws -> Future<T>) -> Future<[Result<T>]> {
         var generator = makeIterator()
         guard let first = generator.next() else { return Future([]) }
-        
+
         var result = [Result<T>]()
-        
+
         var prevFuture = Future().flatMap(on: scheduler) { try transform(first) }
         while let next = generator.next() {
             prevFuture = prevFuture.flatMapResult(on: scheduler) { val in
@@ -166,7 +165,7 @@ public extension Sequence {
                 return try transform(next)
             }
         }
-        
+
         return prevFuture.flatMapResult(on: .none) { res -> Future<[Result<T>]> in
             result.append(res)
             return Future<[Result<T>]>(result)
@@ -180,11 +179,11 @@ public extension Future {
     func abort(forFutures futures: [Future<()>]) -> Future {
         return Future { completion in
             let future = self.onResult(on: .none, completion)
-            
-            let aborts = Flow.select(between: futures).onResult(on: .none) { r in
-                completion(.failure(r.error ?? FutureError.aborted))
+
+            let aborts = Flow.select(between: futures).onResult(on: .none) { result in
+                completion(.failure(result.error ?? FutureError.aborted))
             }
-            
+
             return Disposer {
                 future.cancel()
                 aborts.cancel()
@@ -196,38 +195,38 @@ public extension Future {
 /// Helper type that will make sure overlapping performances is only performed once
 public final class SingleTaskPerformer<Value> {
     private let mutex = Mutex()
-    private var future: Future<Value>?? = nil
-    
+    private var future: Future<Value>??
+
     public init() { }
-    
+
     /// Returns a future that will complete with the result from the future returned from `function`.
     /// If a previous call to `performSingleTask` is still pending, `function` will not be called and instead the returned future will complete with the result from the pending future.
     @discardableResult
     public func performSingleTask(_ function: @escaping () -> Future<Value>) -> Future<Value> {
         mutex.lock()
-        
+
         // Double unwrap
-        if case let f?? = future {
+        if case let future?? = future {
             mutex.unlock()
-            return f.onResult(on: .none) { _ in } // Add continuation to not let a cancel on one returned future cancel all returned futures.
+            return future.onResult(on: .none) { _ in } // Add continuation to not let a cancel on one returned future cancel all returned futures.
         }
-        
+
         future = .some(nil) // mark as calling out
-        
+
         mutex.unlock() // unlock while calling out as we might either recurs or always might execute at once.
         let singleFuture = function().always(on: .none) {
             self.mutex.protect { self.future = nil }
         }
         mutex.lock()
-        
+
         if case .some(nil) = future { // Not nil-ed while calling out?
             future = singleFuture
         }
-    
+
         mutex.unlock()
         return singleFuture.onResult(on: .none) { _ in } // Add continuation to not let a cancel on one returned future cancel all returned futures.
     }
-    
+
     public var isPerforming: Bool {
         return mutex.protect { self.future != nil }
     }
