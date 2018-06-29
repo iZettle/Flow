@@ -41,7 +41,7 @@ let shouldCheckAliveCounts = true
 extension XCTestCase {
     func waitForAliveCountReachingZeroUsingTimeout(_ timeout: TimeInterval, completion: @escaping (Bool) -> Void) {
         //printAliveCounts()
-        
+
         if futureUnitTestAliveCount == 0 && queueItemUnitTestAliveCount == 0 && futureQueueUnitTestAliveCount == 0 {
             completion(true)
         } else if timeout <= 0 {
@@ -53,7 +53,7 @@ extension XCTestCase {
             }
         }
     }
-    
+
     func testFuture<T>(repeatCount: Int = 0, timeout: TimeInterval = 0.5, allDoneDelay: TimeInterval = 0.3, cancelAfterDelay: TimeInterval? = nil, cancelOn cancelScheduler: Scheduler = .main, future: () -> Future<T>) {
         let timeout = amIBeingDebugged() ? 1000 : timeout
         //        let timeout = timeout + 100
@@ -64,7 +64,7 @@ extension XCTestCase {
             //XCTAssertTrue(waitForAliveCountReachingZeroUsingTimeout(5))
             autoreleasepool {
                 let f = future().always {
-                    
+
                     func done(_ success: Bool) {
                         if !success {
                             print("Not all futures where released")
@@ -76,7 +76,7 @@ extension XCTestCase {
                         count -= 1
                         e.fulfill()
                     }
-                    
+
                     if shouldCheckAliveCounts {
                         self.waitForAliveCountReachingZeroUsingTimeout(allDoneDelay, completion: done)
                     } else {
@@ -91,7 +91,7 @@ extension XCTestCase {
                 }
             }
         }
-        
+
         waitForExpectations(timeout: timeout + (shouldCheckAliveCounts ? allDoneDelay + 0.5 : 0)) { error in
             //            if let e = error {
             //                XCTFail("Expectation Failed with error: \(e)");
@@ -119,7 +119,7 @@ extension XCTestCase {
             function(FutureQueue(resource: 4711, executeOn: scheduleOn))
         }
     }
-    
+
     func testQueueResult<T: Equatable, Result>(_ result: [T], repeatCount: Int = 0, timeout: TimeInterval = 0.5, allDoneDelay: TimeInterval = 0.1, scheduleOn: Scheduler = .current, function: @escaping (FutureQueue<Int>, @escaping (T) -> ()) -> Future<Result>) {
         testQueue(repeatCount: repeatCount, timeout: timeout, allDoneDelay: allDoneDelay) { (queue: FutureQueue<Int>) -> Future<Result> in
             var r = [T]()
@@ -127,7 +127,6 @@ extension XCTestCase {
         }
     }
 }
-
 
 public let mainQueue = DispatchQueue.main
 public let backgroundQueue = DispatchQueue.global(qos: .default)
@@ -138,65 +137,64 @@ extension Scheduler {
 func assertMain() { assert(isMain, "Not on main queue" ) }
 func assertBackground() { assert(!isMain, "Not on background queue" ) }
 
-
 extension Future {
     @discardableResult
     func assertMain() -> Future {
-        return always { 
+        return always {
             if (!isMain) {
                 print("")
             }
             XCTAssertTrue(isMain, "Not on main queue" )
         }
     }
-    
+
     @discardableResult
     func assertBackground() -> Future {
-        return always { 
+        return always {
             if (isMain) {
                 print("")
             }
             XCTAssertFalse(isMain, "Not on background queue")
         }
     }
-    
+
     @discardableResult
     func assert(on scheduler: Scheduler) -> Future {
         return always {
             XCTAssertTrue(scheduler.isExecuting, "Not executing on correct scheduler: \(scheduler == .main ? "main" : "background")")
         }
     }
-    
+
     @discardableResult
     func assertNoValue() -> Future {
         return onValue { _ in XCTAssertTrue(false, "Invalid reception of value") }
     }
-    
+
     @discardableResult
     func assertError() -> Future {
         return onError { e in XCTAssertTrue(true, "Did not receive error") }
     }
-    
+
     @discardableResult
     func assertNoError() -> Future {
         return onError { e in XCTAssertTrue(false, "Did not expect error: \(e)") }
     }
-    
+
     @discardableResult
     func assertNoCancel() -> Future {
         return onCancel { XCTAssertTrue(false, "Should not cancel") }
     }
-    
+
     @discardableResult
     func assertValue() -> Future {
         return assertNoError().assertNoCancel()
     }
-    
+
     @discardableResult
     func assertValue(_ value: Value, isSame: @escaping (Value, Value) -> Bool) -> Future {
         return assertValue().onValue { (v: Value) -> Void in XCTAssertTrue(isSame(v, value)) }
     }
-    
+
     @discardableResult
     func assertDelay(_ delay: TimeInterval) -> Future {
         let date = Date()
@@ -213,7 +211,7 @@ extension Future where Value: Equatable {
 
 func amIBeingDebugged() -> Bool {
     var info = kinfo_proc()
-    var mib : [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+    var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
     var size = MemoryLayout<kinfo_proc>.stride
     let junk = sysctl(&mib, UInt32(mib.count), &info, &size, nil, 0)
     assert(junk == 0, "sysctl failed")

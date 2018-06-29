@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 public extension SignalProvider {
     /// Returns a new signal delaying events by `delay`.
     /// - Parameter delay: The time to delay the signaled events. A delay of zero will still delay signaled events. However, passing a nil value will not delay signaled events.
@@ -18,14 +17,14 @@ public extension SignalProvider {
         guard let delay = delay else { return signal }
         precondition(delay >= 0)
 
-        return CoreSignal(setValue: signal.setter, onEventType: { c in
+        return CoreSignal(setValue: signal.setter, onEventType: { callback in
             let bag = DisposeBag()
             bag += signal.onEventType { eventType in
                 if case .initial = eventType { // Don't delay initial
-                    c(eventType)
+                    callback(eventType)
                 } else {
                     bag += disposableAsync(after: delay) {
-                        c(eventType)
+                        callback(eventType)
                     }
                 }
             }
@@ -40,36 +39,36 @@ public extension CoreSignal where Kind == Plain, Value == () {
     /// - Parameter delay: If provided will delay the first event by `delay`. If nil (default), `interval` will be used as the delay.
     convenience init(every interval: TimeInterval, delay: TimeInterval? = nil) {
         precondition(interval >= 0)
-        self.init { c in
+        self.init { callback in
             let bag = DisposeBag()
             guard interval.isFinite else { return bag }
-            
+
             let timer = DispatchSource.makeTimerSource(queue: .concurrentBackground)
-            
+
             bag.hold(timer) // DispatchSourceTimer is automatically cancelled after being released
             timer.setEventHandler {
-                c(())
+                callback(())
             }
-            
+
             let deadline: DispatchTime
             if let delay = delay {
                 deadline = DispatchTime.now() + delay
             } else {
                 deadline = DispatchTime.now() + interval
             }
-            
+
             timer.schedule(deadline: deadline, repeating: interval)
             timer.resume()
-            
+
             return bag
         }
     }
-    
+
     /// Creates a new signal that will signal once after `delay` seconds. Shorter version of `Signal(just: ()).delay(by: ...)`
     convenience init(after delay: TimeInterval) {
-        self.init { c in
+        self.init { callback in
             return disposableAsync(after: delay) {
-                c(())
+                callback(())
             }
         }
     }
@@ -87,51 +86,51 @@ internal extension CoreSignal {
 
 // Using custom Disposable instead of DisposeBag for efficiency (less allocations)
 private final class OnEventTypeDisposer<Value>: Disposable {
-    private var disposable: Disposable? = nil
+    private var disposable: Disposable?
     private var _mutex = pthread_mutex_t()
     private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
     private let scheduler: Scheduler
     private var callback: ((EventType<Value>) -> Void)?
-    
+
     init(on scheduler: Scheduler, callback: @escaping (EventType<Value>) -> Void, onEventType: @escaping (@escaping (EventType<Value>) -> Void) -> Disposable) {
         self.scheduler = scheduler
         self.callback = callback
         mutex.initialize()
-        
-        let d = onEventType(handleEventType)
-        
+
+        let disposable = onEventType(handleEventType)
+
         mutex.lock()
         if self.callback == nil {
-            d.dispose()
+            disposable.dispose()
         } else {
-            disposable = d
+            self.disposable = disposable
         }
         mutex.unlock()
     }
-    
+
     deinit {
         dispose()
         mutex.deinitialize()
     }
-    
+
     public func dispose() {
         mutex.lock()
-        let d = disposable
-        disposable = nil
+        let disposable = self.disposable
+        self.disposable = nil
         callback = nil
         mutex.unlock()
-        d?.dispose()
+        disposable?.dispose()
     }
-    
+
     func handleEventType(_ eventType: EventType<Value>) {
         mutex.lock()
-        
+
         guard let callback = self.callback else {
             return mutex.unlock()
         }
-        
+
         mutex.unlock()
-        
+
         if scheduler.isImmediate {
             validate(eventType: eventType)
             callback(eventType)
@@ -148,9 +147,9 @@ private final class OnEventTypeDisposer<Value>: Disposable {
                 guard let callback = self.callback else {
                     return self.mutex.unlock()
                 }
-                
+
                 self.validate(eventType: eventType)
-                
+
                 self.mutex.unlock()
                 callback(eventType)
                 if case .event(.end) = eventType {
@@ -159,7 +158,7 @@ private final class OnEventTypeDisposer<Value>: Disposable {
             }
         }
     }
-    
+
     #if DEBUG
     private var hasReceivedInitial = false
     func validate(eventType: EventType<Value>) {
@@ -179,4 +178,3 @@ private final class OnEventTypeDisposer<Value>: Disposable {
     func validate(eventType: EventType<Value>) { }
     #endif
 }
-

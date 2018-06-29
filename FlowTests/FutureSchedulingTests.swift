@@ -10,7 +10,6 @@ import Foundation
 import Flow
 import XCTest
 
-
 extension Scheduler {
     static let concurrentBackground = Scheduler(label: "flow.background", attributes: .concurrent)
 }
@@ -21,7 +20,6 @@ func assertConcurrentBackground() {
     }
     XCTAssertTrue(Scheduler.concurrentBackground.isExecuting, "Not on concurrentBackground")
 }
-
 
 class FutureNewSchedulingTests: FutureTest {
     func testMap() {
@@ -37,10 +35,10 @@ class FutureNewSchedulingTests: FutureTest {
             XCTAssertEqual(val, 5*2 + 1)
             e.fulfill()
         }
-        
+
         waitForExpectations(timeout: 100) { _ in }
     }
-    
+
     func testFlatMap() {
         let e = expectation(description: "complete")
         Future(5).flatMap(on: .concurrentBackground) { val -> Future<Int> in
@@ -57,26 +55,25 @@ class FutureNewSchedulingTests: FutureTest {
             XCTAssertEqual(val, 5*2 + 1)
             e.fulfill()
         }
-        
-        
+
         waitForExpectations(timeout: 100) { _ in }
     }
 
     func testPassingShedulerAtInit() {
         testFuture(repeatCount: 100) {
-            Future(on: .concurrentBackground) { c in
+            Future(on: .concurrentBackground) { completion in
                 assertConcurrentBackground()
-                c(.success(4711))
+                completion(.success(4711))
                 return NilDisposer()
             }.assert(on: .main).assertValue(4711)
         }
     }
-    
+
     func testPassingShedulerAtInitDelay() {
         testFuture(repeatCount: 100) {
-            Future(on: .concurrentBackground) { c in
+            Future(on: .concurrentBackground) { completion in
                 assertConcurrentBackground()
-                c(.success(4711))
+                completion(.success(4711))
                 return NilDisposer()
             }.delay(by: 0.01).assert(on: .main).assertValue(4711)
         }
@@ -92,11 +89,11 @@ class FutureNewSchedulingTests: FutureTest {
                 }
                 return f.assertValue(v*2).assert(on: .main)
             })
-            
+
             return futures.assert(on: .main).onValue { v in XCTAssertEqual(v, (1...100).map { $0*2 }) }
         }
     }
-    
+
     func testManyDelayedToBackground() {
         testFuture(timeout: 5) { () -> Future<[Int]> in
             let futures = join((1...100).map { (v: Int) -> Future<Int> in
@@ -107,11 +104,11 @@ class FutureNewSchedulingTests: FutureTest {
                 }
                 return f.assertValue(v*2).assert(on: .main)
             })
-            
+
             return futures.assert(on: .main).onValue { v in XCTAssertEqual(v, (1...100).map { $0*2 }) }
         }
     }
-    
+
     func testManyDelayedToBackgroundOrMain() {
         testFuture(repeatCount: 10, timeout: 5) { () -> Future<[Int]> in
             let futures = join((1...100).map { (v: Int) -> Future<Int> in
@@ -119,17 +116,17 @@ class FutureNewSchedulingTests: FutureTest {
                 f = f.map(on: v%2 == 0 ? .concurrentBackground : .main) { $0*2 }
                 return f.assertValue(v*2)
             })
-            
+
             return futures.onValue { v in XCTAssertEqual(v, (1...100).map { $0*2 }) }.assert(on: .main)
         }
     }
-    
+
     func testDelayMain() {
         testFuture(repeatCount: 0, timeout: 1) {
             Future(5).delay(by: 0.1).assert(on: .main).assertDelay(0.09)
         }
     }
-    
+
     func testDelayBackground() {
         testFuture(repeatCount: 10, timeout: 1) { () -> Future<Int> in
             return Future().flatMap(on: .concurrentBackground) {
@@ -164,7 +161,7 @@ class FutureNewSchedulingTests: FutureTest {
             return future
         }
     }
-    
+
     func testCancelBackground() {
         testFuture(repeatCount: 10, timeout: 5, allDoneDelay: 1, cancelAfterDelay: 0.01, cancelOn: .globalBackground) { () -> Future<Int> in
             let e = cancelExpectation()
@@ -176,7 +173,7 @@ class FutureNewSchedulingTests: FutureTest {
             }
         }
     }
-    
+
     func testCancelAllBackground() {
         testFuture(repeatCount: 0, timeout: 3, allDoneDelay: 4, cancelAfterDelay: 1, cancelOn: .globalBackground) { () -> Future<[Int]> in
             let mutex = Mutex()
@@ -190,24 +187,24 @@ class FutureNewSchedulingTests: FutureTest {
                     mutex.protect { completeCount += 1 }
                 }
             }).onCancel { e.fulfill() }
-            
+
             return future
         }
     }
-    
+
     fileprivate func operationUnknownCallbackQueue() -> Future<Int> {
-        return Future { c in
-            DispatchQueue.global(qos: .default).async { c(.success(4711)) }
+        return Future { completion in
+            DispatchQueue.global(qos: .default).async { completion(.success(4711)) }
             return NilDisposer()
         }
     }
-    
+
     func testOperationUnknownCallackQueueFromMain() {
         testFuture(repeatCount: 0) {
             operationUnknownCallbackQueue().assert(on: .main).assertValue(4711)
         }
     }
-    
+
     func testOperationUnknownCallackQueueFromBackground() {
         testFuture(repeatCount: 10) {
             Future().flatMapResult(on: .concurrentBackground) { _ in
@@ -215,7 +212,7 @@ class FutureNewSchedulingTests: FutureTest {
             }.assert(on: .main).assertValue(4711)
         }
     }
-    
+
     func testOperationUnknownCallackQueueToBackgroundInThen() {
         testFuture(repeatCount: 100) {
             Future(1).flatMap(on: .concurrentBackground) { v in
@@ -223,7 +220,7 @@ class FutureNewSchedulingTests: FutureTest {
             }.assert(on: .main).assertValue(2)
         }
     }
-    
+
     func testJumpingBetweenThreads() {
         testFuture(repeatCount: 100) {
             return Future(1).assert(on: .main).flatMap(on: .concurrentBackground) { v -> Future<Int> in
@@ -254,7 +251,7 @@ class FutureNewSchedulingTests: FutureTest {
             return join(futures).toVoid().assert(on: .main)
         }
     }
-    
+
     func testImmediate() {
         var i = 0
         testFuture {
@@ -267,12 +264,12 @@ class FutureNewSchedulingTests: FutureTest {
             }
         }
     }
-    
+
     func testImmediateWithThrow() {
         func f() throws -> Int {
             throw FutureError.aborted
         }
-        
+
         testFuture {
             Future<Int>(on: .concurrentBackground) {
                 assertConcurrentBackground()

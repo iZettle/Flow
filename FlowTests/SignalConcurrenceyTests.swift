@@ -9,7 +9,6 @@
 import XCTest
 import Flow
 
-
 private extension Scheduler {
     static let serialBackground = Scheduler(label: "flow.background")
 }
@@ -17,7 +16,6 @@ private extension Scheduler {
 private func assertSerialBackground() {
     XCTAssertTrue(Scheduler.serialBackground.isExecuting, "Not on serialBackground")
 }
-
 
 class SignalConcurrenceyTests: XCTestCase {
     func testSchedulingSignalCreation() {
@@ -33,9 +31,9 @@ class SignalConcurrenceyTests: XCTestCase {
             XCTAssertEqual(vals, [2, 4, 6])
             e.fulfill()
         }
-        
+
         callbacker.callAll(with: .value(1))
-        
+
         backgroundQueue.async {
             callbacker.callAll(with: .value(2))
             mainQueue.async {
@@ -43,16 +41,16 @@ class SignalConcurrenceyTests: XCTestCase {
                 callbacker.callAll(with: .end)
             }
         }
-        
+
         waitForExpectations(timeout: 100) { _ in
             bag.dispose()
         }
     }
-    
+
     func testSchedulingReadWriteSignalCurrent() {
         let bag = DisposeBag()
         let e = expectation(description: "completed")
-        
+
         let p = ReadWriteSignal(1)
         var vals = [Int]()
         bag += p.map { val -> Int in
@@ -62,9 +60,9 @@ class SignalConcurrenceyTests: XCTestCase {
             assertMain()
             vals.append(val)
         }
-        
+
         XCTAssertEqual(p.value, 1)
-        
+
         p.value = 2
 
         XCTAssertEqual(p.value, 2)
@@ -81,16 +79,16 @@ class SignalConcurrenceyTests: XCTestCase {
                 e.fulfill()
             }
         }
-        
+
         waitForExpectations(timeout: 100) { _ in
             bag.dispose()
         }
     }
-    
+
     func testSchedulingReadSignalCurrentAndAtOnce() {
         let bag = DisposeBag()
         let e = expectation(description: "completed")
-        
+
         let rw = ReadWriteSignal(1)
         var vals = [Int]()
         let r = rw.map { val in
@@ -98,20 +96,20 @@ class SignalConcurrenceyTests: XCTestCase {
         }.atValue { _ in
             assertMain()
         }
-        
+
         XCTAssertEqual(r.value, 2)
-        
+
         bag += r.atOnce().onValue { val in
             assertMain()
             vals.append(val)
         }
-        
+
         XCTAssertEqual(vals, [2])
-        
+
         rw.value = 2
-        
+
         XCTAssertEqual(r.value, 4)
-        
+
         backgroundQueue.async {
             XCTAssertEqual(r.value, 4)
             rw.value = 3
@@ -124,16 +122,16 @@ class SignalConcurrenceyTests: XCTestCase {
                 e.fulfill()
             }
         }
-        
+
         waitForExpectations(timeout: 100) { _ in
             bag.dispose()
         }
     }
-    
+
     func testSchedulingCombineLatest() {
         let bag = DisposeBag()
         let e = expectation(description: "completed")
-        
+
         let rw1 = ReadWriteSignal(1)
         let rw2 = ReadWriteSignal(10)
         var vals = [Int]()
@@ -144,10 +142,9 @@ class SignalConcurrenceyTests: XCTestCase {
             assertMain()
             vals.append(val)
         }
-        
-        
+
         rw1.value = 2
-        
+
         backgroundQueue.async {
             rw2.value = 20
             rw1.value = 3
@@ -157,21 +154,21 @@ class SignalConcurrenceyTests: XCTestCase {
                 e.fulfill()
             }
         }
-        
+
         waitForExpectations(timeout: 100) { _ in
             bag.dispose()
         }
     }
-    
+
     func testSchedulingOnValueBackground() {
         let bag = DisposeBag()
         let e = expectation(description: "completed")
-        
+
         backgroundQueue.async {
             // create signal on background
             let callbacker = Callbacker<Int>()
             let signal = Signal(callbacker: callbacker)
-            
+
             mainQueue.sync {
                 // but listen on main
                 bag += signal.onValue { val in
@@ -182,7 +179,7 @@ class SignalConcurrenceyTests: XCTestCase {
             }
             callbacker.callAll(with: 4711)
         }
-        
+
         waitForExpectations(timeout: 100) { _ in
             bag.dispose()
         }
@@ -190,12 +187,12 @@ class SignalConcurrenceyTests: XCTestCase {
     func testSchedulingMapBackground() {
         let bag = DisposeBag()
         let e = expectation(description: "completed")
-        
+
         backgroundQueue.async {
             // create signal on background
             let callbacker = Callbacker<Int>()
             let signal = Signal(callbacker: callbacker)
-            
+
             mainQueue.sync {
                 // but listen on main
                 bag += signal.map { val -> Int in
@@ -209,21 +206,21 @@ class SignalConcurrenceyTests: XCTestCase {
             }
             callbacker.callAll(with: 4711)
         }
-        
+
         waitForExpectations(timeout: 100) { _ in
             bag.dispose()
         }
     }
-    
+
     func testSchedulingOnEventBackground() {
         let bag = DisposeBag()
         let e = expectation(description: "completed")
-        
+
         backgroundQueue.async {
             // create signal on background
             let callbacker = Callbacker<Event<Int>>()
             let signal = FiniteSignal(callbacker: callbacker)
-            
+
             mainQueue.sync {
                 // but listen on main
                 bag += signal.onEvent { event in
@@ -234,12 +231,12 @@ class SignalConcurrenceyTests: XCTestCase {
             }
             callbacker.callAll(with: .value(4711))
         }
-        
+
         waitForExpectations(timeout: 100) { _ in
             bag.dispose()
         }
     }
-    
+
     func testMapOn() {
         let bag = DisposeBag()
         let e = expectation(description: "completed")
@@ -257,18 +254,18 @@ class SignalConcurrenceyTests: XCTestCase {
             XCTAssertEqual(val, 5*2+1)
             e.fulfill()
         }
-        
+
         callbacker.callAll(with: 5)
-        
+
         waitForExpectations(timeout: 100) { _ in
             bag.dispose()
         }
     }
-    
+
     func testOnValueOn() {
         let bag = DisposeBag()
         let e = expectation(description: "completed")
-        
+
         let callbacker = Callbacker<Int>()
         let signal = Signal(callbacker: callbacker)
         bag += signal.map(on: .serialBackground) { val -> Int in
@@ -282,19 +279,19 @@ class SignalConcurrenceyTests: XCTestCase {
             XCTAssertEqual(val, 5*2+1)
             e.fulfill()
         }
-        
+
         callbacker.callAll(with: 5)
-        
+
         waitForExpectations(timeout: 100) { _ in
             bag.dispose()
         }
     }
-    
+
     func testAtOnce() {
         let bag = DisposeBag()
         let rw = ReadWriteSignal(7)
         var result = 0
-        
+
         bag += rw.map(on: .serialBackground) { val -> Int in
             assertSerialBackground()
             return val * 2
@@ -308,7 +305,7 @@ class SignalConcurrenceyTests: XCTestCase {
 
         XCTAssertEqual(result, 7*2 + 1)
     }
-    
+
     func testCurrentValue() {
         let signal = ReadWriteSignal(7).map(on: .serialBackground) { val -> Int in
             assertSerialBackground()
@@ -320,7 +317,7 @@ class SignalConcurrenceyTests: XCTestCase {
             assertSerialBackground()
             return val * 2
         }
-        
+
         XCTAssertEqual(signal.value, (7*2 + 1)*2)
     }
 
@@ -330,7 +327,7 @@ class SignalConcurrenceyTests: XCTestCase {
 
         let rw = ReadWriteSignal(7)
         var result = 0
-        
+
         Scheduler.serialBackground.async {
             assertSerialBackground()
             bag += rw.map(on: .main) { val -> Int in
@@ -346,10 +343,10 @@ class SignalConcurrenceyTests: XCTestCase {
             XCTAssertEqual(result, 7*2 + 1)
             e.fulfill()
         }
-        
+
         waitForExpectations(timeout: 100) { _ in
             bag.dispose()
         }
     }
-    
+
 }

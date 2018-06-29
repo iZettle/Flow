@@ -24,10 +24,10 @@ import Foundation
 ///     }
 public protocol SignalProvider {
     associatedtype Value
-    
+
     /// What access (`Plain`, `Read`, `ReadWrite` or `Finite`) the provided signal has
     associatedtype Kind: SignalKind
-    
+
     /// The signal used when doing transformation on conforming types.
     var providedSignal: CoreSignal<Kind, Value> { get }
 }

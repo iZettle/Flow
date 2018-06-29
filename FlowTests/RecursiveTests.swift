@@ -26,11 +26,11 @@ class RecursiveTests: XCTestCase {
                 myFunc(arg-1)
                 _ = innerObject // Keep a ref
             }
-            
+
             XCTAssertNotNil(ref)
             object = nil
             XCTAssertNotNil(ref)
-            
+
             myFunc(5)
             XCTAssertEqual(count, 5)
 
@@ -44,24 +44,24 @@ class RecursiveTests: XCTestCase {
         let fact: (Int) -> Int = recursive { n, fact in
             return n > 1 ? n*(fact(n - 1) ?? 0) : 1
         }
-        
+
         XCTAssertEqual(fact(1), 1)
         XCTAssertEqual(fact(2), 2)
         XCTAssertEqual(fact(3), 6)
         XCTAssertEqual(fact(4), 24)
     }
-    
+
     func testRecursiveFibonacci() {
         let fibs: (Int) -> Int = recursive { n, fibs in
             if n == 0 {
                 return 0
-            } else if n == 1{
+            } else if n == 1 {
                 return 1
             }
-            
+
             return (fibs(n - 1) ?? 0) + (fibs(n - 2) ?? 0)
         }
-        
+
         XCTAssertEqual(fibs(1), 1)
         XCTAssertEqual(fibs(2), 1)
         XCTAssertEqual(fibs(3), 2)
@@ -69,14 +69,14 @@ class RecursiveTests: XCTestCase {
         XCTAssertEqual(fibs(5), 5)
 
     }
-    
+
     func testRecursiveNoArgs() {
         var count = 5
         let update: () -> Int = recursive { update in
             count -= 1
             return count >= 0 ? ((update() ?? 0) + 1) : 0
         }
-        
+
         XCTAssertEqual(update(), 5)
     }
 }

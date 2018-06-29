@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// Whether the conforming object can be enabled and disabled.
 public protocol Enablable: class {
     var isEnabled: Bool { get set }
@@ -23,12 +22,10 @@ public extension Enablable {
     }
 }
 
-public extension SignalProvider where Kind == ReadWrite, Value == Bool {
-    /// Will disable `self` and return a disposable that will upon disposal revert to the value set before calling disable.
-    func disable() -> Disposable {
-        let prev = self.value
-        self.value = false
-        return Disposer { self.value = prev }
+extension CoreSignal: Enablable where Kind == ReadWrite, Value == Bool {
+    public var isEnabled: Bool {
+        get { return value }
+        set { value = newValue}
     }
 }
 
@@ -49,7 +46,7 @@ public extension AutoEnablable where Self: HasEventListeners {
             updateAutomaticEnabling()
         }
     }
-    
+
     func updateAutomaticEnabling() {
         if enablesAutomatically {
             isEnabled = hasEventListeners
@@ -58,4 +55,3 @@ public extension AutoEnablable where Self: HasEventListeners {
 }
 
 private var enablesAutomaticallyKey = false
-

@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// Returns a new signal merging the values emitted from `signals`
 ///
 ///     a)---b---c------d-|
@@ -26,29 +25,29 @@ public func merge<Signals: Sequence>(_ signals: Signals) -> CoreSignal<Signals.I
     let signals = signals.map { $0.providedSignal }
     let count = signals.count
     return CoreSignal(onEventType: { callback in
-        let s = StateAndCallback(state: (endCount: 0, hasPassedInitial: false), callback: callback)
-        
+        let state = StateAndCallback(state: (endCount: 0, hasPassedInitial: false), callback: callback)
+
         for signal in signals {
-            s += signal.onEventType { eventType in
-                s.lock()
-                
+            state += signal.onEventType { eventType in
+                state.lock()
+
                 if case .initial = eventType {
-                    guard !s.val.hasPassedInitial else { return s.unlock() }
-                    s.val.hasPassedInitial = true
+                    guard !state.val.hasPassedInitial else { return state.unlock() }
+                    state.val.hasPassedInitial = true
                 }
-                
+
                 // Don't forward non error ends unless all have ended.
                 if case .event(.end(nil)) = eventType {
-                    s.val.endCount += 1
-                    guard s.val.endCount == count else { return s.unlock() }
+                    state.val.endCount += 1
+                    guard state.val.endCount == count else { return state.unlock() }
                 }
-                
-                s.unlock()
-                s.call(eventType)
+
+                state.unlock()
+                state.call(eventType)
             }
         }
-        
-        return s
+
+        return state
     })
 }
 
@@ -78,46 +77,48 @@ public func combineLatest<S: Sequence>(_ signals: S) -> CoreSignal<S.Iterator.El
             return NilDisposer()
         })
     }
-    
+
     return CoreSignal(onEventType: { callback in
-        let s = StateAndCallback(state: Array(repeating: S.Iterator.Element.Value?.none, count: signals.count), callback: callback)
-        
+        let state = StateAndCallback(state: Array(repeating: S.Iterator.Element.Value?.none, count: signals.count), callback: callback)
+
         for i in signals.indices {
             let signal = signals[i]
-            s += signal.onEventType { eventType in
+            state += signal.onEventType { eventType in
                 switch eventType {
                 case .initial(nil) where i == 0:
-                    s.call(.initial(nil))
+                    state.call(.initial(nil))
                 case .initial(nil): break
                 case .initial(let val?):
-                    s.lock()
-                    s.val[i] = val
-                    let combines = s.val.compactMap { $0 }
-                    if combines.count == s.val.count {
-                        s.unlock()
-                        s.call(.initial(combines))
+                    state.lock()
+                    state.val[i] = val
+                    let combines = state.val.compactMap { $0 }
+                    if combines.count == state.val.count {
+                        state.unlock()
+                        state.call(.initial(combines))
                     } else {
-                        s.unlock()
+                        state.unlock()
                     }
                 case .event(.value(let val)):
-                    s.lock()
-                    s.val[i] = val
-                    let combines = s.val.compactMap { $0 }
-                    if combines.count == s.val.count {
-                        s.unlock()
-                        s.call(.event(.value(combines)))
+                    state.lock()
+                    state.val[i] = val
+                    let combines = state.val.compactMap { $0 }
+                    if combines.count == state.val.count {
+                        state.unlock()
+                        state.call(.event(.value(combines)))
                     } else {
-                        s.unlock()
+                        state.unlock()
                     }
                 case .event(.end(let error)):
-                    s.call(.event(.end(error)))
+                    state.call(.event(.end(error)))
                 }
             }
         }
-        
-        return s
+
+        return state
     })
 }
+
+// swiftlint:disable identifier_name
 
 /// Returns a new signal combining the latest values from the provided signals
 ///
@@ -146,62 +147,62 @@ public func combineLatest<A: SignalProvider, B: SignalProvider>(_ a: A, _ b: B) 
     let aSignal = a.providedSignal
     let bSignal = b.providedSignal
     return CoreSignal(onEventType: { callback in
-        let s = StateAndCallback(state: (a: A.Value?.none, b: B.Value?.none), callback: callback)
-        
-        s += aSignal.onEventType { eventType in
+        let state = StateAndCallback(state: (a: A.Value?.none, b: B.Value?.none), callback: callback)
+
+        state += aSignal.onEventType { eventType in
             switch eventType {
             case .initial(nil):
-                s.call(.initial(nil))
+                state.call(.initial(nil))
             case .initial(let val?):
-                s.lock()
-                s.val.a = val
-                if let b = s.val.b {
-                    s.unlock()
-                    s.call(.initial((val, b)))
+                state.lock()
+                state.val.a = val
+                if let b = state.val.b {
+                    state.unlock()
+                    state.call(.initial((val, b)))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.value(let val)):
-                s.lock()
-                s.val.a = val
-                if let b = s.val.b {
-                    s.unlock()
-                    s.call(.event(.value((val, b))))
+                state.lock()
+                state.val.a = val
+                if let b = state.val.b {
+                    state.unlock()
+                    state.call(.event(.value((val, b))))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.end(let error)):
-                s.call(.event(.end(error)))
+                state.call(.event(.end(error)))
             }
         }
-        
-        s += bSignal.onEventType { eventType in
+
+        state += bSignal.onEventType { eventType in
             switch eventType {
             case .initial(nil): break
             case .initial(let val?):
-                s.lock()
-                s.val.b = val
-                if let a = s.val.a {
-                    s.unlock()
-                    s.call(.initial((a, val)))
+                state.lock()
+                state.val.b = val
+                if let a = state.val.a {
+                    state.unlock()
+                    state.call(.initial((a, val)))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.value(let val)):
-                s.lock()
-                s.val.b = val
-                if let a = s.val.a {
-                    s.unlock()
-                    s.call(.event(.value((a, val))))
+                state.lock()
+                state.val.b = val
+                if let a = state.val.a {
+                    state.unlock()
+                    state.call(.event(.value((a, val))))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.end(let error)):
-                s.call(.event(.end(error)))
+                state.call(.event(.end(error)))
             }
         }
-        
-        return s
+
+        return state
     })
 }
 
@@ -212,88 +213,88 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
     let bSignal = b.providedSignal
     let cSignal = c.providedSignal
     return CoreSignal(onEventType: { callback in
-        let s = StateAndCallback(state: (a: A.Value?.none, b: B.Value?.none, c: C.Value?.none), callback: callback)
+        let state = StateAndCallback(state: (a: A.Value?.none, b: B.Value?.none, c: C.Value?.none), callback: callback)
 
-        s += aSignal.onEventType { eventType in
+        state += aSignal.onEventType { eventType in
             switch eventType {
             case .initial(nil):
-                s.call(.initial(nil))
+                state.call(.initial(nil))
             case .initial(let val?):
-                s.lock()
-                s.val.a = val
-                if let b = s.val.b, let c = s.val.c {
-                    s.unlock()
-                    s.call(.initial((val, b, c)))
+                state.lock()
+                state.val.a = val
+                if let b = state.val.b, let c = state.val.c {
+                    state.unlock()
+                    state.call(.initial((val, b, c)))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.value(let val)):
-                s.lock()
-                s.val.a = val
-                if let b = s.val.b, let c = s.val.c {
-                    s.unlock()
-                    s.call(.event(.value((val, b, c))))
+                state.lock()
+                state.val.a = val
+                if let b = state.val.b, let c = state.val.c {
+                    state.unlock()
+                    state.call(.event(.value((val, b, c))))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.end(let error)):
-                s.call(.event(.end(error)))
+                state.call(.event(.end(error)))
             }
         }
-        
-        s += bSignal.onEventType { eventType in
+
+        state += bSignal.onEventType { eventType in
             switch eventType {
             case .initial(nil): break
             case .initial(let val?):
-                s.lock()
-                s.val.b = val
-                if let a = s.val.a, let c = s.val.c {
-                    s.unlock()
-                    s.call(.initial((a, val, c)))
+                state.lock()
+                state.val.b = val
+                if let a = state.val.a, let c = state.val.c {
+                    state.unlock()
+                    state.call(.initial((a, val, c)))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.value(let val)):
-                s.lock()
-                s.val.b = val
-                if let a = s.val.a, let c = s.val.c {
-                    s.unlock()
-                    s.call(.event(.value((a, val, c))))
+                state.lock()
+                state.val.b = val
+                if let a = state.val.a, let c = state.val.c {
+                    state.unlock()
+                    state.call(.event(.value((a, val, c))))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.end(let error)):
-                s.call(.event(.end(error)))
+                state.call(.event(.end(error)))
             }
         }
-        
-        s += cSignal.onEventType { eventType in
+
+        state += cSignal.onEventType { eventType in
             switch eventType {
             case .initial(nil): break
             case .initial(let val?):
-                s.lock()
-                s.val.c = val
-                if let a = s.val.a, let b = s.val.b {
-                    s.unlock()
-                    s.call(.initial((a, b, val)))
+                state.lock()
+                state.val.c = val
+                if let a = state.val.a, let b = state.val.b {
+                    state.unlock()
+                    state.call(.initial((a, b, val)))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.value(let val)):
-                s.lock()
-                s.val.c = val
-                if let a = s.val.a, let b = s.val.b {
-                    s.unlock()
-                    s.call(.event(.value((a, b, val))))
+                state.lock()
+                state.val.c = val
+                if let a = state.val.a, let b = state.val.b {
+                    state.unlock()
+                    state.call(.event(.value((a, b, val))))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.end(let error)):
-                s.call(.event(.end(error)))
+                state.call(.event(.end(error)))
             }
         }
-        
-        return s
+
+        return state
     })
 }
 
@@ -304,116 +305,116 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
     let bSignal = b.providedSignal
     let cSignal = c.providedSignal
     let dSignal = d.providedSignal
-    
+
     return CoreSignal(onEventType: { callback in
-        let s = StateAndCallback(state: (a: A.Value?.none, b: B.Value?.none, c: C.Value?.none, d: D.Value?.none), callback: callback)
-        
-        s += aSignal.onEventType { eventType in
+        let state = StateAndCallback(state: (a: A.Value?.none, b: B.Value?.none, c: C.Value?.none, d: D.Value?.none), callback: callback)
+
+        state += aSignal.onEventType { eventType in
             switch eventType {
             case .initial(nil):
-                s.call(.initial(nil))
+                state.call(.initial(nil))
             case .initial(let val?):
-                s.lock()
-                s.val.a = val
-                if let b = s.val.b, let c = s.val.c, let d = s.val.d {
-                    s.unlock()
-                    s.call(.initial((val, b, c, d)))
+                state.lock()
+                state.val.a = val
+                if let b = state.val.b, let c = state.val.c, let d = state.val.d {
+                    state.unlock()
+                    state.call(.initial((val, b, c, d)))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.value(let val)):
-                s.lock()
-                s.val.a = val
-                if let b = s.val.b, let c = s.val.c, let d = s.val.d {
-                    s.unlock()
-                    s.call(.event(.value((val, b, c, d))))
+                state.lock()
+                state.val.a = val
+                if let b = state.val.b, let c = state.val.c, let d = state.val.d {
+                    state.unlock()
+                    state.call(.event(.value((val, b, c, d))))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.end(let error)):
-                s.call(.event(.end(error)))
+                state.call(.event(.end(error)))
             }
         }
-        
-        s += bSignal.onEventType { eventType in
+
+        state += bSignal.onEventType { eventType in
             switch eventType {
             case .initial(nil): break
             case .initial(let val?):
-                s.lock()
-                s.val.b = val
-                if let a = s.val.a, let c = s.val.c, let d = s.val.d {
-                    s.unlock()
-                    s.call(.initial((a, val, c, d)))
+                state.lock()
+                state.val.b = val
+                if let a = state.val.a, let c = state.val.c, let d = state.val.d {
+                    state.unlock()
+                    state.call(.initial((a, val, c, d)))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.value(let val)):
-                s.lock()
-                s.val.b = val
-                if let a = s.val.a, let c = s.val.c, let d = s.val.d {
-                    s.unlock()
-                    s.call(.event(.value((a, val, c, d))))
+                state.lock()
+                state.val.b = val
+                if let a = state.val.a, let c = state.val.c, let d = state.val.d {
+                    state.unlock()
+                    state.call(.event(.value((a, val, c, d))))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.end(let error)):
-                s.call(.event(.end(error)))
+                state.call(.event(.end(error)))
             }
         }
-        
-        s += cSignal.onEventType { eventType in
+
+        state += cSignal.onEventType { eventType in
             switch eventType {
             case .initial(nil): break
             case .initial(let val?):
-                s.lock()
-                s.val.c = val
-                if let a = s.val.a, let b = s.val.b, let d = s.val.d {
-                    s.unlock()
-                    s.call(.initial((a, b, val, d)))
+                state.lock()
+                state.val.c = val
+                if let a = state.val.a, let b = state.val.b, let d = state.val.d {
+                    state.unlock()
+                    state.call(.initial((a, b, val, d)))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.value(let val)):
-                s.lock()
-                s.val.c = val
-                if let a = s.val.a, let b = s.val.b, let d = s.val.d {
-                    s.unlock()
-                    s.call(.event(.value((a, b, val, d))))
+                state.lock()
+                state.val.c = val
+                if let a = state.val.a, let b = state.val.b, let d = state.val.d {
+                    state.unlock()
+                    state.call(.event(.value((a, b, val, d))))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.end(let error)):
-                s.call(.event(.end(error)))
+                state.call(.event(.end(error)))
             }
         }
-        
-        s += dSignal.onEventType { eventType in
+
+        state += dSignal.onEventType { eventType in
             switch eventType {
             case .initial(nil): break
             case .initial(let val?):
-                s.lock()
-                s.val.d = val
-                if let a = s.val.a, let b = s.val.b, let c = s.val.c {
-                    s.unlock()
-                    s.call(.initial((a, b, c, val)))
+                state.lock()
+                state.val.d = val
+                if let a = state.val.a, let b = state.val.b, let c = state.val.c {
+                    state.unlock()
+                    state.call(.initial((a, b, c, val)))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.value(let val)):
-                s.lock()
-                s.val.d = val
-                if let a = s.val.a, let b = s.val.b, let c = s.val.c {
-                    s.unlock()
-                    s.call(.event(.value((a, b, c, val))))
+                state.lock()
+                state.val.d = val
+                if let a = state.val.a, let b = state.val.b, let c = state.val.c {
+                    state.unlock()
+                    state.call(.event(.value((a, b, c, val))))
                 } else {
-                    s.unlock()
+                    state.unlock()
                 }
             case .event(.end(let error)):
-                s.call(.event(.end(error)))
+                state.call(.event(.end(error)))
             }
         }
-        
-        return s
+
+        return state
     })
 }
 
@@ -473,7 +474,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider, K :SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider, K: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value)> {
     return combineLatest(combineLatest(a, b, c, d), combineLatest(e, f, g, h), combineLatest(i, j, k)).map {
         let ((a, b, c, d), (e, f, g, h), (i, j, k)) = $0
         return (a, b, c, d, e, f, g, h, i, j, k)
@@ -506,4 +507,3 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
         return (a, b, c, d, e, f, g, h, i, j, k, l, m, n)
     }
 }
-

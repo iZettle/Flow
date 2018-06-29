@@ -36,18 +36,18 @@ public final class Disposer: Disposable {
         self.disposer = disposer
         mutex.initialize()
     }
-    
+
     deinit {
         dispose()
         mutex.deinitialize()
     }
-    
+
     public func dispose() {
         mutex.lock()
-        let d = disposer
-        disposer = nil
+        let disposer = self.disposer
+        self.disposer = nil
         mutex.unlock()
-        d?()
+        disposer?()
     }
 }
 
@@ -83,20 +83,20 @@ public final class DisposeBag: Disposable {
         dispose()
         mutex.deinitialize()
     }
-    
+
     /// Returns true if there is currently no disposables to dispose.
     public var isEmpty: Bool {
         return mutex.protect { disposables.isEmpty }
     }
-    
+
     public func dispose() {
         mutex.lock()
-        let ds = disposables // make sure to make a copy in the case any call to dispose will recursivaly call us back.
-        disposables = []
+        let disposables = self.disposables // make sure to make a copy in the case any call to dispose will recursivaly call us back.
+        self.disposables = []
         mutex.unlock()
-        for d in ds { d.dispose() }
+        for disposable in disposables { disposable.dispose() }
     }
-    
+
     /// Add `disposable` to `self`
     public func add(_ disposable: Disposable) {
         mutex.lock()
@@ -112,7 +112,7 @@ public extension DisposeBag {
         add(bag)
         return bag
     }
-    
+
     /// Will hold a reference to `object` until self is disposed.
     ///
     ///     bag.hold(delegate)
@@ -122,8 +122,8 @@ public extension DisposeBag {
 }
 
 public func +=(disposeBag: DisposeBag, disposable: Disposable?) {
-    if let d = disposable {
-        disposeBag.add(d)
+    if let disposable = disposable {
+        disposeBag.add(disposable)
     }
 }
 
@@ -132,8 +132,8 @@ public func +=(disposeBag: DisposeBag, disposer: @escaping () -> Void) {
 }
 
 public func +=(disposeBag: DisposeBag?, disposable: Disposable?) {
-    if let d = disposable {
-        disposeBag?.add(d)
+    if let disposable = disposable {
+        disposeBag?.add(disposable)
     }
 }
 
@@ -157,20 +157,18 @@ public func +=<T>(disposeBag: DisposeBag, future: Future<T>) {
 final class NoLockKeyDisposer: Disposable {
     let value: Key
     let disposer: (Key) -> ()
-    
+
     init(_ value: Key, _ disposer: @escaping (Key) -> ()) {
         self.value = value
         self.disposer = disposer
     }
-    
+
     // No guarantee that disposer is not called more than once as we won't nil the callback after being called (we need a lock for that)
     func dispose() {
         disposer(value)
     }
-    
+
     deinit {
         dispose()
     }
 }
-
-

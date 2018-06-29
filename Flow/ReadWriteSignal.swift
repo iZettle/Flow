@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// An abstraction for observing events over time where `self` as a notion of a mutable current value.
 ///
 /// A `ReadWriteSignal<T>` is like a `ReadSignal<T>` where the current `value` property is mutable.
@@ -25,29 +24,29 @@ public extension CoreSignal where Kind == ReadWrite {
     /// - Paramenter willSet: Will be called the new value, but before `self.value` is updated and the new value is being signaled.
     /// - Paramenter didSet: Will be called the new value, after `self.value` has been updated and the new value has been signaled.
     convenience init(_ value: Value, willSet: @escaping (Value) -> () = { _ in }, didSet: @escaping (Value) -> () = { _ in }) {
-        var _value = value
+        var value = value
         let callbacker = Callbacker<Value>()
-        self.init(getValue: { _value }, setValue: { val in
+        self.init(getValue: { value }, setValue: { val in
             willSet(val)
-            _value = val
+            value = val
             callbacker.callAll(with: val)
             didSet(val)
-        }, options: [], onInternalEvent: { c in
+        }, options: [], onInternalEvent: { callback in
             return callbacker.addCallback {
-                c(.value($0))
+                callback(.value($0))
             }
         })
     }
-    
+
     /// Creates a new instance getting its current value from `getValue` and where `setValue` is called when `self.value` is updated, whereafter the new value is signaled.
     ///
     /// - Paramenter getValue: Called to get the current value.
     /// - Paramenter setValue: Called when `self.value` is updated, but before the new value is signaled.
     convenience init(getValue: @escaping () -> Value, setValue: @escaping (Value) -> ()) {
         let callbacker = Callbacker<Value>()
-        self.init(getValue: getValue, setValue: { setValue($0); callbacker.callAll(with: $0) }, options: [], onInternalEvent: { c in
+        self.init(getValue: getValue, setValue: { setValue($0); callbacker.callAll(with: $0) }, options: [], onInternalEvent: { callback in
             return callbacker.addCallback {
-                c(.value($0))
+                callback(.value($0))
             }
         })
     }

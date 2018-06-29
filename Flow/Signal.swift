@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// An abstraction for observing values over time
 ///
 /// A signal allows observing values over time by registering of a callback:
@@ -60,11 +59,11 @@ public extension CoreSignal where Kind == Plain {
     ///       }
     ///     }
     convenience init(options: SignalOptions = .default, onValue: @escaping (@escaping (Value) -> Void) -> Disposable) {
-        self.init(options: options, onInternalEvent: { c in
-            onValue { c(.value($0)) }
+        self.init(options: options, onInternalEvent: { callback in
+            onValue { callback(.value($0)) }
         })
     }
-    
+
     /// Creates a new instance that will use the provided `callbacker` to register listeners.
     ///
     ///     let callbacker = ...
@@ -72,11 +71,11 @@ public extension CoreSignal where Kind == Plain {
     ///     ...
     ///     callbacker.callAll(with: value) // Will signal `value` to all signal's listeners.
     convenience init(callbacker: Callbacker<Value>) {
-        self.init(options: [], onInternalEvent: { c in
-            return callbacker.addCallback { c(.value($0)) }
+        self.init(options: [], onInternalEvent: { callback in
+            return callbacker.addCallback { callback(.value($0)) }
         })
     }
-    
+
     /// Creates a new instance dropping any read or write access from `signal`.
     convenience init<S: SignalProvider>(_ signal: S) where S.Value == Value {
         let signal = signal.providedSignal
@@ -93,7 +92,7 @@ public extension CoreSignal where Kind == Plain {
             }
         })
     }
-    
+
     /// Creates a new instance that will immediately signal `value`.
     convenience init(just value: Value) {
         self.init(onEventType: { callback in
@@ -102,7 +101,7 @@ public extension CoreSignal where Kind == Plain {
             return NilDisposer()
         })
     }
-    
+
     /// Creates a new instance that will never signal any events.
     convenience init() {
         self.init(onEventType: { callback in
@@ -126,42 +125,42 @@ public extension SignalProvider where Kind == Plain {
             }
         })
     }
-    
+
     /// Returns a new readable signal capturing `value` as it current value.
     /// - Parameter value: An auto closure that will be evaluated every time a current value is asked for.
     func readable(capturing value: @autoclosure @escaping () -> Value) -> ReadSignal<Value> {
         return readable(getValue: value)
     }
-    
+
     /// Returns a new readable signal using `initial` as it current value, unless the signal has listeners, where the last signaled value will be used instead.
     func readable(initial: Value) -> ReadSignal<Value> {
         let signal = providedSignal
-        let s = StateAndCallback(state: (last: initial, refCount: 0))
-        
+        let state = StateAndCallback(state: (last: initial, refCount: 0))
+
         return CoreSignal(onEventType: { callback in
             let bag = DisposeBag()
-            s.protect { s.val.refCount += 1 }
-            
+            state.protect { state.val.refCount += 1 }
+
             bag += signal.onEventType { eventType in
                 if case .initial = eventType {
-                    callback(.initial(s.protectedVal.last))
+                    callback(.initial(state.protectedVal.last))
                 } else {
                     if case .event(.value(let val)) = eventType {
-                        s.protectedVal.last = val
+                        state.protectedVal.last = val
                     }
                     callback(eventType)
                 }
             }
-            
+
             bag += {
-                s.protect {
-                    s.val.refCount -= 1
-                    if s.val.refCount == 0 { // Reset last if we no longer have any active listeners
-                        s.val.last = initial
+                state.protect {
+                    state.val.refCount -= 1
+                    if state.val.refCount == 0 { // Reset last if we no longer have any active listeners
+                        state.val.last = initial
                     }
                 }
             }
-            
+
             return bag
         })
     }
@@ -189,5 +188,3 @@ public extension SignalProvider where Kind.DropReadWrite == Plain {
         return FiniteSignal(self)
     }
 }
-
-

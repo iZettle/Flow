@@ -33,8 +33,8 @@ public extension CoreSignal where Kind == Read {
     ///
     /// - Paramenter getValue: Called to get the current value.
     convenience init(getValue: @escaping () -> Value, options: SignalOptions = .default, onValue: @escaping (@escaping (Value) -> Void) -> Disposable) {
-        self.init(getValue: getValue, options: options, onInternalEvent: { c in
-            onValue { c(.value($0)) }
+        self.init(getValue: getValue, options: options, onInternalEvent: { callback in
+            onValue { callback(.value($0)) }
         })
     }
 
@@ -43,7 +43,7 @@ public extension CoreSignal where Kind == Read {
     convenience init(capturing value: @autoclosure @escaping () -> Value, options: SignalOptions = .default, onValue: @escaping (@escaping (Value) -> Void) -> Disposable) {
         self.init(getValue: value, options: options, onValue: onValue)
     }
-    
+
     /// Creates a new instance that will use the provided `callbacker` to register listeners.
     ///
     ///     let callbacker = ...
@@ -71,7 +71,7 @@ public extension CoreSignal where Kind == Read {
     convenience init(capturing value: @autoclosure @escaping () -> Value, callbacker: Callbacker<Value>) {
         self.init(getValue: value, callbacker: callbacker)
     }
-    
+
     /// Creates a new instance that will never signal any values and will have a constant current `value`.
     convenience init(_ value: Value) {
         self.init(onEventType: { callback in
@@ -93,7 +93,7 @@ public extension SignalProvider where Kind.DropWrite == Read {
     var value: Value {
         return providedSignal.getter()!
     }
-    
+
     /// Returns a new signal with no access to a current `value`.
     func plain() -> Signal<Value> {
         return Signal(self)
@@ -110,10 +110,10 @@ public extension SignalProvider where Kind == Read {
             return ReadWriteSignal(setValue: setValue, onEventType: signal.onEventType)
         }
         let callbacker = Callbacker<EventType<Value>>()
-        return ReadWriteSignal<Value>(setValue: { setValue($0); callbacker.callAll(with: .event(.value($0))) }, onEventType: { c in
+        return ReadWriteSignal<Value>(setValue: { setValue($0); callbacker.callAll(with: .event(.value($0))) }, onEventType: { callback in
             let bag = DisposeBag()
-            bag += callbacker.addCallback(c)
-            bag += signal.onEventType(c)
+            bag += callbacker.addCallback(callback)
+            bag += signal.onEventType(callback)
             return bag
         })
     }

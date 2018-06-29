@@ -22,64 +22,64 @@ public final class Callbacker<Value> {
     private var callbacks = Callbacks.none
     private var _mutex = pthread_mutex_t()
     private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
-    
+
     public init() {
         mutex.initialize()
     }
-    
+
     deinit {
         mutex.deinitialize()
     }
-    
+
     /// - Returns: True if no callbacks has been registered.
     public var isEmpty: Bool {
         mutex.lock()
         defer { mutex.unlock() }
-        
+
         switch callbacks {
         case .none: return true
         case .single: return false
-        case .multiple(let cs): return cs.isEmpty
+        case .multiple(let completions): return completions.isEmpty
         }
     }
-    
+
     /// Register a callback to be called when `callAll` is executed.
     /// - Returns: A `Disposable` to be disposed to unregister the callback.
     public func addCallback(_ callback: @escaping (Value) -> Void) -> Disposable {
         mutex.lock()
         defer { mutex.unlock() }
-        
+
         let key = generateKey()
-        
+
         switch callbacks {
         case .none:
             callbacks = .single(key, callback)
-        case .single(let k, let c):
-            callbacks = .multiple([k: c, key: callback])
-        case .multiple(var cs):
+        case .single(let singleKey, let completion):
+            callbacks = .multiple([singleKey: completion, key: callback])
+        case .multiple(var completions):
             callbacks = .none // let go of reference to cs to allow modification to not cause copy-on-write
-            cs[key] = callback
-            callbacks = .multiple(cs)
+            completions[key] = callback
+            callbacks = .multiple(completions)
         }
-        
+
         return NoLockKeyDisposer(key) { key in
             self.mutex.lock()
             defer { self.mutex.unlock() }
-            
+
             switch self.callbacks {
-            case .single(let k, _) where k == key:
-                self.callbacks = .none 
+            case .single(let singleKey, _) where singleKey == key:
+                self.callbacks = .none
             case  .none, .single:
                 break // trying to remove the key a second time (NoLockKeyDisposer can be called more than once)
-            case .multiple(var cs):
+            case .multiple(var completions):
                 self.callbacks = .none // let go of reference to cs to allow modification to not cause copy-on-write
-                cs.removeValue(forKey: key)
+                completions.removeValue(forKey: key)
                 // Not worth going back to single if we are back to one callback as we don't won't to be the cost of allocating another dictionary.
-                self.callbacks = .multiple(cs)
+                self.callbacks = .multiple(completions)
             }
         }
     }
-    
+
     /// Will call all registered callbacks with `value`
     public func callAll(with value: Value) {
         mutex.lock()
@@ -88,10 +88,10 @@ public final class Callbacker<Value> {
 
         switch callbacks {
         case .none: break
-        case .single(_, let c):
-            c(value)
-        case .multiple(let cs):
-            for (_, c) in cs { c(value) }
+        case .single(_, let completion):
+            completion(value)
+        case .multiple(let completions):
+            for (_, completion) in completions { completion(value) }
         }
     }
 }
@@ -102,4 +102,3 @@ public extension Callbacker where Value == () {
         callAll(with: ())
     }
 }
-
