@@ -136,25 +136,6 @@ class LoginController: UIViewController {
 }
 ```
 
-## Introductions
-
-Introductions to the main areas of Flow can be found at:
-
-- [Lifetime management](Documentation/LifetimeManagement.md)
-- [Event handling](Documentation/Signals.md)
-- [Asynchronous operations](Documentation/Futures.md)
-
-To learn even more about available functionality you are encouraged to explore the source files that are extensively documented. Code-completion should also help you to discover many of the transformations available on signals and futures. 
-
-## Learn more
-
-To learn more about the design behind Flow's APIs we recommend reading the following articles. They go more into depth about why Flow's types and APIs look and behave the way they do and give you some insights into how they are implemented:
-
-- [Introducing Flow](https://medium.com/izettle-engineering/introducing-flow-42de51988aea)
-- [Deriving Signals](https://medium.com/izettle-engineering/deriving-signal-2adb8687e9bf)
-- [Deriving Future](https://medium.com/izettle-engineering/deriving-future-607aea9abdee)
-- [Expanding on Signals](https://medium.com/izettle-engineering/expanding-on-signals-ad25daee4d64)
-
 ## Requirements
 
 - Xcode `9.3+`
@@ -198,6 +179,37 @@ let package = Package(
   ]
 )
 ```
+
+## Introductions
+
+Introductions to the main areas of Flow can be found at:
+
+- [Lifetime management](Documentation/LifetimeManagement.md)
+- [Event handling](Documentation/Signals.md)
+- [Asynchronous operations](Documentation/Futures.md)
+
+To learn even more about available functionality you are encouraged to explore the source files that are extensively documented. Code-completion should also help you to discover many of the transformations available on signals and futures. 
+
+## Learn more
+
+To learn more about the design behind Flow's APIs we recommend reading the following articles. They go more into depth about why Flow's types and APIs look and behave the way they do and give you some insights into how they are implemented:
+
+- [Introducing Flow](https://medium.com/izettle-engineering/introducing-flow-42de51988aea)
+- [Deriving Signals](https://medium.com/izettle-engineering/deriving-signal-2adb8687e9bf)
+- [Deriving Future](https://medium.com/izettle-engineering/deriving-future-607aea9abdee)
+- [Expanding on Signals](https://medium.com/izettle-engineering/expanding-on-signals-ad25daee4d64)
+
+And to learn how other frameworks can be built using Flow:
+
+- [Introducing Presentation](https://medium.com/izettle-engineering/introducing-presentation-presenting-ui-made-easy-134d3fbe9311) 
+- [Introducing Form](https://medium.com/izettle-engineering/introducing-form-layout-styling-and-event-handling-b668d09bb4e6)
+
+## Frameworks built on Flow
+
+If your target is iOS, we highly recommend that you also checkout these frameworks that are built on top of Flow:
+
+- **[Presentation](https://github.com/izettle/presentation)** - Formalizing presentations from model to result
+- **[Form](https://github.com/izettle/form)** - Layout, styling, and event handling
 
 ## Field tested
 
