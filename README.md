@@ -116,8 +116,8 @@ class LoginController: UIViewController {
             // Show spinner during login request
             self.showSpinnerOverlay() 
           }.onErrorRepeat { error in
-	          // If login fails with an error show an alert...
-	          // ...and retry the login request if the user chose to
+            // If login fails with an error show an alert...
+            // ...and retry the login request if the user chose to
             self.showRetryAlert(for: error)
           }.onValue { user in
             // If login is successful, complete runLogin() with the user
