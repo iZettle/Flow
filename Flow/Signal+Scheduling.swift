@@ -97,7 +97,7 @@ private final class OnEventTypeDisposer<Value>: Disposable {
         self.callback = callback
         mutex.initialize()
 
-        let disposable = onEventType(handleEventType)
+        let disposable = onEventType { [weak self] in self?.handleEventType($0) }
 
         mutex.lock()
         if self.callback == nil {
@@ -141,7 +141,8 @@ private final class OnEventTypeDisposer<Value>: Disposable {
             validate(eventType: eventType)
             callback(eventType)
         } else {
-            scheduler.async {
+            scheduler.async { [weak self] in
+                guard let `self` = self else { return }
                 // At the time we are scheduled, we might already been disposed
                 self.mutex.lock()
                 guard let callback = self.callback else {
