@@ -323,6 +323,17 @@ class SignalProviderTests: XCTestCase {
         bag.dispose()
     }
 
+    func testListenerDisposedOnDeinit() {
+        let signal = ReadWriteSignal(0)
+        let expectactions = XCTestExpectation(description: "Listener should be disposed")
+        expectactions.isInverted = true
+        _ = signal.onValue { _ in
+            expectactions.fulfill()
+        }
+        signal.value = 1
+        wait(for: [expectactions], timeout: 0.1)
+    }
+
     func testSkip() {
         test([1, 2, 3, 4], expected: [1, 2, 3, 4]) {
             $0.skip(first: 0)
