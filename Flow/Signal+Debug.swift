@@ -19,25 +19,22 @@ extension SignalProvider {
         ) -> CoreSignal<Kind, Value> {
         let signal = providedSignal
         let message = message.map { $0 + " -> " } ?? ""
+        let fileIdentifier = "<\(file.lastFileComponent):\(line)> (\(function))"
         return CoreSignal(onEventType: { callback in
             let bag = DisposeBag()
-            let fileIdentifier = "<\(file.lastFileComponent):\(line)> (\(function))"
             bag += signal.onEventType(on: scheduler) { eventType in
-                let identifier = "\(dateFormatter.string(from: Date())): \(fileIdentifier)"
+                let fullMessage = "\(dateFormatter.string(from: Date())): \(fileIdentifier): \(message)"
                 switch eventType {
                 case .initial(nil):
-                    print("\(identifier): \(message)initial")
-                    callback(.initial(nil))
+                    print("\(fullMessage)initial")
                 case .initial(let val?):
-                    print("\(identifier): \(message)initial(\(String(describing: val)))")
-                    callback(.initial(val))
+                    print("\(fullMessage)initial(\(String(describing: val)))")
                 case .event(.value(let val)):
-                    print("\(identifier): \(message)event(value(\(val)))")
-                    callback(.event(.value(val)))
+                    print("\(fullMessage)event(value(\(val)))")
                 case .event(.end(let error)):
-                    print("\(identifier): \(message)event(end(\(String(describing: error))))")
-                    callback(.event(.end(error)))
+                    print("\(fullMessage)event(end(\(String(describing: error))))")
                 }
+                callback(eventType)
             }
             bag += {
                 let identifier = "\(dateFormatter.string(from: Date())): \(fileIdentifier)"
