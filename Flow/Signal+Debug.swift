@@ -5,13 +5,6 @@
 
 import Foundation
 
-private let dateFormat = "HH:mm:ss.SSS"
-private var dateFormatter: DateFormatter = {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = dateFormat
-    return dateFormatter
-}()
-
 extension SignalProvider {
     /// Prints current event type and date to stdout with the format `HH:mm:ss.SSS: <fileName.swift:line> (function): message -> eventType(value)`.
     /// - parameter message: The message to be printed.
@@ -54,6 +47,13 @@ extension SignalProvider {
         })
     }
 }
+
+private let dateFormat = "HH:mm:ss.SSS"
+private var dateFormatter: DateFormatter = {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = dateFormat
+    return dateFormatter
+}()
 
 private extension String {
     var lastFileComponent: String {
