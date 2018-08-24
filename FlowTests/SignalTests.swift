@@ -64,4 +64,40 @@ class SignalTests: XCTestCase {
         }
 
     }
+    
+    func testDebugSignal() {
+        let values = [4, 5, 6]
+        var debugMessages = [String]()
+        
+        let bag = DisposeBag()
+        
+        let expectation = self.expectation(description: "Signal sent sequence")
+        expectation.expectedFulfillmentCount = 3
+        let signal = values.signal()
+        
+        bag += signal.debug("debugMessage", printer: { message in
+            debugMessages.append(message)
+        }).onValue { _ in
+            expectation.fulfill()
+        }
+        
+        waitForExpectations(timeout: 1) { error in
+            bag.dispose()
+        }
+        
+        let expectedStrings = [
+            "initial",
+            "event(value(4))",
+            "event(value(5))",
+            "event(value(6))",
+            "event(end(nil))",
+            "disposed"
+        ]
+        
+        let allIsCorrect = zip(debugMessages, expectedStrings).reduce(true) { (result, tuple) -> Bool in
+            let (actual, expected) = tuple
+            return result && actual.hasSuffix(expected)
+        }
+        XCTAssertTrue(allIsCorrect)
+    }
 }
