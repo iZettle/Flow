@@ -1,3 +1,7 @@
+# 1.2.1
+
+- Conditionally conform `Either` to Hashable when `Left` and `Right` conforms to `Hashable`.
+
 # 1.2
 
 - Added `NSManagedObjectContext.scheduler` property for scheduling work on managed object contexts when CoreData is available.
