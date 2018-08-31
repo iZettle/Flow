@@ -60,6 +60,12 @@ extension UISwitch: SignalProvider {
     }
 }
 
+extension UISlider: SignalProvider {
+    public var providedSignal: ReadWriteSignal<Float> {
+        return signal(for: .valueChanged, keyPath: \.value).distinct()
+    }
+}
+
 extension UISegmentedControl: SignalProvider {
     public var providedSignal: ReadWriteSignal<Int> {
         return signal(for: .valueChanged, keyPath: \.selectedSegmentIndex)
