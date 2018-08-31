@@ -1,6 +1,7 @@
 # 1.2.1
 
 - Conditionally conform `Either` to Hashable when `Left` and `Right` conforms to `Hashable`.
+- Conforms UISlider to SignalProvider.
 
 # 1.2
 
