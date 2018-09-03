@@ -76,10 +76,15 @@ extension Either: Equatable where Left: Equatable, Right: Equatable {
 }
 
 extension Either: Hashable where Left: Hashable, Right: Hashable {
+    // 1010101.... in binary
+    private var binaryDistinguisher: Int {
+        return Int.max / 3 * 2 + 1
+    }
+
     public var hashValue: Int {
         switch self {
         case .left(let left): return left.hashValue
-        case .right(let right): return right.hashValue
+        case .right(let right): return right.hashValue ^ binaryDistinguisher
         }
     }
 }
