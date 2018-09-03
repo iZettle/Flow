@@ -111,6 +111,13 @@ public extension SignalProvider {
             value[keyPath: keyPath] = $0
         }
     }
+
+    /// Start listening on values and call `callbacker.callAll(with:)` when receiving a value.
+    /// - Returns: A disposable that will stop listening on values when being disposed.
+    /// - Note: equivalent to `onValue(callbacker.callAll(with:))`
+    func bindTo(on scheduler: Scheduler = .current, _ callbacker: Callbacker<Value>) -> Disposable {
+        return onValue(on: scheduler , callbacker.callAll(with:))
+    }
 }
 
 public extension SignalProvider where Kind == ReadWrite {
@@ -127,6 +134,21 @@ public extension SignalProvider where Kind == ReadWrite {
 
         return bag
     }
+
+    /// Start listening to `self` and add a callback to `callbacker` which updates `self.value`
+    /// - Parameter isSame: Are two values the same. Used to avoid infinite recursion.
+    /// - Returns: A disposable that will stop listening on values when being disposed.
+    func bidirectionallyBindTo(_ callbacker: Callbacker<Value>, isSame: @escaping (Value, Value) -> Bool) -> Disposable {
+        let bag = DisposeBag()
+        bag += callbacker.addCallback { (value: Value) in
+            guard !isSame(value, self.value) else {
+                return
+            }
+            self.value = value
+        }
+        bag += distinct(isSame).onValue(callbacker.callAll(with:))
+        return bag
+    }
 }
 
 public extension SignalProvider where Kind == ReadWrite, Value: Equatable {
@@ -135,6 +157,13 @@ public extension SignalProvider where Kind == ReadWrite, Value: Equatable {
     /// - Note: Infinite recursion is avoided by comparing equality with the previous value.
     func bidirectionallyBindTo<ReadWriteSignal: SignalProvider>(_ signal: ReadWriteSignal) -> Disposable where ReadWriteSignal.Value == Value, ReadWriteSignal.Kind == ReadWrite {
         return bidirectionallyBindTo(signal, isSame: ==)
+    }
+
+    /// Start listening to `self` and add a callback to `callbacker` which updates `self.value`
+    /// - Returns: A disposable that will stop listening on values when being disposed.
+    /// - Note: Infinite recursion is avoided by comparing equality with the previous value.
+    func bidirectionallyBindTo(_ callbacker: Callbacker<Value>) -> Disposable {
+        return bidirectionallyBindTo(callbacker, isSame: ==)
     }
 }
 
