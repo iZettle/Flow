@@ -1,6 +1,7 @@
 # 1.3
 
 - Added versions of `bindTo()` that can bind a non optional to an optional value.
+- Added `enable()` to `Enablable` similar as `disable()`.
 
 # 1.2.1
 
