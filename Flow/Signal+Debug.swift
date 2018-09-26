@@ -20,7 +20,7 @@ extension SignalProvider {
         let signal = providedSignal
         let message = message.map { $0 + " -> " } ?? ""
         let fileIdentifier = "<\(file.lastFileComponent):\(line)> (\(function))"
-        return CoreSignal(onEventType: { callback in
+        return CoreSignal(setValue: setter, onEventType: { callback in
             let bag = DisposeBag()
             bag += signal.onEventType(on: scheduler) { eventType in
                 let fullMessage = "\(dateFormatter.string(from: Date())): \(fileIdentifier): \(message)"
