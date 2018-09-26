@@ -3,6 +3,7 @@
 - Added versions of `bindTo()` that can bind a non optional to an optional value.
 - Added `enable()` to `Enablable` similar as `disable()`.
 - Added more defaulted parameters to `Scheduler.init` for dispatch queues. 
+- Fixes a crash on Swift 4.2 when immediately (on the same line) modifying a `ReadWriteSignal`'s `value`.
 
 # 1.2.1
 

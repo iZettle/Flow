@@ -59,11 +59,19 @@ public extension SignalProvider where Kind == ReadWrite {
     }
 }
 
+public extension CoreSignal where Kind == ReadWrite {
+    // The current value of `self`.
+    var value: Value {
+        get { return getter()! }
+        set { setter!(newValue) }
+    }
+}
+
 public extension SignalProvider where Kind == ReadWrite {
     // The current value of `self`.
     var value: Value {
-        get { return providedSignal.getter()! }
-        nonmutating set { providedSignal.setter!(newValue) }
+        get { return providedSignal.value }
+        nonmutating set { providedSignal.value = newValue }
     }
 }
 
