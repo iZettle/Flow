@@ -100,4 +100,18 @@ class SignalTests: XCTestCase {
         }
         XCTAssertTrue(allIsCorrect)
     }
+
+    func testDebugReadWriteSignal() {
+        let readWriteSignal = ReadWriteSignal(0)
+        let debuggedSignal = readWriteSignal.debug(printer: { _ in })
+        let expectation = self.expectation(description: "Debugged signal sends a value")
+
+        let disposable = debuggedSignal.onValue { _ in
+            expectation.fulfill()
+        }
+        debuggedSignal.value = 5
+        disposable.dispose()
+
+        wait(for: [expectation], timeout: 1)
+    }
 }
