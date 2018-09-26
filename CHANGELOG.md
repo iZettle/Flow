@@ -2,6 +2,7 @@
 
 - Added versions of `bindTo()` that can bind a non optional to an optional value.
 - Added `enable()` to `Enablable` similar as `disable()`.
+- Added more defaulted parameters to `Scheduler.init` for dispatch queues. 
 
 # 1.2.1
 

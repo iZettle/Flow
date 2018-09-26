@@ -111,9 +111,9 @@ public extension Scheduler {
         self.init(identifyingObject: queue, async: { queue.async(execute: $0) }, sync: queue.sync)
     }
 
-    /// Create a new instance that will schedule its work on a `DispatchQueue` created with the the provided `label` and `attributes`.
-    public convenience init(label: String, attributes: DispatchQueue.Attributes = []) {
-        self.init(queue: DispatchQueue(label: label, attributes: attributes))
+    /// Create a new instance that will schedule its work on a `DispatchQueue` created with the provided parameters: `label`, `qos`, `attributes`, `autoreleaseFrequency` and `target`.
+    public convenience init(label: String, qos: DispatchQoS = .default, attributes: DispatchQueue.Attributes = [], autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency = .inherit, target: DispatchQueue? = nil) {
+        self.init(queue: DispatchQueue(label: label, qos: qos, attributes: attributes, autoreleaseFrequency: autoreleaseFrequency, target: target))
     }
 }
 
