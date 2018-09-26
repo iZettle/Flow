@@ -20,6 +20,13 @@ public extension Enablable {
         isEnabled = false
         return Disposer { self.isEnabled = prev }
     }
+
+    /// Will enable `self` and return a disposable that will upon disposal revert to the value set before calling enable.
+    func enable() -> Disposable {
+        let prev = isEnabled
+        isEnabled = true
+        return Disposer { self.isEnabled = prev }
+    }
 }
 
 extension CoreSignal: Enablable where Kind == ReadWrite, Value == Bool {
