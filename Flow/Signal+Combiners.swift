@@ -51,6 +51,61 @@ public func merge<Signals: Sequence>(_ signals: Signals) -> CoreSignal<Signals.I
     })
 }
 
+/// Returns a new signal combining each value from self with the latest value from the second signal.
+///
+///     ----a-----b------c-----d--|
+///         |     |      |     |
+///     -------1------2-----------|
+///            |      |
+///     +-------------------------+
+///     | withLatestFrom()        |
+///     +-------------------------+
+///               |      |     |
+///     --------(b,1)--(c,2)-(d,2)|
+///
+/// - Note: Will terminate when any signal terminates with an error.
+public extension SignalProvider {
+    func withLatestFrom<S: SignalProvider>(_ other: S) -> CoreSignal<Kind.DropWrite, (Value, S.Value)> where Kind.DropWrite == S.Kind.DropWrite {
+        let signal = providedSignal
+        let otherSignal = other.providedSignal
+        return CoreSignal(onEventType: { callback in
+            let state = StateAndCallback(state: S.Value?.none, callback: callback) // previous
+
+            state += otherSignal.onEventType { eventType in
+                switch eventType {
+                case .initial(nil):
+                    break
+                case .initial(let val?):
+                    state.protectedVal = val
+                case .event(.value(let val)):
+                    state.protectedVal = val
+                case .event(.end(let error)):
+                    return state.call(.event(.end(error)))
+                }
+            }
+
+            state += signal.onEventType { eventType in
+                switch eventType {
+                case .initial(nil):
+                    state.call(.initial(nil))
+                case .initial(let val?):
+                    if let otherValue = state.protectedVal {
+                        state.call(.initial((val, otherValue)))
+                    }
+                case .event(.value(let val)):
+                    if let otherValue = state.protectedVal {
+                        state.call(.event(.value((val, otherValue))))
+                    }
+                case .event(.end(let error)):
+                    state.call(.event(.end(error)))
+                }
+            }
+
+            return state
+        })
+    }
+}
+
 /// Returns a new signal merging the values emitted from `signals`
 ///
 ///     a)---b---c------d-|
