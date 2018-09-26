@@ -1,3 +1,7 @@
+# 1.3
+
+- Added versions of `bindTo()` that can bind a non optional to an optional value.
+
 # 1.2.1
 
 - Conditionally conform `Either` to Hashable when `Left` and `Right` conforms to `Hashable`.

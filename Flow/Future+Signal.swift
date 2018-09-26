@@ -71,11 +71,18 @@ public extension Future {
         })
     }
 
-    /// Returns a new future, where `signal`'s value is will be set to the success value of `self`.
+    /// Returns a new future, where `signal`'s value will be set to the success value of `self`.
     @discardableResult
-    func bindTo<P: SignalProvider>(_ signal: P) -> Future where P.Value == Value, P.Kind == ReadWrite {
+    func bindTo<P: SignalProvider>(on scheduler: Scheduler = .current, _ signal: P) -> Future where P.Value == Value, P.Kind == ReadWrite {
         let signal = signal.providedSignal
-        return onValue { signal.value = $0 }
+        return onValue(on: scheduler) { signal.value = $0 }
+    }
+
+    /// Returns a new future, where `signal`'s value will be set to the success value of `self`.
+    @discardableResult
+    func bindTo<P: SignalProvider>(on scheduler: Scheduler = .current, _ signal: P) -> Future where P.Value == Value?, P.Kind == ReadWrite {
+        let signal = signal.providedSignal
+        return onValue(on: scheduler) { signal.value = $0 }
     }
 
     /// Returns a new future, where the success value will be hold until `signal`'s value is or becomes true.

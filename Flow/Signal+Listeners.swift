@@ -71,10 +71,23 @@ public extension SignalProvider {
         return onValue(on: scheduler, setValue)
     }
 
+    /// Start listening on values via the provided `setValue`.
+    /// - Returns: A disposable that will stop listening on values when being disposed.
+    /// - Note: equivalent to `onValue(setValue)`
+    func bindTo(on scheduler: Scheduler = .current, _ setValue: @escaping (Value?) -> ()) -> Disposable {
+        return onValue(on: scheduler) { setValue($0) }
+    }
+
     /// Start listening on values and update `signal`'s value with the latest signaled value.
     /// - Returns: A disposable that will stop listening on values when being disposed.
-    func bindTo<WriteSignal: SignalProvider>(_ signal: WriteSignal) -> Disposable where WriteSignal.Value == Value, WriteSignal.Kind == ReadWrite {
-        return onValue { signal.providedSignal.value = $0 }
+    func bindTo<WriteSignal: SignalProvider>(on scheduler: Scheduler = .current, _ signal: WriteSignal) -> Disposable where WriteSignal.Value == Value, WriteSignal.Kind == ReadWrite {
+        return onValue(on: scheduler) { signal.providedSignal.value = $0 }
+    }
+
+    /// Start listening on values and update `signal`'s value with the latest signaled value.
+    /// - Returns: A disposable that will stop listening on values when being disposed.
+    func bindTo<WriteSignal: SignalProvider>(on scheduler: Scheduler = .current, _ signal: WriteSignal) -> Disposable where WriteSignal.Value == Value?, WriteSignal.Kind == ReadWrite {
+        return onValue(on: scheduler) { signal.providedSignal.value = $0 }
     }
 
     /// Start listening on values and update the value at the `keyPath` of `value`.
@@ -83,6 +96,17 @@ public extension SignalProvider {
     ///
     /// - Returns: A disposable that will stop listening on values when being disposed.
     func bindTo<T>(on scheduler: Scheduler = .current, _ value: T, _ keyPath: ReferenceWritableKeyPath<T, Value>) -> Disposable {
+        return onValue(on: scheduler) {
+            value[keyPath: keyPath] = $0
+        }
+    }
+
+    /// Start listening on values and update the value at the `keyPath` of `value`.
+    ///
+    ///     bindTo(button, \.isEnabled)
+    ///
+    /// - Returns: A disposable that will stop listening on values when being disposed.
+    func bindTo<T>(on scheduler: Scheduler = .current, _ value: T, _ keyPath: ReferenceWritableKeyPath<T, Value?>) -> Disposable {
         return onValue(on: scheduler) {
             value[keyPath: keyPath] = $0
         }
