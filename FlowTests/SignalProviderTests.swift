@@ -441,6 +441,80 @@ class SignalProviderTests: XCTestCase {
         }
     }
 
+    func testWithLatestFrom() {
+        runTest(timeout: 10) { bag in
+            let a = ReadWriteSignal<String>("")
+            let b = ReadWriteSignal<Int>(0)
+
+            let expected = [("b", 1), ("c", 2), ("d", 2)]
+
+            var buffer = [(String, Int)]()
+
+            let signal = a.plain().withLatestFrom(b.plain())
+
+            let expectation = self.expectation(description: "Values should be combined in order")
+            bag += signal.onValue { v in
+                buffer.append(v)
+
+                if buffer.count == expected.count {
+                    var equal = true
+                    for (index, element) in expected.enumerated() {
+                        let t = buffer[index]
+                        if t.0 != element.0 {
+                            equal = false
+                        }
+                    }
+
+                    if equal { expectation.fulfill() }
+                }
+            }
+
+            a.value = "a"
+            b.value = 1
+            a.value = "b"
+            b.value = 2
+            a.value = "c"
+            a.value = "d"
+        }
+    }
+
+    func testWithLatestFromUsingSource() {
+        runTest(timeout: 10) { bag in
+            let a = ReadWriteSignal<String>(".")
+            let b = ReadWriteSignal<Int>(0)
+
+            let expected = [(".", 0), ("a", 0), ("b", 1), ("c", 2), ("d", 2)]
+
+            var buffer = [(String, Int)]()
+
+            let signal = a.withLatestFrom(b)
+
+            let expectation = self.expectation(description: "Values should be combined in order")
+            bag += signal.atOnce().onValue { v in
+                buffer.append(v)
+
+                if buffer.count == expected.count {
+                    var equal = true
+                    for (index, element) in expected.enumerated() {
+                        let t = buffer[index]
+                        if t.0 != element.0 {
+                            equal = false
+                        }
+                    }
+
+                    if equal { expectation.fulfill() }
+                }
+            }
+
+            a.value = "a"
+            b.value = 1
+            a.value = "b"
+            b.value = 2
+            a.value = "c"
+            a.value = "d"
+        }
+    }
+
     func testCombineLatestWith() {
         runTest(timeout: 10) { bag in
             let a = ReadWriteSignal<String>("")
