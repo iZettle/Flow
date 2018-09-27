@@ -53,15 +53,15 @@ public func merge<Signals: Sequence>(_ signals: Signals) -> CoreSignal<Signals.I
 
 /// Returns a new signal combining each value from self with the latest value from the second signal.
 ///
-///     ----a-----b------c-----d--|
-///         |     |      |     |
-///     -------1------2-----------|
-///            |      |
-///     +-------------------------+
-///     | withLatestFrom()        |
-///     +-------------------------+
-///               |      |     |
-///     --------(b,1)--(c,2)-(d,2)|
+///     a)---------b------c-----d--|
+///                |      |     |
+///     0)------1------2-----------|
+///             |      |
+///     +--------------------------+
+///     | withLatestFrom()         |
+///     +--------------------------+
+///                |      |     |
+///     (a,0))---(b,1)--(c,2)-(d,2)|
 ///
 /// - Note: Will terminate when any signal terminates with an error.
 public extension SignalProvider {
