@@ -4,7 +4,7 @@
 - Added `enable()` to `Enablable` similar as `disable()`.
 - Added more defaulted parameters to `Scheduler.init` for dispatch queues. 
 - Fixes a crash on Swift 4.2 when immediately (on the same line) modifying a `ReadWriteSignal`'s `value`.
-- Added `Scheduler` `peform` helper. 
+- Added `Scheduler` `perform` helper. 
 
 # 1.2.1
 
