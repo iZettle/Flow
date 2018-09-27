@@ -274,10 +274,44 @@ class FutureNewSchedulingTests: FutureTest {
             Future<Int>(on: .concurrentBackground) {
                 assertConcurrentBackground()
                 return try f()
-                }.onResult { result in
-                    assertMain()
-                    XCTAssertTrue(result.error != nil)
+            }.onResult { result in
+                assertMain()
+                XCTAssertTrue(result.error != nil)
             }
         }
+    }
+
+    func testSchedulerPerform() {
+        let queue = DispatchQueue(label: "test")
+        let scheduler = Scheduler(queue: queue)
+
+        var result = 0
+        queue.sync {
+            scheduler.perform {
+                _ = Signal(just: 1).onValue(on: scheduler) {
+                    result = $0
+                }
+            }
+        }
+        XCTAssertEqual(result, 1)
+    }
+
+    func testSchedulerPerformWithNotification() {
+        let queue = DispatchQueue(label: "test")
+        let operationQueue = OperationQueue()
+        operationQueue.underlyingQueue = queue
+        let scheduler = Scheduler(queue: queue)
+
+        var result = 0
+        let name = NSNotification.Name(rawValue: "test")
+        NotificationCenter.default.addObserver(forName: name, object: nil, queue: operationQueue) { _ in
+            scheduler.perform {
+                _ = Signal(just: 1).onValue(on: scheduler) { val in
+                    result = val
+                }
+            }
+        }
+        NotificationCenter.default.post(name: name, object: nil)
+        XCTAssertEqual(result, 1)
     }
 }
