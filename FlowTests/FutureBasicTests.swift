@@ -39,7 +39,6 @@ class FutureTest: XCTestCase {
     func cancelExpectation() -> XCTestExpectation {
         return expectation(description: "Receive cancel")
     }
-
 }
 
 class FutureBasicTests: FutureTest {
@@ -380,5 +379,9 @@ class FutureBasicTests: FutureTest {
                 e2.fulfill()
             }
         }
+    }
+
+    func testImmediateMutation() {
+        ReadWriteSignal(CGPoint.zero).value.x = 2
     }
 }
