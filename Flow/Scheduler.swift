@@ -82,6 +82,23 @@ public extension Scheduler {
             self.async(execute: work)
         }
     }
+
+    /// Will perform `work` in the context of `self` so that any scheduling on `self` while executing `work` will be called immediately.
+    /// This can be useful when working with APIs where you provide a queue
+    /// for the callback to be called on and you want remaining execution on the
+    /// same queue to be schedule immediately:
+    ///
+    ///     NotificationCenter.default.addObserver(forName: ..., queue: myQueue) { _ in
+    ///       myScheduler.perform {
+    ///         // Schedule e.g. signals or futures using `myScheduler`
+    ///       }
+    ///     }
+    func perform<T>(work: () throws -> T) rethrows -> T {
+        let state = threadState
+        state.syncScheduler = self
+        defer { state.syncScheduler = nil }
+        return try work()
+    }
 }
 
 public extension Scheduler {
