@@ -5,6 +5,7 @@
 - Added more defaulted parameters to `Scheduler.init` for dispatch queues. 
 - Fixes a crash on Swift 4.2 when immediately (on the same line) modifying a `ReadWriteSignal`'s `value`.
 - Added `Scheduler` `perform` helper. 
+- Added signal `withLatestFrom` transformation.
 
 # 1.2.1
 
