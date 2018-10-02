@@ -111,7 +111,7 @@ public extension CoreSignal where Kind == Plain {
     }
 }
 
-public extension SignalProvider where Kind == Plain {
+public extension SignalProvider where Kind.DropWrite == Plain {
     /// Returns a new readable signal evaluating `getValue()` for its current value.
     func readable(getValue: @escaping () -> Value) -> ReadSignal<Value> {
         let signal = providedSignal
