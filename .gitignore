@@ -5,3 +5,5 @@ xcuserdata
 .DS_Store
 *.xccheckout
 
+# ignore all Carthage output
+Carthage/
