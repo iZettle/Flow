@@ -57,6 +57,13 @@ public enum Read: SignalKind {
     public typealias PotentiallyRead = Read
 }
 
+/// A signal kind with write access but no read access
+public enum Write: SignalKind {
+    public typealias DropWrite = Plain
+    public typealias DropReadWrite = Plain
+    public typealias PotentiallyRead = ReadWrite
+}
+
 /// A signal kind with both read and write access
 public enum ReadWrite: SignalKind {
     public typealias DropWrite = Read
