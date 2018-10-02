@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class FlowViewController: UIViewController {
+public final class FlowViewController: UIViewController {
     private var viewDidLoadSignal = WriteSignal<()>()
 
     private var viewWillAppearSignal = WriteSignal<Bool>()
