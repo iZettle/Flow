@@ -99,38 +99,3 @@ extension FlowViewController {
         return didReceiveMemoryWarningSignal.plain()
     }
 }
-
-extension FlowViewController {
-    /// The current `UIApplicationState`, as observed through `NotificationCenter`.
-    /// Will only emit values if `observeAppStateChanges()` has been called.
-    public var appStateSignal: Signal<UIApplicationState> {
-        return stateSignal.plain().distinct()
-    }
-
-    /// Call this to begin observing NSApplicationState updates, emitted to `appStateSignal`.
-    public func observeAppStateChanges() -> Disposable {
-        let app = UIApplication.shared
-        let center = NotificationCenter.default
-        let selector = #selector(FlowViewController.updateApplicationState(notification:))
-
-        let willEnterForeground = NSNotification.Name.UIApplicationWillEnterForeground
-        let willResignActive = NSNotification.Name.UIApplicationWillResignActive
-        let didBecomeActive = NSNotification.Name.UIApplicationDidBecomeActive
-        let didEnterBackground = NSNotification.Name.UIApplicationDidEnterBackground
-
-        center.addObserver(self, selector: selector, name: willEnterForeground, object: app)
-        center.addObserver(self, selector: selector, name: willResignActive, object: app)
-        center.addObserver(self, selector: selector, name: didBecomeActive, object: app)
-        center.addObserver(self, selector: selector, name: didEnterBackground, object: app)
-
-        let bag = DisposeBag()
-        bag += { center.removeObserver(self) }
-        return bag
-    }
-
-    /// Internal callback for the observers.
-    @objc private func updateApplicationState(notification: NSNotification) {
-        let state = (notification.object as? UIApplication)?.applicationState ?? .active
-        stateSignal.emit(state)
-    }
-}
