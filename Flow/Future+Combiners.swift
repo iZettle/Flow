@@ -177,10 +177,10 @@ public extension Future {
     /// The returned future completes when either `self` of any of the `futures` completes, whichever completes first.
     /// If any of the futures in `futures` completes first the returned future will always fail with either the future's error or `FutureError.aborted` if it completes successfully.
     func abort(forFutures futures: [Future<()>]) -> Future {
-        return Future { completion in
-            let future = self.onResult(on: .none, completion)
+        return Future { completion, mover in
+            let future = mover.moveInside(self).onResult(on: .none, completion)
 
-            let aborts = Flow.select(between: futures).onResult(on: .none) { result in
+            let aborts = Flow.select(between: futures.map(mover.moveInside)).onResult(on: .none) { result in
                 completion(.failure(result.error ?? FutureError.aborted))
             }
 

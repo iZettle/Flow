@@ -1,3 +1,7 @@
+# 1.3.1
+
+- Bugfix: Updated `Future.abort(forFutures:)` to more correctly handle repetition.
+
 # 1.3
 
 - Added versions of `bindTo()` that can bind a non optional to an optional value.
