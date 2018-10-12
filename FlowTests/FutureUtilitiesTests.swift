@@ -149,6 +149,18 @@ class FutureUtilitiesTests: FutureTest {
         }
     }
 
+    func testAbortForFuturesRepeat() {
+        let e = errorExpectation()
+        e.expectedFulfillmentCount = 4
+        testFuture(timeout: 2) {
+            Future()
+                .onValue { e.fulfill() }
+                .delay(by: 10).abort(forFutures: [ Future().onValue { e.fulfill() }.delay(by: 0.1) ])
+                .mapResult { _ in () }
+                .repeatAndCollect(repeatCount: 1)
+        }
+    }
+
     func testIgnoreAbort() {
         testFuture(timeout: 1, cancelAfterDelay: 0.1) { () -> Future<Int> in
             let e = errorExpectation()
