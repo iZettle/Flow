@@ -101,66 +101,6 @@ public extension SignalProvider {
         })
     }
 
-    /// Returns a new signal forwarding the values from the signal returned from `transform`.
-    ///
-    ///     ---a--------b------------|
-    ///        |        |
-    ///     +-------------------------+
-    ///     | flatMapLatest() - plain |
-    ///     +-------------------------+
-    ///     ---s1-------s2-----------|
-    ///        |        |
-    ///     -----1---2-----1---2--3--|
-    ///
-    ///     0)--------a---------b----------|
-    ///               |         |
-    ///     +----------------------------+
-    ///     | flatMapLatest() - readable |
-    ///     +----------------------------+
-    ///     s0)-------s1--------s2---------|
-    ///               |         |
-    ///     0)--1--2--0--1--2---0--1--2----|
-    ///
-    /// - Note: If `self` signals a value, any a previous signal returned from `transform` will be disposed.
-    /// - Note: If `self` and `other` are both readable their current values will be used as initial values.
-    /// - Note: If either `self` of the signal returned from `transform` are terminated, the returned signal will terminated as well.
-    func flatMapLatest<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> CoreSignal<Kind.DropWrite, T> where K.DropWrite == Kind.DropWrite {
-        let signal = providedSignal
-        return CoreSignal(onEventType: { callback in
-            let latestBag = DisposeBag()
-            let bag = DisposeBag(latestBag)
-            bag += signal.onEventType(on: scheduler) { eventType in
-                switch eventType {
-                case .initial(nil):
-                    callback(.initial(nil))
-                case .initial(let val?):
-                    latestBag += scheduler.sync { transform(val) }.onEventType(callback)
-                case let .event(.value(val)):
-                    let isFirstEvent = latestBag.isEmpty
-                    latestBag.dispose()
-                    latestBag += transform(val).onEventType { eventType in
-                        switch eventType {
-                        case .initial(let val?):
-                            if isFirstEvent {
-                                callback(eventType) // Just forward first initial
-                            } else {
-                                callback(.event(.value(val))) // Pass upcoming initials as values
-                            }
-                        case .initial(nil):
-                            break
-                        case .event:
-                            callback(eventType)
-                        }
-                    }
-                case .event(.end(let error)):
-                    callback(.event(.end(error)))
-                }
-            }
-
-            return bag
-        })
-    }
-
     /// Returns a new signal transforming values using `transform`
     ///
     ///     1)---2----3----4----|
@@ -678,6 +618,117 @@ public extension SignalProvider {
 
             return state
         }
+    }
+}
+
+public extension SignalProvider where Kind == Plain {
+    /// Returns a new signal forwarding the values from the signal returned from `transform`.
+    ///
+    ///     ---a--------b------------
+    ///        |        |
+    ///     +-------------------------+
+    ///     | flatMapLatest()         |
+    ///     +-------------------------+
+    ///     ---s1-------s2-----------|
+    ///        |        |
+    ///     -----1---2-----1---2--3--|
+    ///
+    /// - Note: If `self` signals a value, any a previous signal returned from `transform` will be disposed.
+    /// - Note: If the signal returned from `transform` is terminated, the returned signal will terminated as well.
+    func flatMapLatest<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> CoreSignal<K.DropReadWrite, T> {
+        return _flatMapLatest(on: scheduler, transform)
+    }
+}
+
+public extension SignalProvider where Kind == Finite {
+    /// Returns a new signal forwarding the values from the signal returned from `transform`.
+    ///
+    ///     ---a--------b------------|
+    ///        |        |
+    ///     +-------------------------+
+    ///     | flatMapLatest           |
+    ///     +-------------------------+
+    ///     ---s1-------s2-----------|
+    ///        |        |
+    ///     -----1---2-----1---2--3--|
+    ///
+    ///
+    /// - Note: If `self` signals a value, any a previous signal returned from `transform` will be disposed.
+    /// - Note: If either `self` of the signal returned from `transform` are terminated, the returned signal will terminated as well.
+    func flatMapLatest<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> FiniteSignal<T> {
+        return _flatMapLatest(on: scheduler, transform)
+    }
+}
+
+public extension SignalProvider where Kind.DropWrite == Read {
+    /// Returns a new signal forwarding the values from the signal returned from `transform`.
+    ///
+    ///     0)--------a---------b-------
+    ///               |         |
+    ///     +----------------------------+
+    ///     | flatMapLatest()            |
+    ///     +----------------------------+
+    ///     s0)-------s1--------s2------|
+    ///               |         |
+    ///     0)--1--2--0--1--2---0--1--2-|
+    ///
+    /// - Note: If `self` signals a value, any a previous signal returned from `transform` will be disposed.
+    /// - Note: If the signal returned from `transform` is terminated, the returned signal will terminated as well.
+    func flatMapLatest<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> CoreSignal<K, T> {
+        return _flatMapLatest(on: scheduler, transform)
+    }
+}
+
+private extension SignalProvider {
+    func _flatMapLatest<KI, T, KO>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<KI, T>) -> CoreSignal<KO, T> {
+        let signal = providedSignal
+
+        let mutex = Mutex()
+        var setter: ((T) -> ())? = nil
+        func setValue(_ value: T) {
+            let setValue = mutex.protect { setter ?? transform(signal.getter()!).setter! }
+            setValue(value)
+        }
+
+        return CoreSignal(setValue: setValue, onEventType: { callback in
+            let latestBag = DisposeBag()
+            let bag = DisposeBag(latestBag)
+            bag += { mutex.protect { setter = nil } }
+
+            bag += signal.onEventType(on: scheduler) { eventType in
+                switch eventType {
+                case .initial(nil):
+                    callback(.initial(nil))
+                case .initial(let val?):
+                    let signal = scheduler.sync { transform(val) }
+                    mutex.protect { setter = signal.setter }
+                    latestBag += signal.onEventType(callback)
+                case let .event(.value(val)):
+                    let isFirstEvent = latestBag.isEmpty
+                    latestBag.dispose()
+                    let signal = transform(val)
+                    mutex.protect { setter = signal.setter }
+                    latestBag += signal.onEventType { eventType in
+                        switch eventType {
+                        case .initial(let val?) where KO.isReadable:
+                            if isFirstEvent {
+                                callback(eventType) // Just forward first initial
+                            } else {
+                                callback(.event(.value(val))) // Pass upcoming initials as values
+                            }
+                        case .initial:
+                            break
+                        case .event:
+                            callback(eventType)
+                        }
+                    }
+                case .event(.end(let error)):
+                    callback(.event(.end(error)))
+                }
+            }
+
+            return bag
+        })
     }
 }
 

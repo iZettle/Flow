@@ -1,3 +1,6 @@
+# 1.4
+- Updated the `Signal.flatMapLatest()` transformation to allow more flexible mixing of signal types between `self` and the signal returned from `transform`.
+
 # 1.3.1
 
 - Bugfix: Updated `Future.abort(forFutures:)` to more correctly handle repetition.
