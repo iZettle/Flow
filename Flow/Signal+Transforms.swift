@@ -801,6 +801,13 @@ public extension SignalProvider where Value == Bool {
     }
 }
 
+public extension SignalProvider where Kind == ReadWrite, Value == Bool {
+    /// Will update `value` to `!value´.
+    func toggle() {
+        return value = !value
+    }
+}
+
 public extension SignalProvider where Value: Equatable {
     /// Returns a new signal discarding values if comparing the same with the preceeding value.
     ///

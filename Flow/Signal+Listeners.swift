@@ -142,7 +142,6 @@ public extension SignalProvider where Value == () {
     /// Start listening on values and toggle `signal`'s value for every recieved event.
     /// - Returns: A disposable that will stop listening on values when being disposed.
     func toggle<ReadWriteSignal: SignalProvider>(_ signal: ReadWriteSignal) -> Disposable where ReadWriteSignal.Value == Bool, ReadWriteSignal.Kind == ReadWrite {
-        let signal = signal.providedSignal
-        return onValue { signal.value = !signal.value }
+        return onValue(signal.providedSignal.toggle)
     }
 }
