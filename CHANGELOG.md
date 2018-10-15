@@ -1,6 +1,5 @@
 # 1.4
-- Added new `Signal` `flatMap` transformation that allows more flexible mixing of signal types between `self` and the signal returned from `transform`.
-- Deprecated  `flatMapLatest` that is being replaced by the more flexible `flatMap` version.
+- Updated the `Signal.flatMapLatest()` transformation to allow more flexible mixing of signal types between `self` and the signal returned from `transform`.
 
 # 1.3.1
 
