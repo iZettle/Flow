@@ -75,6 +75,26 @@ public extension SignalProvider where Kind == ReadWrite {
     }
 }
 
+public extension SignalProvider where Kind == ReadWrite {
+    /// The provided `callback` will be called with the new value just before it is being set.
+    func willWrite(_ callback: @escaping (Value) -> Void) -> ReadWriteSignal<Value> {
+        let signal = providedSignal
+        return CoreSignal(setValue: { value in
+            callback(value)
+            signal.value = value
+        }, onEventType: signal.onEventType)
+    }
+
+    /// The provided `callback` will be called with the new value just after it has been set.
+    func didWrite(_ callback: @escaping (Value) -> Void) -> ReadWriteSignal<Value> {
+        let signal = providedSignal
+        return CoreSignal(setValue: { value in
+            signal.value = value
+            callback(value)
+        }, onEventType: signal.onEventType)
+    }
+}
+
 private var propertySetterKey = false
 
 internal extension SignalProvider {
