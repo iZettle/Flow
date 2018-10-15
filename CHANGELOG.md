@@ -1,5 +1,7 @@
 # 1.4
+
 - Updated the `Signal.flatMapLatest()` transformation to allow more flexible mixing of signal types between `self` and the signal returned from `transform`.
+- Added `Signal.toogle()`  method for read-write boolean signals.
 
 # 1.3.1
 
