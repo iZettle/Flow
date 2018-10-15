@@ -32,6 +32,14 @@ public extension UIControl {
     }
 }
 
+extension SignalProvider where Self: UIControl, Kind.DropWrite == Read {
+    /// Returns a signal that will signal with the latest value when the control event `.valueChanged` is signaled on `self`.
+    /// - Note: This is useful when we need to know the a change was user initiated, whichs is not always the case as typically `UIControl`'s `providedSignal` is triggered on KVO as well.
+    var valueChanged: Signal<Value> {
+        return signal(for: .valueChanged).map { self.value }
+    }
+}
+
 extension UIControl: HasEventListeners, AutoEnablable {
     public var hasEventListeners: Bool {
         return !allTargets.filter { $0 is TargetAction }.isEmpty
