@@ -31,7 +31,7 @@ public extension SignalProvider {
     /// Returns a new signal forwarding the value from the future returned from `transform` unless the future fails, where the returned signal terminates with the future's error.
     /// - Note: If `self` signals a value, any previous future returned from `transform` will be cancelled.
     func mapLatestToFuture<T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> Future<T>) -> FiniteSignal<T> {
-        return FiniteSignal(self).flatMapLatest(on: scheduler) { value in
+        return FiniteSignal(self).flatMap(on: scheduler) { value in
             transform(value).valueSignal
         }
     }
