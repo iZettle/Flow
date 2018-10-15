@@ -101,11 +101,6 @@ public extension SignalProvider {
         })
     }
 
-    @available(*, deprecated, renamed: "flatMap", message: "Use `flatMap` instead that allows greater flexibilty with provided signal types.")
-    func flatMapLatest<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> CoreSignal<Kind.DropWrite, T> where K.DropWrite == Kind.DropWrite {
-        return _flatMap(on: scheduler, transform)
-    }
-
     /// Returns a new signal transforming values using `transform`
     ///
     ///     1)---2----3----4----|
@@ -632,7 +627,7 @@ public extension SignalProvider where Kind == Plain {
     ///     ---a--------b------------
     ///        |        |
     ///     +-------------------------+
-    ///     | flatMap()               |
+    ///     | flatMapLatest()         |
     ///     +-------------------------+
     ///     ---s1-------s2-----------|
     ///        |        |
@@ -640,8 +635,8 @@ public extension SignalProvider where Kind == Plain {
     ///
     /// - Note: If `self` signals a value, any a previous signal returned from `transform` will be disposed.
     /// - Note: If the signal returned from `transform` is terminated, the returned signal will terminated as well.
-    func flatMap<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> CoreSignal<K.DropReadWrite, T> {
-        return _flatMap(on: scheduler, transform)
+    func flatMapLatest<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> CoreSignal<K.DropReadWrite, T> {
+        return _flatMapLatest(on: scheduler, transform)
     }
 }
 
@@ -651,7 +646,7 @@ public extension SignalProvider where Kind == Finite {
     ///     ---a--------b------------|
     ///        |        |
     ///     +-------------------------+
-    ///     | flatMap()               |
+    ///     | flatMapLatest           |
     ///     +-------------------------+
     ///     ---s1-------s2-----------|
     ///        |        |
@@ -660,8 +655,8 @@ public extension SignalProvider where Kind == Finite {
     ///
     /// - Note: If `self` signals a value, any a previous signal returned from `transform` will be disposed.
     /// - Note: If either `self` of the signal returned from `transform` are terminated, the returned signal will terminated as well.
-    func flatMap<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> FiniteSignal<T> {
-        return _flatMap(on: scheduler, transform)
+    func flatMapLatest<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> FiniteSignal<T> {
+        return _flatMapLatest(on: scheduler, transform)
     }
 }
 
@@ -671,7 +666,7 @@ public extension SignalProvider where Kind.DropWrite == Read {
     ///     0)--------a---------b-------
     ///               |         |
     ///     +----------------------------+
-    ///     | flatMap()                  |
+    ///     | flatMapLatest()            |
     ///     +----------------------------+
     ///     s0)-------s1--------s2------|
     ///               |         |
@@ -679,13 +674,13 @@ public extension SignalProvider where Kind.DropWrite == Read {
     ///
     /// - Note: If `self` signals a value, any a previous signal returned from `transform` will be disposed.
     /// - Note: If the signal returned from `transform` is terminated, the returned signal will terminated as well.
-    func flatMap<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> CoreSignal<K, T> {
-        return _flatMap(on: scheduler, transform)
+    func flatMapLatest<K, T>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<K, T>) -> CoreSignal<K, T> {
+        return _flatMapLatest(on: scheduler, transform)
     }
 }
 
 private extension SignalProvider {
-    func _flatMap<KI, T, KO>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<KI, T>) -> CoreSignal<KO, T> {
+    func _flatMapLatest<KI, T, KO>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<KI, T>) -> CoreSignal<KO, T> {
         let signal = providedSignal
 
         let mutex = Mutex()

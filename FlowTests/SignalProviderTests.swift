@@ -1769,14 +1769,14 @@ class SignalProviderTests: XCTestCase {
 
     }
 
-    func testFlatMapNoSource() {
+    func testFlatMapLatestNoSource() {
         let o = ReadWriteSignal(0) // outer
         let i = ReadWriteSignal(0) // inner
 
         let bag = DisposeBag()
         var r = 0
         var cnt = 0
-        bag += o.plain().flatMap { val in
+        bag += o.plain().flatMapLatest { val in
             return i.plain().map { val + $0 }
         }.onValue {
             cnt += 1
@@ -1800,14 +1800,14 @@ class SignalProviderTests: XCTestCase {
         XCTAssertEqual(cnt, 3)
     }
 
-    func testFlatMapHasSource() {
+    func testFlatMapLatestHasSource() {
         let o = ReadWriteSignal(1) // outer
         let i = ReadWriteSignal(2) // inner
 
         let bag = DisposeBag()
         var r = 0
         var cnt = 0
-        bag += o.readOnly().flatMap { val in
+        bag += o.readOnly().flatMapLatest { val in
             return i.readOnly().map { val + $0 }
         }.atOnce().onValue {
             cnt += 1
@@ -1831,7 +1831,7 @@ class SignalProviderTests: XCTestCase {
         XCTAssertEqual(cnt, 7)
     }
 
-    func testFlatMapHasSourceAlt() {
+    func testFlatMapLatestHasSourceAlt() {
         let o = ReadWriteSignal(1) // outer
         let ia = ReadWriteSignal(2) // inner a
         let ib = ReadWriteSignal(3) // inner b
@@ -1839,7 +1839,7 @@ class SignalProviderTests: XCTestCase {
         let bag = DisposeBag()
         var r = 0
         var cnt = 0
-        bag += o.readOnly().flatMap { val in
+        bag += o.readOnly().flatMapLatest { val in
             return (val > 2 ? ib : ia).readOnly().map { val + $0 }
         }.atOnce().onValue {
             cnt += 1
@@ -1863,28 +1863,28 @@ class SignalProviderTests: XCTestCase {
         XCTAssertEqual(cnt, 5)
     }
 
-    func testFlatMapOnSignal() {
+    func testFlatMapLatestOnSignal() {
         let bag = DisposeBag()
         let source = ReadWriteSignal(0)
         var result = 0
 
         let signal = source.plain()
-        let s1: Signal = signal.flatMap { val in
+        let s1: Signal = signal.flatMapLatest { val in
             return Signal<Int>(just: val*2)
         }
         bag += s1.onValue { result += $0 }
 
-        let s2: FiniteSignal = signal.flatMap { val in
+        let s2: FiniteSignal = signal.flatMapLatest { val in
             return Signal<Int>(just: val*2).finite()
         }
         bag += s2.onValue { result += $0*10 }
 
-        let s3: Signal = signal.flatMap { val in
+        let s3: Signal = signal.flatMapLatest { val in
             return ReadSignal<Int>(val*2).atOnce()
         }
         bag += s3.onValue { result += $0*100 }
 
-        let s4: Signal = signal.flatMap { val in
+        let s4: Signal = signal.flatMapLatest { val in
             return ReadWriteSignal<Int>(val*2).atOnce()
         }
         bag += s4.onValue { result += $0*1000 }
@@ -1895,28 +1895,28 @@ class SignalProviderTests: XCTestCase {
         XCTAssertEqual(result, 6666)
     }
 
-    func testFlatMapOnFiniteSignal() {
+    func testFlatMapLatestOnFiniteSignal() {
         let bag = DisposeBag()
         let source = ReadWriteSignal(0)
         var result = 0
 
         let finiteSignal = source.finite()
-        let f1: FiniteSignal = finiteSignal.flatMap { val in
+        let f1: FiniteSignal = finiteSignal.flatMapLatest { val in
             return Signal<Int>(just: val*2)
         }
         bag += f1.onValue { result += $0 }
 
-        let f2: FiniteSignal = finiteSignal.flatMap { val in
+        let f2: FiniteSignal = finiteSignal.flatMapLatest { val in
             return Signal<Int>(just: val*2).finite()
         }
         bag += f2.onValue { result += $0*10 }
 
-        let f3: FiniteSignal = finiteSignal.flatMap { val in
+        let f3: FiniteSignal = finiteSignal.flatMapLatest { val in
             return ReadSignal<Int>(val*2).atOnce()
         }
         bag += f3.onValue { result += $0*100 }
 
-        let f4: FiniteSignal = finiteSignal.flatMap { val in
+        let f4: FiniteSignal = finiteSignal.flatMapLatest { val in
             return ReadWriteSignal<Int>(val*2).atOnce()
         }
         bag += f4.onValue { result += $0*1000 }
@@ -1927,28 +1927,28 @@ class SignalProviderTests: XCTestCase {
         XCTAssertEqual(result, 6666)
     }
 
-    func testFlatMapOnReadSignal() {
+    func testFlatMapLatestOnReadSignal() {
         let bag = DisposeBag()
         let source = ReadWriteSignal(0)
         var result = 0
 
         let readSignal = source.readOnly()
-        let r1: Signal = readSignal.flatMap { val in
+        let r1: Signal = readSignal.flatMapLatest { val in
             return Signal<Int>(just: val*2)
         }
         bag += r1.onValue { result += $0 }
 
-        let r2: FiniteSignal = readSignal.flatMap { val in
+        let r2: FiniteSignal = readSignal.flatMapLatest { val in
             return Signal<Int>(just: val*2).finite()
         }
         bag += r2.onValue { result += $0*10 }
 
-        let r3: ReadSignal = readSignal.flatMap { val in
+        let r3: ReadSignal = readSignal.flatMapLatest { val in
             return ReadSignal<Int>(val*2)
         }
         bag += r3.onValue { result += $0*100 }
 
-        let r4: ReadWriteSignal = readSignal.flatMap { val in
+        let r4: ReadWriteSignal = readSignal.flatMapLatest { val in
             return ReadWriteSignal<Int>(val*2)
         }
         bag += r4.onValue { result += $0*1000 }
@@ -1969,29 +1969,29 @@ class SignalProviderTests: XCTestCase {
         XCTAssertEqual(r4.value, 4)
     }
 
-    func testFlatMapOnReadWriteSignal() {
+    func testFlatMapLatestOnReadWriteSignal() {
         let bag = DisposeBag()
         let source = ReadWriteSignal(0)
         var result = 0
 
         let readWriteSignal = source
-        let rw1: Signal = readWriteSignal.flatMap { val in
+        let rw1: Signal = readWriteSignal.flatMapLatest { val in
             return Signal<Int>(just: val*2)
         }
         bag += rw1.onValue { result += $0 }
 
-        let rw2: FiniteSignal = readWriteSignal.flatMap { val in
+        let rw2: FiniteSignal = readWriteSignal.flatMapLatest { val in
             return Signal<Int>(just: val*2).finite()
         }
         bag += rw2.onValue { result += $0*10 }
 
-        let rw3: ReadSignal = readWriteSignal.flatMap { val in
+        let rw3: ReadSignal = readWriteSignal.flatMapLatest { val in
             return ReadSignal<Int>(val*2)
         }
         bag += rw3.onValue { result += $0*100 }
 
         let underlyingSignal = ReadWriteSignal(0)
-        let rw4: ReadWriteSignal = readWriteSignal.flatMap { val -> ReadWriteSignal<Int> in
+        let rw4: ReadWriteSignal = readWriteSignal.flatMapLatest { val -> ReadWriteSignal<Int> in
             return underlyingSignal
         }
         bag += rw4.onValue { result += $0*1000 }
