@@ -2356,15 +2356,13 @@ class SignalProviderStressTests: XCTestCase {
 
     func testWillDidWrite() {
         var result = [Int]()
-        let s = ReadWriteSignal(0).willWrite { value in
-            result.append(value * 2)
-        }.didWrite { value in
+        let s = ReadWriteSignal(0).didWrite { value in
             result.append(value * 3)
         }
 
         XCTAssertEqual(result, [])
         s.value = 2
-        XCTAssertEqual(result, [2*2, 2*3])
+        XCTAssertEqual(result, [2*3])
 
         let bag = DisposeBag()
         bag += s.onValue { value in
@@ -2372,7 +2370,7 @@ class SignalProviderStressTests: XCTestCase {
         }
 
         s.value = 3
-        XCTAssertEqual(result, [2*2, 2*3, 3*2, 3*5, 3*3])
+        XCTAssertEqual(result, [2*3, 3*5, 3*3])
     }
 
     #if DEBUG

@@ -76,15 +76,6 @@ public extension SignalProvider where Kind == ReadWrite {
 }
 
 public extension SignalProvider where Kind == ReadWrite {
-    /// The provided `callback` will be called with the new value just before it is being set.
-    func willWrite(on scheduler: Scheduler = .current, _ callback: @escaping (Value) -> Void) -> ReadWriteSignal<Value> {
-        let signal = providedSignal
-        return CoreSignal(setValue: { value in
-            scheduler.async { callback(value) }
-            signal.value = value
-        }, onEventType: signal.onEventType)
-    }
-
     /// The provided `callback` will be called with the new value just after it has been set.
     func didWrite(on scheduler: Scheduler = .current, _ callback: @escaping (Value) -> Void) -> ReadWriteSignal<Value> {
         let signal = providedSignal
