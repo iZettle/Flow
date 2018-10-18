@@ -261,11 +261,13 @@ class FutureRepeatTests: FutureTest {
     func testRetryOnError() {
         testFuture(timeout: 5) { () -> Future<()> in
             let e = expectation(description: "Sums up")
+            let start = Date()
             var sum = 0
             return Future(error: TestError.fatal).delay(by: 0.1).onError { _ in
                 sum += 1
-            }.onErrorRepeat(delayBetweenRepetitions: 0.1, maxRepetitions: 3).onError { _ in
+            }.onErrorRepeat(delayBetweenRepetitions: 0.5, maxRepetitions: 3).onError { _ in
                 XCTAssertEqual(sum, 4)
+                XCTAssert(Date().timeIntervalSince(start) > 1.5)
                 e.fulfill()
             }
         }
