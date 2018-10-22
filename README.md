@@ -217,5 +217,5 @@ Flow was developed, evolved and field-tested over the course of several years, a
 
 ## Collaborate
 
-You can collaborate with us on our Slack workspace. Ask questions, share ideas or may be just participate in ongoing discussions. To get an invitation, write to us at [ios-oss@izettle.com](mailto:ios-oss@izettle.com)
+You can collaborate with us on our Slack workspace. Ask questions, share ideas or maybe just participate in ongoing discussions. To get an invitation, write to us at [ios-oss@izettle.com](mailto:ios-oss@izettle.com)
 
