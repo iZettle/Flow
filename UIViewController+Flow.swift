@@ -9,93 +9,87 @@
 import UIKit
 
 public final class FlowViewController: UIViewController {
-    private var viewDidLoadSignal = WriteSignal<()>()
-
-    private var viewWillAppearSignal = WriteSignal<Bool>()
-    private var viewDidAppearSignal = WriteSignal<Bool>()
-
-    private var viewWillDisappearSignal = WriteSignal<Bool>()
-    private var viewDidDisappearSignal = WriteSignal<Bool>()
-
-    private var viewWillLayoutSubviewsSignal = WriteSignal<()>()
-    private var viewDidLayoutSubviewsSignal = WriteSignal<()>()
-
-    private var didReceiveMemoryWarningSignal = WriteSignal<()>()
-    private var stateSignal = WriteSignal<UIApplicationState>()
+    public let lifecycleCallbacks = LifecycleCallbacks()
 }
 
 extension FlowViewController {
     override public func viewDidLoad() {
         super.viewDidLoad()
-        viewDidLoadSignal.emit()
+        lifecycleCallbacks.call(.didLoad)
     }
 
     override public func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewWillAppearSignal.emit(animated)
+        lifecycleCallbacks.call(.willAppear)
     }
 
     override public func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        viewDidAppearSignal.emit(animated)
+        lifecycleCallbacks.call(.didAppear)
     }
 
     override public func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        viewWillDisappearSignal.emit(animated)
+        lifecycleCallbacks.call(.willDisappear)
     }
 
     override public func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        viewDidDisappearSignal.emit(animated)
+        lifecycleCallbacks.call(.didDisappear)
     }
 
     override public func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        viewWillLayoutSubviewsSignal.emit()
+        lifecycleCallbacks.call(.willLayoutSubviews)
     }
 
     override public func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        viewDidLayoutSubviewsSignal.emit()
+        lifecycleCallbacks.call(.didLayoutSubviews)
     }
 
     override public func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        didReceiveMemoryWarningSignal.emit()
+        lifecycleCallbacks.call(.didReceiveMemoryWarning)
     }
 }
 
-extension FlowViewController {
-    public var didLoad: Signal<()> {
-        return viewDidLoadSignal.plain()
+public extension UIViewController {
+    struct LifecycleCallbacks {
+        public enum LifecycleCallback: CaseIterable {
+            case didLoad, willAppear, didAppear, willDisappear, didDisappear, willLayoutSubviews, didLayoutSubviews, didReceiveMemoryWarning
+        }
+        private let callbackers: [LifecycleCallback: Callbacker<()>]
+        private let signals: [LifecycleCallback: Signal<()>]
+    }
+}
+
+public extension UIViewController.LifecycleCallbacks {
+    init() {
+        var callbackers: [LifecycleCallback: Callbacker<()>] = [:]
+        var signals: [LifecycleCallback: Signal<()>] = [:]
+        for callback in LifecycleCallback.allCases {
+            let callbacker = Callbacker<()>()
+            callbackers[callback] = callbacker
+            signals[callback] = Signal(callbacker: callbacker)
+        }
+        self.callbackers = callbackers
+        self.signals = signals
     }
 
-    public var willAppear: Signal<Bool> {
-        return viewWillAppearSignal.plain()
+    subscript(callback: LifecycleCallback) -> Signal<()> {
+        guard let signal = signals[callback] else {
+            fatalError("Missing a signal for callback: \(callback)")
+        }
+        return signal
     }
+}
 
-    public var didAppear: Signal<Bool> {
-        return viewDidAppearSignal.plain()
-    }
-
-    public var willDisappear: Signal<Bool> {
-        return viewWillDisappearSignal.plain()
-    }
-
-    public var didDisappear: Signal<Bool> {
-        return viewDidDisappearSignal.plain()
-    }
-
-    public var willLayoutSubviews: Signal<()> {
-        return viewWillLayoutSubviewsSignal.plain()
-    }
-
-    public var didLayoutSubviews: Signal<()> {
-        return viewDidLayoutSubviewsSignal.plain()
-    }
-
-    public var receivedMemoryWarning: Signal<()> {
-        return didReceiveMemoryWarningSignal.plain()
+private extension UIViewController.LifecycleCallbacks {
+    func call(_ callback: LifecycleCallback) {
+        guard let callbacker = callbackers[callback] else {
+            fatalError("Missing a callbacker for callback: \(callback)")
+        }
+        callbacker.callAll(with: ())
     }
 }
