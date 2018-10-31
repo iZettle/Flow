@@ -6,7 +6,7 @@
 //  Copyright © 2015 iZettle. All rights reserved.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(tvOS)
 
 import UIKit
 
