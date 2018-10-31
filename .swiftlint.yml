@@ -16,7 +16,7 @@ included:
   - examples
 
 excluded:
-  - Frameworks/Flow/FlowTests # 382
+  - FlowTests 
 
 identifier_name:
   excluded: [id, vc, nc, i, j, x, y, qr]
