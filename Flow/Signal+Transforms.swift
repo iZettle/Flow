@@ -684,7 +684,7 @@ private extension SignalProvider {
         let signal = providedSignal
 
         let mutex = Mutex()
-        var setter: ((T) -> ())? = nil
+        var setter: ((T) -> ())?
         func setValue(_ value: T) {
             let setValue = mutex.protect { setter ?? transform(signal.getter()!).setter! }
             setValue(value)

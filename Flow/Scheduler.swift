@@ -135,7 +135,7 @@ public extension Scheduler {
 }
 
 extension Scheduler: Equatable {
-    public static func ==(lhs: Scheduler, rhs: Scheduler) -> Bool {
+    public static func == (lhs: Scheduler, rhs: Scheduler) -> Bool {
         return lhs.identifyingObject === rhs.identifyingObject
     }
 }

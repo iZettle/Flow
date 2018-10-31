@@ -121,7 +121,7 @@ public extension SignalProvider where Kind == Read {
 
 internal extension CoreSignal {
     func getter() -> Value? {
-        var value: Value? = nil
+        var value: Value?
         if Kind.isReadable {
             // To get the current value we start listening on events and captures the value in `.initial`.
             onEventType { eventType in
