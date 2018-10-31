@@ -13,4 +13,5 @@ script:
 - xcodebuild -version
 - xcodebuild -showsdks
 - swift -version
+- swiftlint --strict
 - sh build.sh "$COMMAND"
