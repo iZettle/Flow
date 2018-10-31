@@ -19,5 +19,5 @@ excluded:
   - FlowTests 
 
 identifier_name:
-  excluded: [id, vc, nc, i, j, x, y, qr]
+  excluded: [vc, nc, i]
   severity: warning
