@@ -311,7 +311,7 @@ public extension Future {
     @discardableResult
     func replace(with result: Result<Value>, after timeout: TimeInterval) -> Future {
         return Future(on: .none) { completion, mover in
-            let future = mover.moveInside(self).onResult(completion)
+            let future = mover.moveInside(self).onResult(on: .none, completion)
             return disposableAsync(after: timeout) {
                 future.cancel()
                 completion(result)

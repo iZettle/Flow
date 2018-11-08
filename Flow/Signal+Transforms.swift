@@ -11,7 +11,7 @@ import Foundation
 public extension SignalProvider {
     /// Returns a new signal where values are replaced with `()`, equivalent to `map { _ in }`.
     func toVoid() -> CoreSignal<Kind.DropWrite, ()> {
-        return map { _ in }
+        return map(on: .none) { _ in }
     }
 
     /// Returns a new signal where the values in `values` will be immediately signaled and before any other values are signaled from `self`.

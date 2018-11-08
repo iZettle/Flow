@@ -189,14 +189,14 @@ public extension Future {
     /// Returns a new `Future<Void>` where any success value from `self` is discarded.
     @discardableResult
     func toVoid() -> Future<Void> {
-        return map { _ in return Void() }
+        return map(on: .none) { _ in return Void() }
     }
 
     /// Returns a new future that will not cancel `self` if being canceled
     @discardableResult
     func ignoreCanceling() -> Future {
-        return Future { completion, mover in
-            mover.moveInside(self).onResult(completion)
+        return Future(on: .none) { completion, mover in
+            mover.moveInside(self).onResult(on: .none, completion)
             return NilDisposer()
         }
     }
@@ -245,7 +245,7 @@ public extension Future {
     /// - Note: A `delay` of zero will still delay calling `work`. However, passing a nil `delay` will execute `work` at once.
     @discardableResult
     func performWhile(on scheduler: Scheduler = .current, delayBy delay: TimeInterval? = nil, _ work: @escaping () -> Disposable) -> Future {
-        return Future { completion, mover in
+        return Future(on: scheduler) { completion, mover in
             let future = mover.moveInside(self)
             let bag = DisposeBag(NilDisposer()) // make non-empty
 
