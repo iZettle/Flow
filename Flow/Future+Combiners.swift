@@ -13,7 +13,7 @@ public extension Future {
     /// - Parameter cancelNonCompleted: If true (default), as the returned future completes, `self` and `other` will be canceled if possible.
     @discardableResult
     func join<T>(with other: Future<T>, cancelNonCompleted: Bool = true) -> Future<(Value, T)> {
-        return Future<(Value, T)> { completion, mover in
+        return Future<(Value, T)>(on: .none) { completion, mover in
             let state = StateAndCallback(state: (left: Value?.none, right: T?.none), callback: completion)
 
             let leftFuture = mover.moveInside(self).onError(on: .none) { completion(.failure($0)) }.onValue { left in
@@ -81,7 +81,7 @@ public extension Future {
     /// - Parameter cancelNonCompleted: If true (default), as the returned future completes, `self` and `other` will be canceled if possible
     @discardableResult
     func select<T>(between other: Future<T>, cancelNonCompleted: Bool = true) -> Future<Either<Value, T>> {
-        return Future<Either<Value, T>> { completion, mover in
+        return Future<Either<Value, T>>(on: .none) { completion, mover in
             let leftFuture = mover.moveInside(self).onValue(on: .none) { completion(.success(Either.left($0))) }.onError(on: .none) { completion(.failure($0)) }
             let rightFuture = mover.moveInside(other).onValue(on: .none) { completion(.success((Either.right($0)))) }.onError(on: .none) { completion(.failure($0)) }
 
@@ -177,7 +177,7 @@ public extension Future {
     /// The returned future completes when either `self` of any of the `futures` completes, whichever completes first.
     /// If any of the futures in `futures` completes first the returned future will always fail with either the future's error or `FutureError.aborted` if it completes successfully.
     func abort(forFutures futures: [Future<()>]) -> Future {
-        return Future { completion, mover in
+        return Future(on: .none) { completion, mover in
             let future = mover.moveInside(self).onResult(on: .none, completion)
 
             let aborts = Flow.select(between: futures.map(mover.moveInside)).onResult(on: .none) { result in
