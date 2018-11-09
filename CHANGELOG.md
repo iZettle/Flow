@@ -1,3 +1,9 @@
+# 1.4.1
+
+- Fixes a problem where onErrorRepeat would not respect the specified delay interval.
+- Fixed issues with tvOS support.
+- Updates some transforms such as `toVoid()` to schedule on `.none` instead of `.current` so these transforms won't cause a re-schedule.
+
 # 1.4
 
 - Updated the `Signal.flatMapLatest()` transformation to allow more flexible mixing of signal types between `self` and the signal returned from `transform`.
