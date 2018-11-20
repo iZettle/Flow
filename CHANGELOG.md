@@ -1,3 +1,7 @@
+# 1.4.2
+
+- Fixed a bug with some of `Future`'s repeat methods where the delay `delayBetweenRepetitions` was added after the last repetition as well.
+
 # 1.4.1
 
 - Fixes a problem where onErrorRepeat would not respect the specified delay interval.

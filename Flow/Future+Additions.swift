@@ -281,7 +281,7 @@ public extension Future {
     @discardableResult
     func onResultRepeat(on scheduler: Scheduler = .current, delayBetweenRepetitions delay: TimeInterval? = nil, maxRepetitions: Int? = nil, when predicate: @escaping (Result<Value>) -> Bool = { _ in true }) -> Future {
         return onResultRepeat(on: scheduler, maxRepetitions: maxRepetitions) { result in
-            Future<Bool>(predicate(result)).delay(by: delay)
+            return predicate(result) ? Future<Bool>(true).delay(by: delay) : Future<Bool>(false)
         }
     }
 
@@ -306,7 +306,7 @@ public extension Future {
     @discardableResult
     func onErrorRepeat(on scheduler: Scheduler = .current, delayBetweenRepetitions delay: TimeInterval? = nil, maxRepetitions: Int? = nil, when predicate: @escaping (Error) -> Bool = { _ in true }) -> Future {
         return onErrorRepeat(on: scheduler, maxRepetitions: maxRepetitions) { error in
-            Future<Bool>(predicate(error)).delay(by: delay)
+            return predicate(error) ? Future<Bool>(true).delay(by: delay) : Future<Bool>(false)
         }
     }
 
