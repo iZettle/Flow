@@ -277,7 +277,7 @@ public extension Future {
 
             let exec: (Future) -> () = recursive { future, exec in
                 var future = future
-                var predicateFuture: Future<Bool>? = nil
+                var predicateFuture: Future<Bool>?
 
                 // Avoid recursion (and stack overflows) if both self of predicateFuture has immediate results.
                 while true {

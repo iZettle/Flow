@@ -1,0 +1,23 @@
+disabled_rules:
+  - file_length
+  - line_length
+  - function_body_length
+  - large_tuple
+  - function_parameter_count
+
+  - nesting
+  - cyclomatic_complexity
+
+  - void_return
+  - trailing_comma
+
+included:
+  - Flow
+  - examples
+
+excluded:
+  - FlowTests 
+
+identifier_name:
+  excluded: [vc, nc, i]
+  severity: warning
