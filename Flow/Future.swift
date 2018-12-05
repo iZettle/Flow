@@ -283,7 +283,7 @@ public extension Future {
                 while true {
                     predicateFuture = nil
                     guard case let .completed(result) = future.protectedState else { break }
-                    predicateFuture = predicate(result)
+                    predicateFuture = scheduler.sync { predicate(result) }
                     guard let state = predicateFuture?.protectedState, case let .completed(stateResult) = state, stateResult.value == true else { break }
                     future = self.clone()
                 }
