@@ -1,6 +1,7 @@
 # 1.4.2
 
 - Fixed a bug with some of `Future`'s repeat methods where the delay `delayBetweenRepetitions` was added after the last repetition as well.
+- Fixed bug where the predicate passed to `onResultRepeat` was not always scheduled correctly.
 
 # 1.4.1
 
