@@ -81,7 +81,7 @@ private class CopyingView: UIView {
     }
 
     override func layoutSubviews() {
-        frame = superview?.bounds ?? .zero
+        frame = .zero
         super.layoutSubviews()
     }
 
@@ -90,7 +90,7 @@ private class CopyingView: UIView {
         superview.isUserInteractionEnabled = true
         let bag = DisposeBag()
         let longPressGesture = UILongPressGestureRecognizer()
-        bag += install(longPressGesture)
+        bag += superview.install(longPressGesture)
         bag += longPressGesture.signal(forState: .began).onValue { [weak self] in
             let menu = UIMenuController.shared
             guard !menu.isMenuVisible else { return }
@@ -127,10 +127,6 @@ private class CopyingView: UIView {
     }
 
     override var canBecomeFirstResponder: Bool {
-        return true
-    }
-
-    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         return true
     }
 }
