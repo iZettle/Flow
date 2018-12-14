@@ -61,7 +61,7 @@ case "$COMMAND" in
           -scheme Example \
           -sdk "${IOS_SDK}" \
           -destination "${IOS_DESTINATION}" \
-          build | xcpretty -c
+          build
     done
     exit 0
   ;;
