@@ -31,6 +31,38 @@ public extension SignalProvider {
             return bag
         })
     }
+
+    /// Returns a new signal delaying events by the result of executing the `delay` closure with the value.
+    /// - Parameter delay: A closure that returns a time to delay the signaled events. A returned delay of zero will still delay signaled events. However, returning nil will not delay signaled events.
+    func delay(on scheduler: Scheduler = .current, by delay: @escaping (Value) -> TimeInterval?) -> CoreSignal<Kind, Value> {
+        let signal = providedSignal
+
+        return CoreSignal(setValue: signal.setter, onEventType: { callback in
+            let bag = DisposeBag()
+            bag += signal.onEventType { eventType in
+                switch eventType {
+                case .initial: // Don't delay initial
+                    callback(eventType)
+                case .event(.value(let value)):
+                    scheduler.async {
+                        guard let delay = delay(value) else {
+                            callback(eventType)
+                            return
+                        }
+
+                        precondition(delay >= 0)
+
+                        bag += disposableAsync(after: delay) {
+                            callback(eventType)
+                        }
+                    }
+                case .event(.end): // Don't delay initial
+                    callback(eventType)
+                }
+            }
+            return bag
+        })
+    }
 }
 
 public extension CoreSignal where Kind == Plain, Value == () {

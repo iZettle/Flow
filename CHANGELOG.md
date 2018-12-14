@@ -1,3 +1,7 @@
+# 1.5
+
+- Added new `Future` and `Signal` `delay` alternatives that accepts a closure that returns the delay based on the value allow variable delays.
+
 # 1.4.2
 
 - Fixed a bug with some of `Future`'s repeat methods where the delay `delayBetweenRepetitions` was added after the last repetition as well.

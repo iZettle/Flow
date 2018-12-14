@@ -234,6 +234,22 @@ public extension Future {
         }
     }
 
+    /// Returns a new future that will delay the result of `self` by the result of executing the `delay` closure with the the result.
+    /// - Note: If `delay` returns zero the future will still be delayed. However, returing nil will not delay the future.
+    @discardableResult
+    func delay(on scheduler: Scheduler = .current, by delay: @escaping (Result<Value>) -> TimeInterval?) -> Future {
+        return flatMapResult(on: scheduler) { result in
+            guard let delay = delay(result) else { return Future(result: result) } // Make sure to return a new instance
+            precondition(delay >= 0)
+
+            return Future(on: .none) { completion in
+                disposableAsync(after: delay) {
+                    completion(result)
+                }
+            }
+        }
+    }
+
     /// Will perform `work´ while the future is executing.
     /// - Parameter delay: Delays the execution of `work`.
     /// - Parameter work: The work to be performed. The `Disposable` returned from `work` will be disposed when `self` completes or the returned future is canceled.
