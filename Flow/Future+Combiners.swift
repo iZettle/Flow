@@ -45,18 +45,21 @@ public extension Future {
 
 /// Returns a new future joining `left` and `right`. If both `left` and `right` succeed, the returned future will succeed with both's results. If either `left` or `right` fails, the returned future will fail as well.
 /// - Parameter cancelNonCompleted: If true (default), as the returned future completes, `a` and `b` will be canceled if possible
+@discardableResult
 public func join<A, B>(_ left: Future<A>, _ right: Future<B>, cancelNonCompleted: Bool = true) -> Future<(A, B)> {
     return left.join(with: right, cancelNonCompleted: cancelNonCompleted)
 }
 
 /// Returns a new future joining `left`, `middle` and `right`. If `left`, `middle` and `right` all succeed, the returned future will succeed with all three's results. If either `left`, `middle` or `right` fails, the returned future will fail as well.
 /// - Parameter cancelNonCompleted: If true (default), as the returned future completes, `a`, `b` and `b` will be canceled if possible
+@discardableResult
 public func join<A, B, C>(_ left: Future<A>, _ middle: Future<B>, _ right: Future<C>, cancelNonCompleted: Bool = true) -> Future<(A, B, C)> {
     return left.join(with: middle, cancelNonCompleted: cancelNonCompleted).join(with: right, cancelNonCompleted: cancelNonCompleted).map { ($0.0, $0.1, $1) }
 }
 
 /// Returns a new future joining `futures`. Id all the futures in `futures` succeed, the returned future will succeed with the results from the futures. If any future in `futures` fail, the returned future will fail as well.
 /// - Parameter cancelNonCompleted: If true (default), as the returned future completes, the futures in `futures` will be canceled if possible
+@discardableResult
 public func join<T>(_ futures: [Future<T>], cancelNonCompleted: Bool = true) -> Future<[T]> {
     guard !futures.isEmpty else { return Future([]) }
     var results = [T?](repeating: nil, count: futures.count)
@@ -152,6 +155,7 @@ public extension Sequence {
     /// An element will not be transformed using `transform` until the previous elements future has completed.
     /// The returning future is the collection of the results from all the futures transformed by `transform`.
     /// If any future fails or `transform` throws, the error will be captured in the returned future's result array, and the returned future will still successfully complete.
+    @discardableResult
     func mapToFutureResults<T>(on scheduler: Scheduler = .current, _ transform: @escaping (Iterator.Element) throws -> Future<T>) -> Future<[Result<T>]> {
         var generator = makeIterator()
         guard let first = generator.next() else { return Future([]) }
@@ -176,6 +180,7 @@ public extension Sequence {
 public extension Future {
     /// The returned future completes when either `self` of any of the `futures` completes, whichever completes first.
     /// If any of the futures in `futures` completes first the returned future will always fail with either the future's error or `FutureError.aborted` if it completes successfully.
+    @discardableResult
     func abort(forFutures futures: [Future<()>]) -> Future {
         return Future(on: .none) { completion, mover in
             let future = mover.moveInside(self).onResult(on: .none, completion)
