@@ -198,7 +198,7 @@ public func combineLatest<S: Sequence>(_ signals: S) -> CoreSignal<S.Iterator.El
 ///     a0)--b0---b1---c1----c2------|
 ///
 /// - Note: If `a` and `b` both have sources their current values will be used as initial values.
-public func combineLatest<A: SignalProvider, B: SignalProvider>(_ a: A, _ b: B) -> CoreSignal<A.Kind.DropWrite, (A.Value, B.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider>(_ a: A, _ b: B) -> CoreSignal<A.Kind.DropWrite, (A.Value, B.Value)> where B.Kind.DropWrite == A.Kind.DropWrite {
     let aSignal = a.providedSignal
     let bSignal = b.providedSignal
     return CoreSignal(onEventType: { callback in
@@ -263,7 +263,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider>(_ a: A, _ b: B) 
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider>(_ a: A, _ b: B, _ c: C) -> CoreSignal<A.Kind.DropWrite, (A.Value, B.Value, C.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider>(_ a: A, _ b: B, _ c: C) -> CoreSignal<A.Kind.DropWrite, (A.Value, B.Value, C.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite {
     let aSignal = a.providedSignal
     let bSignal = b.providedSignal
     let cSignal = c.providedSignal
@@ -355,7 +355,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D) -> CoreSignal<A.Kind.DropWrite, (A.Value, B.Value, C.Value, D.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D) -> CoreSignal<A.Kind.DropWrite, (A.Value, B.Value, C.Value, D.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite {
     let aSignal = a.providedSignal
     let bSignal = b.providedSignal
     let cSignal = c.providedSignal
@@ -475,7 +475,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite, E.Kind.DropWrite == A.Kind.DropWrite {
     return combineLatest(combineLatest(a, b, c), combineLatest(d, e)).map {
         let ((a, b, c), (d, e)) = $0
         return (a, b, c, d, e)
@@ -484,7 +484,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite, E.Kind.DropWrite == A.Kind.DropWrite, F.Kind.DropWrite == A.Kind.DropWrite {
     return combineLatest(combineLatest(a, b, c, d), combineLatest(e, f)).map {
         let ((a, b, c, d), (e, f)) = $0
         return (a, b, c, d, e, f)
@@ -493,7 +493,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite, E.Kind.DropWrite == A.Kind.DropWrite, F.Kind.DropWrite == A.Kind.DropWrite, G.Kind.DropWrite == A.Kind.DropWrite {
     return combineLatest(combineLatest(a, b, c, d), combineLatest(e, f, g)).map {
         let ((a, b, c, d), (e, f, g)) = $0
         return (a, b, c, d, e, f, g)
@@ -502,7 +502,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite, E.Kind.DropWrite == A.Kind.DropWrite, F.Kind.DropWrite == A.Kind.DropWrite, G.Kind.DropWrite == A.Kind.DropWrite, H.Kind.DropWrite == A.Kind.DropWrite {
     return combineLatest(combineLatest(a, b, c, d), combineLatest(e, f, g, h)).map {
         let ((a, b, c, d), (e, f, g, h)) = $0
         return (a, b, c, d, e, f, g, h)
@@ -511,7 +511,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite, E.Kind.DropWrite == A.Kind.DropWrite, F.Kind.DropWrite == A.Kind.DropWrite, G.Kind.DropWrite == A.Kind.DropWrite, H.Kind.DropWrite == A.Kind.DropWrite, I.Kind.DropWrite == A.Kind.DropWrite {
     return combineLatest(combineLatest(a, b, c, d), combineLatest(e, f, g), combineLatest(h, i)).map {
         let ((a, b, c, d), (e, f, g), (h, i)) = $0
         return (a, b, c, d, e, f, g, h, i)
@@ -520,7 +520,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite, E.Kind.DropWrite == A.Kind.DropWrite, F.Kind.DropWrite == A.Kind.DropWrite, G.Kind.DropWrite == A.Kind.DropWrite, H.Kind.DropWrite == A.Kind.DropWrite, I.Kind.DropWrite == A.Kind.DropWrite, J.Kind.DropWrite == A.Kind.DropWrite {
     return combineLatest(combineLatest(a, b, c, d), combineLatest(e, f, g, h), combineLatest(i, j)).map {
         let ((a, b, c, d), (e, f, g, h), (i, j)) = $0
         return (a, b, c, d, e, f, g, h, i, j)
@@ -529,7 +529,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider, K: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider, K: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite, E.Kind.DropWrite == A.Kind.DropWrite, F.Kind.DropWrite == A.Kind.DropWrite, G.Kind.DropWrite == A.Kind.DropWrite, H.Kind.DropWrite == A.Kind.DropWrite, I.Kind.DropWrite == A.Kind.DropWrite, J.Kind.DropWrite == A.Kind.DropWrite, K.Kind.DropWrite == A.Kind.DropWrite {
     return combineLatest(combineLatest(a, b, c, d), combineLatest(e, f, g, h), combineLatest(i, j, k)).map {
         let ((a, b, c, d), (e, f, g, h), (i, j, k)) = $0
         return (a, b, c, d, e, f, g, h, i, j, k)
@@ -538,7 +538,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider, K: SignalProvider, L: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K, _ l: L) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value, L.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider, K: SignalProvider, L: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K, _ l: L) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value, L.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite, E.Kind.DropWrite == A.Kind.DropWrite, F.Kind.DropWrite == A.Kind.DropWrite, G.Kind.DropWrite == A.Kind.DropWrite, H.Kind.DropWrite == A.Kind.DropWrite, I.Kind.DropWrite == A.Kind.DropWrite, J.Kind.DropWrite == A.Kind.DropWrite, K.Kind.DropWrite == A.Kind.DropWrite, L.Kind.DropWrite == A.Kind.DropWrite {
     return combineLatest(combineLatest(a, b, c, d), combineLatest(e, f, g, h), combineLatest(i, j, k, l)).map {
         let ((a, b, c, d), (e, f, g, h), (i, j, k, l)) = $0
         return (a, b, c, d, e, f, g, h, i, j, k, l)
@@ -547,7 +547,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider, K: SignalProvider, L: SignalProvider, M: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K, _ l: L, _ m: M) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value, L.Value, M.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider, K: SignalProvider, L: SignalProvider, M: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K, _ l: L, _ m: M) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value, L.Value, M.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite, E.Kind.DropWrite == A.Kind.DropWrite, F.Kind.DropWrite == A.Kind.DropWrite, G.Kind.DropWrite == A.Kind.DropWrite, H.Kind.DropWrite == A.Kind.DropWrite, I.Kind.DropWrite == A.Kind.DropWrite, J.Kind.DropWrite == A.Kind.DropWrite, K.Kind.DropWrite == A.Kind.DropWrite, L.Kind.DropWrite == A.Kind.DropWrite, M.Kind.DropWrite == A.Kind.DropWrite {
     return combineLatest(combineLatest(a, b, c, d), combineLatest(e, f, g, h), combineLatest(i, j, k), combineLatest(l, m)).map {
         let ((a, b, c, d), (e, f, g, h), (i, j, k), (l, m)) = $0
         return (a, b, c, d, e, f, g, h, i, j, k, l, m)
@@ -556,7 +556,7 @@ public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvide
 
 /// Returns a new signal combining the latest values from the provided signals
 /// - Note: See `combineLatest(_:, _:)` for more info.
-public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider, K: SignalProvider, L: SignalProvider, M: SignalProvider, N: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K, _ l: L, _ m: M, _ n: N) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value, L.Value, M.Value, N.Value)> {
+public func combineLatest<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider, G: SignalProvider, H: SignalProvider, I: SignalProvider, J: SignalProvider, K: SignalProvider, L: SignalProvider, M: SignalProvider, N: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K, _ l: L, _ m: M, _ n: N) -> CoreSignal<A.Kind.DropWrite.DropWrite.DropWrite, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value, L.Value, M.Value, N.Value)> where B.Kind.DropWrite == A.Kind.DropWrite, C.Kind.DropWrite == A.Kind.DropWrite, D.Kind.DropWrite == A.Kind.DropWrite, E.Kind.DropWrite == A.Kind.DropWrite, F.Kind.DropWrite == A.Kind.DropWrite, G.Kind.DropWrite == A.Kind.DropWrite, H.Kind.DropWrite == A.Kind.DropWrite, I.Kind.DropWrite == A.Kind.DropWrite, J.Kind.DropWrite == A.Kind.DropWrite, K.Kind.DropWrite == A.Kind.DropWrite, L.Kind.DropWrite == A.Kind.DropWrite, M.Kind.DropWrite == A.Kind.DropWrite, N.Kind.DropWrite == A.Kind.DropWrite {
     return combineLatest(combineLatest(a, b, c, d), combineLatest(e, f, g, h), combineLatest(i, j, k, l), combineLatest(m, n)).map {
         let ((a, b, c, d), (e, f, g, h), (i, j, k, l), (m, n)) = $0
         return (a, b, c, d, e, f, g, h, i, j, k, l, m, n)
