@@ -135,7 +135,7 @@ public extension Scheduler {
 }
 
 extension Scheduler: Equatable {
-    public static func ==(lhs: Scheduler, rhs: Scheduler) -> Bool {
+    public static func == (lhs: Scheduler, rhs: Scheduler) -> Bool {
         return lhs.identifyingObject === rhs.identifyingObject
     }
 }
@@ -214,6 +214,9 @@ var threadState: ThreadState {
 private let mainThreadState = ThreadState()
 private var _threadStateKey: pthread_key_t = 0
 private var threadStateKey: pthread_key_t = {
-    pthread_key_create(&_threadStateKey, nil)
+    let cleanup: @convention(c) (UnsafeMutableRawPointer) -> Void = { state in
+        Unmanaged<ThreadState>.fromOpaque(state).release()
+    }
+    pthread_key_create(&_threadStateKey, cleanup)
     return _threadStateKey
 }()

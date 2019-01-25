@@ -189,14 +189,14 @@ public extension Future {
     /// Returns a new `Future<Void>` where any success value from `self` is discarded.
     @discardableResult
     func toVoid() -> Future<Void> {
-        return map { _ in return Void() }
+        return map(on: .none) { _ in return Void() }
     }
 
     /// Returns a new future that will not cancel `self` if being canceled
     @discardableResult
     func ignoreCanceling() -> Future {
-        return Future { completion, mover in
-            mover.moveInside(self).onResult(completion)
+        return Future(on: .none) { completion, mover in
+            mover.moveInside(self).onResult(on: .none, completion)
             return NilDisposer()
         }
     }
@@ -234,6 +234,22 @@ public extension Future {
         }
     }
 
+    /// Returns a new future that will delay the result of `self` by the result of executing the `delay` closure with the the result.
+    /// - Note: If `delay` returns zero the future will still be delayed. However, returing nil will not delay the future.
+    @discardableResult
+    func delay(on scheduler: Scheduler = .current, by delay: @escaping (Result<Value>) -> TimeInterval?) -> Future {
+        return flatMapResult(on: scheduler) { result in
+            guard let delay = delay(result) else { return Future(result: result) } // Make sure to return a new instance
+            precondition(delay >= 0)
+
+            return Future(on: .none) { completion in
+                disposableAsync(after: delay) {
+                    completion(result)
+                }
+            }
+        }
+    }
+
     /// Will perform `work´ while the future is executing.
     /// - Parameter delay: Delays the execution of `work`.
     /// - Parameter work: The work to be performed. The `Disposable` returned from `work` will be disposed when `self` completes or the returned future is canceled.
@@ -245,7 +261,7 @@ public extension Future {
     /// - Note: A `delay` of zero will still delay calling `work`. However, passing a nil `delay` will execute `work` at once.
     @discardableResult
     func performWhile(on scheduler: Scheduler = .current, delayBy delay: TimeInterval? = nil, _ work: @escaping () -> Disposable) -> Future {
-        return Future { completion, mover in
+        return Future(on: scheduler) { completion, mover in
             let future = mover.moveInside(self)
             let bag = DisposeBag(NilDisposer()) // make non-empty
 
@@ -281,7 +297,7 @@ public extension Future {
     @discardableResult
     func onResultRepeat(on scheduler: Scheduler = .current, delayBetweenRepetitions delay: TimeInterval? = nil, maxRepetitions: Int? = nil, when predicate: @escaping (Result<Value>) -> Bool = { _ in true }) -> Future {
         return onResultRepeat(on: scheduler, maxRepetitions: maxRepetitions) { result in
-            Future<Bool>(predicate(result)).delay(by: delay)
+            return predicate(result) ? Future<Bool>(true).delay(by: delay) : Future<Bool>(false)
         }
     }
 
@@ -306,7 +322,7 @@ public extension Future {
     @discardableResult
     func onErrorRepeat(on scheduler: Scheduler = .current, delayBetweenRepetitions delay: TimeInterval? = nil, maxRepetitions: Int? = nil, when predicate: @escaping (Error) -> Bool = { _ in true }) -> Future {
         return onErrorRepeat(on: scheduler, maxRepetitions: maxRepetitions) { error in
-            Future<Bool>(predicate(error)).delay(by: delay)
+            return predicate(error) ? Future<Bool>(true).delay(by: delay) : Future<Bool>(false)
         }
     }
 

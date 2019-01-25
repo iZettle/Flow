@@ -62,6 +62,21 @@ extension UIButton: SignalProvider {
     }
 }
 
+extension UISegmentedControl: SignalProvider {
+    public var providedSignal: ReadWriteSignal<Int> {
+        return signal(for: .valueChanged, keyPath: \.selectedSegmentIndex)
+            .distinct() // KVO seems to trigger when tapping as well, even when tapping selected.
+    }
+}
+
+extension UIPageControl: SignalProvider {
+    public var providedSignal: ReadWriteSignal<Int> {
+        return signal(for: .valueChanged, keyPath: \.currentPage)
+    }
+}
+
+#if !os(tvOS)
+
 extension UISwitch: SignalProvider {
     public var providedSignal: ReadWriteSignal<Bool> {
         return signal(for: .valueChanged, keyPath: \.isOn)
@@ -71,13 +86,6 @@ extension UISwitch: SignalProvider {
 extension UISlider: SignalProvider {
     public var providedSignal: ReadWriteSignal<Float> {
         return signal(for: .valueChanged, keyPath: \.value).distinct()
-    }
-}
-
-extension UISegmentedControl: SignalProvider {
-    public var providedSignal: ReadWriteSignal<Int> {
-        return signal(for: .valueChanged, keyPath: \.selectedSegmentIndex)
-            .distinct() // KVO seems to trigger when tapping as well, even when tapping selected.
     }
 }
 
@@ -114,11 +122,7 @@ extension UIDatePicker: SignalProvider {
     }
 }
 
-extension UIPageControl: SignalProvider {
-    public var providedSignal: ReadWriteSignal<Int> {
-        return signal(for: .valueChanged, keyPath: \.currentPage)
-    }
-}
+#endif
 
 extension UIBarItem: Enablable {}
 
@@ -195,10 +199,14 @@ public extension UITextField {
     }
 }
 
+#if !os(tvOS)
+
 /// Returns a signal that will signal on orientation changes.
 public var orientationSignal: ReadSignal<UIInterfaceOrientation> {
     return NotificationCenter.default.signal(forName: .UIApplicationDidChangeStatusBarOrientation).map { _ in UIApplication.shared.statusBarOrientation }.readable(capturing: UIApplication.shared.statusBarOrientation)
 }
+
+#endif
 
 private extension UITextField {
     class TextFieldDelegate: NSObject, UITextFieldDelegate {

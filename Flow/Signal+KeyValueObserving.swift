@@ -25,7 +25,7 @@ public extension CoreSignal where Kind == Read {
     /// Creates a new instance observing the property at `keyPath` of `object` using key value observing (KVO).
     convenience init<O: _KeyValueCodingAndObserving>(object: O, keyPath: KeyPath<O, Value>) {
         self.init(getValue: { object[keyPath: keyPath] }, options: .shared, onInternalEvent: { callback in
-            let token = object.observe(keyPath, options: .new) { _, change in
+            let token = object.observe(keyPath, options: .new) { _, _ in
                 callback(.value(object[keyPath: keyPath]))
             }
             return Disposer { _ = token } // Hold on to reference

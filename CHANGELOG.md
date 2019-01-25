@@ -1,3 +1,22 @@
+# 1.5.1
+
+- Update `combineLatest` to no longer allow mixing of plain and readable signals as for the returned signal to guarantee to be readable all provided signals must as be readable as well. This is technically a breaking of the API, but as the existing implementation is broken and might result in run-time crashes, this change can be considered as a bug-fix.
+
+# 1.5
+
+- Added new `Future` and `Signal` `delay` alternatives that accepts a closure that returns the delay based on the value allow variable delays.
+
+# 1.4.2
+
+- Fixed a bug with some of `Future`'s repeat methods where the delay `delayBetweenRepetitions` was added after the last repetition as well.
+- Fixed bug where the predicate passed to `onResultRepeat` was not always scheduled correctly.
+
+# 1.4.1
+
+- Fixes a problem where onErrorRepeat would not respect the specified delay interval.
+- Fixed issues with tvOS support.
+- Updates some transforms such as `toVoid()` to schedule on `.none` instead of `.current` so these transforms won't cause a re-schedule.
+
 # 1.4
 
 - Updated the `Signal.flatMapLatest()` transformation to allow more flexible mixing of signal types between `self` and the signal returned from `transform`.

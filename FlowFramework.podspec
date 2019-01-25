@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "FlowFramework"
-  s.version      = "1.4.0"
+  s.version      = "1.5.0"
   s.module_name  = "Flow"
   s.summary      = "Working with asynchronous flows"
   s.description  = <<-DESC
@@ -12,6 +12,7 @@ Pod::Spec.new do |s|
 
   s.osx.deployment_target = "10.11"
   s.ios.deployment_target = "9.0"
+  s.tvos.deployment_target = "9.0"
 
   s.source       = { :git => "https://github.com/iZettle/Flow.git", :tag => "#{s.version}" }
   s.source_files = "Flow/*.{swift}"

@@ -121,23 +121,23 @@ public extension DisposeBag {
     }
 }
 
-public func +=(disposeBag: DisposeBag, disposable: Disposable?) {
+public func += (disposeBag: DisposeBag, disposable: Disposable?) {
     if let disposable = disposable {
         disposeBag.add(disposable)
     }
 }
 
-public func +=(disposeBag: DisposeBag, disposer: @escaping () -> Void) {
+public func += (disposeBag: DisposeBag, disposer: @escaping () -> Void) {
     disposeBag.add(Disposer(disposer))
 }
 
-public func +=(disposeBag: DisposeBag?, disposable: Disposable?) {
+public func += (disposeBag: DisposeBag?, disposable: Disposable?) {
     if let disposable = disposable {
         disposeBag?.add(disposable)
     }
 }
 
-public func +=(disposeBag: DisposeBag?, disposer: @escaping () -> Void) {
+public func += (disposeBag: DisposeBag?, disposer: @escaping () -> Void) {
     disposeBag?.add(Disposer(disposer))
 }
 
@@ -149,7 +149,7 @@ public extension Disposable {
     }
 }
 
-public func +=<T>(disposeBag: DisposeBag, future: Future<T>) {
+public func +=<T> (disposeBag: DisposeBag, future: Future<T>) {
     disposeBag += future.disposable
 }
 

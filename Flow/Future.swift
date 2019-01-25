@@ -277,13 +277,13 @@ public extension Future {
 
             let exec: (Future) -> () = recursive { future, exec in
                 var future = future
-                var predicateFuture: Future<Bool>? = nil
+                var predicateFuture: Future<Bool>?
 
                 // Avoid recursion (and stack overflows) if both self of predicateFuture has immediate results.
                 while true {
                     predicateFuture = nil
                     guard case let .completed(result) = future.protectedState else { break }
-                    predicateFuture = predicate(result)
+                    predicateFuture = scheduler.sync { predicate(result) }
                     guard let state = predicateFuture?.protectedState, case let .completed(stateResult) = state, stateResult.value == true else { break }
                     future = self.clone()
                 }
@@ -311,7 +311,7 @@ public extension Future {
     @discardableResult
     func replace(with result: Result<Value>, after timeout: TimeInterval) -> Future {
         return Future(on: .none) { completion, mover in
-            let future = mover.moveInside(self).onResult(completion)
+            let future = mover.moveInside(self).onResult(on: .none, completion)
             return disposableAsync(after: timeout) {
                 future.cancel()
                 completion(result)

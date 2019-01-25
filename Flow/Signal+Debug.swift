@@ -57,7 +57,7 @@ private extension String {
         guard let lastIndex = rangeOfCharacter(from: CharacterSet(charactersIn: "/"), options: .backwards, range: nil) else {
             return self
         }
-        
+
         return String(self[index(after: lastIndex.lowerBound) ..< endIndex])
     }
 }
