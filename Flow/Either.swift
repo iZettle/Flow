@@ -81,10 +81,13 @@ extension Either: Hashable where Left: Hashable, Right: Hashable {
         return Int.max / 3 * 2 + 1
     }
 
-    public var hashValue: Int {
+    public func hash(into hasher: inout Hasher) {
         switch self {
-        case .left(let left): return left.hashValue
-        case .right(let right): return right.hashValue ^ binaryDistinguisher
+        case .left(let left):
+            hasher.combine(left)
+        case .right(let right):
+            hasher.combine(right)
+            hasher.combine(binaryDistinguisher)
         }
     }
 }
