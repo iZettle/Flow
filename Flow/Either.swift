@@ -62,29 +62,5 @@ public extension Either where Left == Right {
     }
 }
 
-extension Either: Equatable where Left: Equatable, Right: Equatable {
-    public static func == (lhs: Either, rhs: Either) -> Bool {
-        switch (lhs, rhs) {
-        case (.right(let left), .right(let right)):
-            return left == right
-        case (.left(let left), .left(let right)):
-            return left == right
-        default:
-            return false
-        }
-    }
-}
-
-extension Either: Hashable where Left: Hashable, Right: Hashable {
-    // 1010101.... in binary
-    private var binaryDistinguisher: Int {
-        return Int.max / 3 * 2 + 1
-    }
-
-    public var hashValue: Int {
-        switch self {
-        case .left(let left): return left.hashValue
-        case .right(let right): return right.hashValue ^ binaryDistinguisher
-        }
-    }
-}
+extension Either: Equatable where Left: Equatable, Right: Equatable {}
+extension Either: Hashable where Left: Hashable, Right: Hashable { }
