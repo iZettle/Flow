@@ -1,3 +1,7 @@
+# 1.5.2
+
+- Bugfix: Make sure `shared()` updates its last value before calling out to get correct results in case of recursion.
+
 # 1.5.1
 
 - Update `combineLatest` to no longer allow mixing of plain and readable signals as for the returned signal to guarantee to be readable all provided signals must as be readable as well. This is technically a breaking of the API, but as the existing implementation is broken and might result in run-time crashes, this change can be considered as a bug-fix.

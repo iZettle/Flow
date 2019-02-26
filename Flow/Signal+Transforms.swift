@@ -52,15 +52,14 @@ public extension SignalProvider {
                 shared.unlock()
 
                 let disposable = signal.onEventType { eventType in
-                    if case .initial(let val?) = eventType {
+                    switch eventType {
+                    case .initial(let val?),
+                         .event(.value(let val)) where Kind.isReadable:
                         shared.updateLast(to: val)
+                    default: break
                     }
 
                     shared.callAll(with: eventType)
-
-                    if case .event(.value(let val)) = eventType, Kind.isReadable {
-                        shared.updateLast(to: val)
-                    }
                 }
                 shared.lock()
                 shared.disposable = disposable
