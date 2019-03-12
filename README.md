@@ -10,6 +10,7 @@ Modern applications often contain complex asynchronous flows and life cycles. Fl
 - **[Lifetime management](Documentation/LifetimeManagement.md)**: Managing long-living resources.
 - **[Event handling](Documentation/Signals.md)**: Signaling and observing events over time.
 - **[Asynchronous operations](Documentation/Futures.md)**: Handle results that might not yet be available.
+- **[Comparison to RxSwift](Documentation/RxSwiftComparison.md)**: Why you might choose Flow over something like RxSwift.
 
 Flow was carefully designed to be:
 
@@ -28,7 +29,7 @@ In flow the `Disposable` protocol is used for lifetime management:
 
 ```swift
 extension UIView {
-  func showSpinnerOverlay() -> Disposable { 
+  func showSpinnerOverlay() -> Disposable {
     let spinner = ...
     addSubview(spinner)
     return Disposer {
@@ -50,7 +51,7 @@ let bag = DisposeBag() // Bag of disposables
 // UIButton provides a Signal<()>
 let loginButton = UIButton(...)
 
-bag += loginButton.onValue { 
+bag += loginButton.onValue {
   // Log in user if tapped
 }
 
@@ -91,30 +92,30 @@ These three types come with many extensions that allow us to compose complex UI 
 class LoginController: UIViewController {
   let emailField: UITextField
   let passwordField: UITextField
-  let loginButton: UIButton 
-  let cancelButton: UIBarButtonItem 
-  
+  let loginButton: UIButton
+  let cancelButton: UIBarButtonItem
+
   var enableLogin: ReadSignal<Bool> { // Introduced above }
   func login() -> Future<User> { // Introduced above }
   func showSpinnerOverlay() -> Disposable { // Introduced above }
-  
+
   // Returns future that completes with true if user chose to retry
   func showRetryAlert(for error: Error) -> Future<Bool> { ... }
-  
-  // Will setup UI observers and return a future completing after a successful login 
+
+  // Will setup UI observers and return a future completing after a successful login
   func runLogin() -> Future<User> {
     return Future { completion in // Completion to call with the result  
-      let bag = DisposeBag() // Resources to keep alive while executing 
-         
+      let bag = DisposeBag() // Resources to keep alive while executing
+
       // Make sure to signal at once to set up initial enabled state
       bag += self.enableLogin.atOnce().bindTo(self.loginButton, \.isEnabled)  
 
       // If button is tapped, initiate potentially long running login request
       bag += self.loginButton.onValue {
         self.login()
-          .performWhile { 
+          .performWhile {
             // Show spinner during login request
-            self.showSpinnerOverlay() 
+            self.showSpinnerOverlay()
           }.onErrorRepeat { error in
             // If login fails with an error show an alert...
             // ...and retry the login request if the user chose to
@@ -124,12 +125,12 @@ class LoginController: UIViewController {
             completion(.success(user))
           }
       }
-      
+
       // If cancel is tapped, complete runLogin() with an error
-      bag += self.cancelButton.onValue { 
+      bag += self.cancelButton.onValue {
         completion(.failure(LoginError.dismissed))
       }
-      
+
       return bag // Return a disposable to dispose once the future completes
     }
   }
@@ -188,7 +189,7 @@ Introductions to the main areas of Flow can be found at:
 - [Event handling](Documentation/Signals.md)
 - [Asynchronous operations](Documentation/Futures.md)
 
-To learn even more about available functionality you are encouraged to explore the source files that are extensively documented. Code-completion should also help you to discover many of the transformations available on signals and futures. 
+To learn even more about available functionality you are encouraged to explore the source files that are extensively documented. Code-completion should also help you to discover many of the transformations available on signals and futures.
 
 ## Learn more
 
@@ -201,7 +202,7 @@ To learn more about the design behind Flow's APIs we recommend reading the follo
 
 And to learn how other frameworks can be built using Flow:
 
-- [Introducing Presentation](https://medium.com/izettle-engineering/introducing-presentation-presenting-ui-made-easy-134d3fbe9311) 
+- [Introducing Presentation](https://medium.com/izettle-engineering/introducing-presentation-presenting-ui-made-easy-134d3fbe9311)
 - [Introducing Form](https://medium.com/izettle-engineering/introducing-form-layout-styling-and-event-handling-b668d09bb4e6)
 
 ## Frameworks built on Flow
@@ -218,4 +219,3 @@ Flow was developed, evolved and field-tested over the course of several years, a
 ## Collaborate
 
 You can collaborate with us on our Slack workspace. Ask questions, share ideas or maybe just participate in ongoing discussions. To get an invitation, write to us at [ios-oss@izettle.com](mailto:ios-oss@izettle.com)
-
