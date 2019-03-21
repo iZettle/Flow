@@ -1257,49 +1257,6 @@ class SignalProviderTests: XCTestCase {
         XCTAssertEqual(rw2.value, 4)
     }
 
-    func testBidirectionallyBindToCallbacker() {
-        let readWriteSignal = ReadWriteSignal(0)
-        let callbacker: Callbacker<Int> = Callbacker()
-        let bag = DisposeBag()
-        bag += readWriteSignal.bidirectionallyBindTo(callbacker)
-
-        callbacker.callAll(with: 1)
-        XCTAssertEqual(readWriteSignal.value, 1)
-
-        let callbackExpectation = expectation(description: "callback should be called")
-        bag += callbacker.addCallback { nextInt in
-            guard nextInt == 2 else {
-                XCTFail("expected callback with value: 2")
-                return
-            }
-            callbackExpectation.fulfill()
-        }
-
-        readWriteSignal.value = 2
-        wait(for: [callbackExpectation], timeout: 0.1)
-    }
-
-    func testBidirectionallyBindToCallbackerAtOnce() {
-        let readWriteSignal = ReadWriteSignal(0)
-        let callbacker: Callbacker<Int> = Callbacker()
-        let bag = DisposeBag()
-
-        let callbackExpectation = expectation(description: "callback should be called")
-        bag += callbacker.addCallback { nextInt in
-            guard nextInt == 0 else {
-                XCTFail("expected callback with value: 0")
-                return
-            }
-            callbackExpectation.fulfill()
-        }
-        bag += readWriteSignal.atOnce().bidirectionallyBindTo(callbacker)
-
-        wait(for: [callbackExpectation], timeout: 0.1)
-
-        callbacker.callAll(with: 1)
-        XCTAssertEqual(readWriteSignal.value, 1)
-    }
-
     func testBidirectionallyBindToReadableAtOnceBoth() {
         let rw1 = ReadWriteSignal(0)
         let rw2 = ReadWriteSignal(1)
