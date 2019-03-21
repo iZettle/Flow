@@ -1,3 +1,7 @@
+# 1.6
+
+ - Addition: Make `Callbacker` conform to `SignalProvider`.
+
 # 1.5.2
 
 - Bugfix: Make sure `shared()` updates its last value before calling out to get correct results in case of recursion.
@@ -36,9 +40,9 @@
 
 - Added versions of `bindTo()` that can bind a non optional to an optional value.
 - Added `enable()` to `Enablable` similar as `disable()`.
-- Added more defaulted parameters to `Scheduler.init` for dispatch queues. 
+- Added more defaulted parameters to `Scheduler.init` for dispatch queues.
 - Fixes a crash on Swift 4.2 when immediately (on the same line) modifying a `ReadWriteSignal`'s `value`.
-- Added `Scheduler` `perform` helper. 
+- Added `Scheduler` `perform` helper.
 - Added signal `withLatestFrom` transformation.
 
 # 1.2.1
