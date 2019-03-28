@@ -133,7 +133,7 @@ public extension Future {
     /// - Note: The returned future will maintain the result of `self` unless `callback` throws, where the returned future will fail with the thrown error.
     /// - Note: The returned future will not complete until the call to `callback` has returned.
     @discardableResult
-    public func always(on scheduler: Scheduler = .current, _ callback: @escaping () -> ()) -> Future {
+    func always(on scheduler: Scheduler = .current, _ callback: @escaping () -> ()) -> Future {
         return onCancel(on: scheduler, callback).onResult(on: scheduler) { _ in callback() }
     }
 

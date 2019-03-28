@@ -67,7 +67,7 @@ public extension OrderedCallbacker where OrderedValue: Comparable {
     /// Will call all registered callbacks with `value` in the order set by `Comparable`
     /// - Returns: A `Future` that will complete when all callbacks has been called.
     @discardableResult
-    public func callAll(with value: CallbackValue) -> Future<()> {
+    func callAll(with value: CallbackValue) -> Future<()> {
         return callAll(with: value, isOrderedBefore: <)
     }
 }

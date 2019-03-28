@@ -8,6 +8,11 @@
 
 import XCTest
 import Flow
+#if canImport(UIKit)
+
+import UIKit
+
+#endif
 
 private extension Scheduler {
     static let serialBackground = Scheduler(label: "flow.background")
@@ -349,4 +354,30 @@ class SignalConcurrenceyTests: XCTestCase {
         }
     }
 
+    class TestObject: NSObject {
+        @objc var isSelected: Bool = false
+    }
+
+    func testKVO() {
+        #if canImport(UIKit)
+
+        let object = UIButton()
+
+        let signal = object.signal(for: \.isSelected)
+
+        object.isSelected = true
+
+        let bag = signal.distinct().onValue { _ in
+            signal.value = true
+        }
+
+        object.isSelected = false
+
+        XCTAssertFalse(object.isSelected)
+
+        bag.dispose()
+        #endif
+
+
+    }
 }
