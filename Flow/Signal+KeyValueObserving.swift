@@ -41,11 +41,8 @@ public extension CoreSignal where Kind == ReadWrite {
                   setValue: { object[keyPath: keyPath] = $0 },
                   options: .shared,
                   onInternalEvent: { callback in
-                    let token = object.observe(keyPath, options: .new) { _, change in
-                        guard let newValue = change.newValue else {
-                            return
-                        }
-                        callback(.value(newValue))
+                    let token = object.observe(keyPath, options: .new) { newObject, _ in
+                        callback(.value(newObject[keyPath: keyPath]))
                     }
                     return Disposer { _ = token } // Hold on to reference
         })

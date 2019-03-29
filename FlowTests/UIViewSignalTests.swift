@@ -216,6 +216,45 @@ class UIViewSignalTests: XCTestCase {
             bag.dispose()
         }
     }
+
+    func testKVO() {
+        let object = UIButton()
+
+        let signal = object.signal(for: \.isSelected)
+
+        object.isSelected = true
+
+        let bag = signal.distinct().onValue { _ in
+            signal.value = true
+        }
+
+        object.isSelected = false
+
+        XCTAssertTrue(object.isSelected)
+
+        bag.dispose()
+    }
+
+    class TestClass: NSObject {
+        @objc dynamic var string: String?
+    }
+
+    func testOptionalKVO() {
+        let object = TestClass()
+        object.string = "initial"
+
+        let signal = object.signal(for: \.string)
+
+        let bag = signal.distinct().onValue { _ in
+            object.string = "called"
+        }
+
+        object.string = nil
+
+        XCTAssertEqual(object.string, "called")
+
+        bag.dispose()
+    }
 }
 
 #endif
