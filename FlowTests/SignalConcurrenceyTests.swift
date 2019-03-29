@@ -354,10 +354,6 @@ class SignalConcurrenceyTests: XCTestCase {
         }
     }
 
-    class TestObject: NSObject {
-        @objc var isSelected: Bool = false
-    }
-
     func testKVO() {
         #if canImport(UIKit)
 
@@ -373,11 +369,9 @@ class SignalConcurrenceyTests: XCTestCase {
 
         object.isSelected = false
 
-        XCTAssertFalse(object.isSelected)
+        XCTAssertTrue(object.isSelected)
 
         bag.dispose()
         #endif
-
-
     }
 }

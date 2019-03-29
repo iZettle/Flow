@@ -90,7 +90,7 @@ class UIViewSignalTests: XCTestCase {
             if subviews == [view3, view1, view2] { expectation.fulfill() }
         }
 
-        rootView.sendSubview(toBack: view3)
+        rootView.sendSubviewToBack(view3)
 
         waitForExpectations(timeout: 10) { _ in
             bag.dispose()

@@ -32,7 +32,7 @@ public extension SignalProvider where Self: TargetActionable {
         (self as? AutoEnablable & HasEventListeners)?.updateAutomaticEnabling()
 
         return Signal { callback in
-            let disposable = targetAction.addCallback(callback)
+            let disposable = targetAction.addCallback { callback(()) }
             return Disposer {
                 disposable.dispose()
                 if targetAction.callbacker.isEmpty {

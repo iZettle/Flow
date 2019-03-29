@@ -175,7 +175,7 @@ private extension FutureQueue {
 
     func removeItem(_ item: Executable) {
         mutex.protect {
-            _ = items.index { $0 === item }.map { items.remove(at: $0) }
+            _ = items.firstIndex { $0 === item }.map { items.remove(at: $0) }
         }
     }
 

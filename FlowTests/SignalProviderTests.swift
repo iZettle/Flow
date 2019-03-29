@@ -36,7 +36,7 @@ class TickTrigger: SignalProvider {
 
     func start() {
         if let timer = self.timer {
-            RunLoop.main.add(timer, forMode: RunLoopMode.defaultRunLoopMode)
+            RunLoop.main.add(timer, forMode: RunLoop.Mode.default)
         }
     }
 
