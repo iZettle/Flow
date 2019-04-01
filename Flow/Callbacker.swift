@@ -98,7 +98,7 @@ public final class Callbacker<Value> {
 
 public extension Callbacker where Value == () {
     /// Will call all registered callbacks with `value`
-    public func callAll() {
+    func callAll() {
         callAll(with: ())
     }
 }

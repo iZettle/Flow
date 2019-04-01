@@ -90,7 +90,7 @@ class UIViewSignalTests: XCTestCase {
             if subviews == [view3, view1, view2] { expectation.fulfill() }
         }
 
-        rootView.sendSubview(toBack: view3)
+        rootView.sendSubviewToBack(view3)
 
         waitForExpectations(timeout: 10) { _ in
             bag.dispose()
@@ -215,6 +215,45 @@ class UIViewSignalTests: XCTestCase {
         waitForExpectations(timeout: 10) { _ in
             bag.dispose()
         }
+    }
+
+    func testKVO() {
+        let object = UIButton()
+
+        let signal = object.signal(for: \.isSelected)
+
+        object.isSelected = true
+
+        let bag = signal.distinct().onValue { _ in
+            signal.value = true
+        }
+
+        object.isSelected = false
+
+        XCTAssertTrue(object.isSelected)
+
+        bag.dispose()
+    }
+
+    class TestClass: NSObject {
+        @objc dynamic var string: String?
+    }
+
+    func testOptionalKVO() {
+        let object = TestClass()
+        object.string = "initial"
+
+        let signal = object.signal(for: \.string)
+
+        let bag = signal.distinct().onValue { _ in
+            object.string = "called"
+        }
+
+        object.string = nil
+
+        XCTAssertEqual(object.string, "called")
+
+        bag.dispose()
     }
 }
 

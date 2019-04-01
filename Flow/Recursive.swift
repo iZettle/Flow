@@ -28,7 +28,7 @@ public func recursive<A, R>(_ recursiveFunction: @escaping (A, @escaping (A) -> 
 
 public func recursive<R>(_ recursiveFunction: @escaping (@escaping () -> R?) -> R) -> () -> R {
     let recursive = Recursive<(), R> { _, function in
-        recursiveFunction(function)
+        recursiveFunction { function(()) }
     }
     return { recursive.function(()) }
 }

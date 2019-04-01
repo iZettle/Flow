@@ -37,11 +37,14 @@ public extension CoreSignal where Kind == ReadWrite {
     /// Creates a new instance observing the property at `keyPath` of `object` using key value observing (KVO).
     convenience init<O: _KeyValueCodingAndObserving>(object: O, keyPath: WritableKeyPath<O, Value>) {
         var object = object
-        self.init(getValue: { object[keyPath: keyPath] }, setValue: { object[keyPath: keyPath] = $0 }, options: .shared, onInternalEvent: { callback in
-            let token = object.observe(keyPath, options: .new) { _, _ in
-                callback(.value(object[keyPath: keyPath]))
-            }
-            return Disposer { _ = token } // Hold on to reference
+        self.init(getValue: { object[keyPath: keyPath] },
+                  setValue: { object[keyPath: keyPath] = $0 },
+                  options: .shared,
+                  onInternalEvent: { callback in
+                    let token = object.observe(keyPath, options: .new) { newObject, _ in
+                        callback(.value(newObject[keyPath: keyPath]))
+                    }
+                    return Disposer { _ = token } // Hold on to reference
         })
     }
 }

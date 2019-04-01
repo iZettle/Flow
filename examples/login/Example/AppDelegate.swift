@@ -15,10 +15,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         let vc = UIViewController()
 
-        let loginButton = UIButton(type: UIButtonType.system)
+        let loginButton = UIButton(type: UIButton.ButtonType.system)
         loginButton.setTitle("Show Login Controller", for: .normal)
 
         let stack = UIStackView(arrangedSubviews: [loginButton])

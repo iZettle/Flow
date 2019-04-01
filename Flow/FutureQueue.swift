@@ -53,7 +53,7 @@ public extension FutureQueue {
     /// Enqueues an `operation` that will be executed when or once the queue becomes empty.
     /// - Returns: A future that will complete when the future returned from `operation` completes.
     @discardableResult
-    public func enqueue<Output>(_ operation: @escaping () throws -> Future<Output>) -> Future<Output> {
+    func enqueue<Output>(_ operation: @escaping () throws -> Future<Output>) -> Future<Output> {
         if let error = closedError {
             return Future(error: error)
         }
@@ -74,7 +74,7 @@ public extension FutureQueue {
     /// Enqueues an `operation` that will be executed when or once the queue becomes empty.
     /// - Returns: A future that will complete with the result from `operation`.
     @discardableResult
-    public func enqueue<Output>(_ operation: @escaping () throws -> Output) -> Future<Output> {
+    func enqueue<Output>(_ operation: @escaping () throws -> Output) -> Future<Output> {
         return enqueue { return Future(try operation()) }
     }
 
@@ -86,7 +86,7 @@ public extension FutureQueue {
     ///
     /// - Returns: A future that will complete when the future returned from `operation` completes as well as the sub-queue becomes empty.
     @discardableResult
-    public func enqueueBatch<Output>(_ operation: @escaping (FutureQueue) throws -> Future<Output>) -> Future<Output> {
+    func enqueueBatch<Output>(_ operation: @escaping (FutureQueue) throws -> Future<Output>) -> Future<Output> {
         let childQueue = FutureQueue(resource: resource, executeOn: queueScheduler)
         return enqueue {
             try operation(childQueue).flatMapResult { result in
@@ -111,7 +111,7 @@ public extension FutureQueue {
     ///
     /// - Returns: A future that will complete with the result from `operation` once the sub-queue becomes empty.
     @discardableResult
-    public func enqueueBatch<Output>(_ operation: @escaping (FutureQueue) throws -> Output) -> Future<Output> {
+    func enqueueBatch<Output>(_ operation: @escaping (FutureQueue) throws -> Output) -> Future<Output> {
         return enqueueBatch { return Future(try operation($0)) }
     }
 }
@@ -175,7 +175,7 @@ private extension FutureQueue {
 
     func removeItem(_ item: Executable) {
         mutex.protect {
-            _ = items.index { $0 === item }.map { items.remove(at: $0) }
+            _ = items.firstIndex { $0 === item }.map { items.remove(at: $0) }
         }
     }
 

@@ -14,7 +14,7 @@ public extension UIControl {
     /// Returns a signal that will signal when any event in `controlEvents` is signaled on `self`.
     ///
     ///     bag += textField.signal(for: .editingDidBegin).onValue { ... }
-    func signal(for controlEvents: UIControlEvents) -> Signal<()> {
+    func signal(for controlEvents: UIControl.Event) -> Signal<()> {
         return Signal { callback in
             let targetAction = TargetAction()
             self.addTarget(targetAction, action: TargetAction.selector, for: controlEvents)
@@ -22,7 +22,7 @@ public extension UIControl {
             self.updateAutomaticEnabling()
 
             let bag = DisposeBag()
-            bag += targetAction.addCallback(callback)
+            bag += targetAction.addCallback { callback(()) }
             bag += Disposer {
                 self.removeTarget(targetAction, action: TargetAction.selector, for: controlEvents)
                 self.updateAutomaticEnabling()
@@ -147,7 +147,7 @@ public extension UIBarButtonItem {
 }
 
 extension UIGestureRecognizer: SignalProvider {
-    public var providedSignal: ReadSignal<UIGestureRecognizerState> {
+    public var providedSignal: ReadSignal<UIGestureRecognizer.State> {
         return Signal { callback in
             let targetAction = TargetAction()
             self.addTarget(targetAction, action: TargetAction.selector)
@@ -163,7 +163,7 @@ extension UIGestureRecognizer: SignalProvider {
     }
 
     /// Returns a signal that will signal only for `state`, equivalent to `filter { $0 == forState }.toVoid()`
-    public func signal(forState state: UIGestureRecognizerState) -> Signal<()> {
+    public func signal(forState state: UIGestureRecognizer.State) -> Signal<()> {
         return filter { $0 == state }.toVoid()
     }
 }
@@ -203,7 +203,7 @@ public extension UITextField {
 
 /// Returns a signal that will signal on orientation changes.
 public var orientationSignal: ReadSignal<UIInterfaceOrientation> {
-    return NotificationCenter.default.signal(forName: .UIApplicationDidChangeStatusBarOrientation).map { _ in UIApplication.shared.statusBarOrientation }.readable(capturing: UIApplication.shared.statusBarOrientation)
+    return NotificationCenter.default.signal(forName: UIApplication.didChangeStatusBarOrientationNotification).map { _ in UIApplication.shared.statusBarOrientation }.readable(capturing: UIApplication.shared.statusBarOrientation)
 }
 
 #endif
@@ -243,7 +243,7 @@ private extension UITextField {
 private var delegateKey = 0
 
 private extension _KeyValueCodingAndObserving where Self: UIControl {
-    func signal<T>(for controlEvents: UIControlEvents, keyPath: ReferenceWritableKeyPath<Self, T>) -> ReadWriteSignal<T> {
+    func signal<T>(for controlEvents: UIControl.Event, keyPath: ReferenceWritableKeyPath<Self, T>) -> ReadWriteSignal<T> {
         return merge(signal(for: controlEvents).readable(), signal(for: keyPath).toVoid()).map { self[keyPath: keyPath] }.writable { self[keyPath: keyPath] = $0 }
     }
 }
