@@ -203,7 +203,7 @@ public extension UITextField {
 
 /// Returns a signal that will signal on orientation changes.
 public var orientationSignal: ReadSignal<UIInterfaceOrientation> {
-    return NotificationCenter.default.signal(forName: UIApplication.didChangeStatusBarOrientationNotification).map { _ in UIApplication.shared.statusBarOrientation }.readable(capturing: UIApplication.shared.statusBarOrientation)
+    return NotificationCenter.default.signal(forName: Notification.Name.UIApplicationDidChangeStatusBarOrientation).map { _ in UIApplication.shared.statusBarOrientation }.readable(capturing: UIApplication.shared.statusBarOrientation)
 }
 
 #endif

@@ -74,7 +74,7 @@ class LoginController: UIViewController {
     }
 
     func showSpinnerOverlay() -> Disposable {
-        let spinner = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+        let spinner = UIActivityIndicatorView(style: .whiteLarge)
         spinner.frame = self.view.bounds
         spinner.backgroundColor = UIColor(white: 0, alpha: 0.2)
         spinner.startAnimating()
