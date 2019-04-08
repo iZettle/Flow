@@ -326,22 +326,22 @@ func memPrint(_ str: String, _ count: Int32) {
     //print(str, count)
 }
 
-private extension Future {
-    var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+extension Future {
+    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
 
     private var protectedState: State {
         return mutex.protect { state }
     }
 
-    func lock() {
+    private func lock() {
         mutex.lock()
     }
 
-    func unlock() {
+    private func unlock() {
         mutex.unlock()
     }
 
-    func completeWithResult(_ result: Result<Value>) {
+    internal func completeWithResult(_ result: Result<Value>) {
         lock()
         let state = self.state
 
@@ -371,7 +371,7 @@ private extension Future {
     }
 
     /// Returns a disposable to be called on dispose or cancel. If it was the last onComplete being disposed the future itself will be disposed.
-    func onComplete(_ completion: @escaping (Result<Value>) -> Void) -> Disposable {
+    private func onComplete(_ completion: @escaping (Result<Value>) -> Void) -> Disposable {
         lock()
         defer { unlock() }
 
@@ -399,7 +399,7 @@ private extension Future {
         }
     }
 
-    func remove(for key: Key) {
+    private func remove(for key: Key) {
         lock()
 
         switch state {
