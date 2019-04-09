@@ -14,5 +14,6 @@ public extension Future {
     /// - Note: Do not use in production as the actual result will not send a value.
     func unsafeCompleteEarly(_ result: Result<Value>) {
         completeWithResult(result)
+        cancel()
     }
 }
