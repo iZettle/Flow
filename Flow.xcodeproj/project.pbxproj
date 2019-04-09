@@ -12,7 +12,7 @@
 		21E1D41C1D9502A300A91CA0 /* Future+Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21E1D41B1D9502A300A91CA0 /* Future+Signal.swift */; };
 		5BE9055B3538F1DDAB424AD2 /* FutureAdditionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE90C011B621BC2F0B9C1B8 /* FutureAdditionsTests.swift */; };
 		741FD109225C92A700B9DDE9 /* FutureCompleteEarlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 741FD108225C92A700B9DDE9 /* FutureCompleteEarlyTests.swift */; };
-		7473AC0E225B61CA00ADB35B /* Future+UnsafeCompleteEarly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7473AC0D225B61CA00ADB35B /* Future+UnsafeCompleteEarly.swift */; };
+		744DF857225CBC7B00FCDCFF /* Future+UnsafeCompleteEarly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744DF856225CBC7B00FCDCFF /* Future+UnsafeCompleteEarly.swift */; };
 		7484FA6B212D9E930076FD3E /* Signal+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7484FA6A212D9E930076FD3E /* Signal+Debug.swift */; };
 		8E890FC106FB7A89BD1727CC /* EitherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E890194B06CBB3311E44757 /* EitherTests.swift */; };
 		F610ABAE1D91743500A161AB /* Future+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABA71D91743500A161AB /* Future+Additions.swift */; };
@@ -86,7 +86,7 @@
 		21E1D41B1D9502A300A91CA0 /* Future+Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Future+Signal.swift"; path = "Flow/Future+Signal.swift"; sourceTree = SOURCE_ROOT; };
 		5BE90C011B621BC2F0B9C1B8 /* FutureAdditionsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FutureAdditionsTests.swift; path = FlowTests/FutureAdditionsTests.swift; sourceTree = "<group>"; };
 		741FD108225C92A700B9DDE9 /* FutureCompleteEarlyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FutureCompleteEarlyTests.swift; path = FlowTests/FutureCompleteEarlyTests.swift; sourceTree = "<group>"; };
-		7473AC0D225B61CA00ADB35B /* Future+UnsafeCompleteEarly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Future+UnsafeCompleteEarly.swift"; sourceTree = "<group>"; };
+		744DF856225CBC7B00FCDCFF /* Future+UnsafeCompleteEarly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Future+UnsafeCompleteEarly.swift"; path = "Flow/Future+UnsafeCompleteEarly.swift"; sourceTree = "<group>"; };
 		7484FA6A212D9E930076FD3E /* Signal+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Signal+Debug.swift"; path = "Flow/Signal+Debug.swift"; sourceTree = "<group>"; };
 		8E890194B06CBB3311E44757 /* EitherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EitherTests.swift; sourceTree = "<group>"; };
 		F610ABA61D91743500A161AB /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Future.swift; path = Flow/Future.swift; sourceTree = SOURCE_ROOT; };
@@ -283,7 +283,7 @@
 				F610ABA91D91743500A161AB /* FutureQueue.swift */,
 				F610ABAB1D91743500A161AB /* Result.swift */,
 				F681B3471DB6566E00E44ABD /* Either.swift */,
-				7473AC0D225B61CA00ADB35B /* Future+UnsafeCompleteEarly.swift */,
+				744DF856225CBC7B00FCDCFF /* Future+UnsafeCompleteEarly.swift */,
 			);
 			name = Future;
 			sourceTree = "<group>";
@@ -472,7 +472,6 @@
 				F6462A401EFA5065007E2198 /* Signal+Construction.swift in Sources */,
 				F6B6A65F2056AEA400B9FC9D /* ReadSignal.swift in Sources */,
 				F6FF03E71D926AC300B93771 /* Utilities.swift in Sources */,
-				7473AC0E225B61CA00ADB35B /* Future+UnsafeCompleteEarly.swift in Sources */,
 				F66C47A720077B2500333410 /* Signal+Combiners.swift in Sources */,
 				F662C0A71FDFDEB300E5F869 /* Signal+Scheduling.swift in Sources */,
 				F6FF03E41D926AC300B93771 /* CoreSignal.swift in Sources */,
@@ -491,6 +490,7 @@
 				F6B6A6652056B2CA00B9FC9D /* EventType.swift in Sources */,
 				F610ABB21D91743500A161AB /* Result.swift in Sources */,
 				F66C47A920077BC700333410 /* Signal+Listeners.swift in Sources */,
+				744DF857225CBC7B00FCDCFF /* Future+UnsafeCompleteEarly.swift in Sources */,
 				F64E975F201888EB00865380 /* Future+Combiners.swift in Sources */,
 				F6714C711F25E97600C96931 /* Future.swift in Sources */,
 				F66835CF2091B887002D2676 /* UIView+EditingMenu.swift in Sources */,
