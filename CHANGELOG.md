@@ -1,3 +1,12 @@
+# 1.8
+
+- Added `deallocSignal(for:)` and `NSObject.deallocSignal` for listen on deallocation of objects.
+- Added signal transformation `with(weak:)` as a convenience helper for breaking retain cycles.
+
+# 1.7
+
+- Migration to Swift 5.
+
 # 1.6
 
  - Addition: Make `Callbacker` conform to `SignalProvider`.
