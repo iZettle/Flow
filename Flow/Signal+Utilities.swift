@@ -31,3 +31,24 @@ public extension Sequence {
         })
     }
 }
+
+/// Returns signal that will signal once `object` is deallocated.
+public func deallocSignal(for object: AnyObject) -> Signal<()> {
+    let tracker = objc_getAssociatedObject(object, &trackerKey) as? DeallocTracker ?? DeallocTracker()
+    objc_setAssociatedObject(object, &trackerKey, tracker, .OBJC_ASSOCIATION_RETAIN)
+    return tracker.callbacker.providedSignal
+}
+
+public extension NSObject {
+    /// Returns signal that will signal once `self` is deallocated.
+    var deallocSignal: Signal<()> {
+        return Flow.deallocSignal(for: self)
+    }
+}
+
+private final class DeallocTracker {
+    let callbacker = Callbacker<()>()
+    deinit { callbacker.callAll(with: ()) }
+}
+
+private var trackerKey = false

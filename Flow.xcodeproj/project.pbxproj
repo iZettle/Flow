@@ -116,7 +116,7 @@
 		F688B941205FB78A00BA5A70 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		F688B942205FB78A00BA5A70 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		F688B943205FB78A00BA5A70 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
-		F688B944205FB78B00BA5A70 /* FlowFramework.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = FlowFramework.podspec; sourceTree = "<group>"; };
+		F688B944205FB78B00BA5A70 /* FlowFramework.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = FlowFramework.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		F68EF3501FD58FBD0001129C /* Delegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Delegate.swift; path = Flow/Delegate.swift; sourceTree = "<group>"; };
 		F68EF3521FD58FC70001129C /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Event.swift; path = Flow/Event.swift; sourceTree = "<group>"; };
 		F68EF3541FD58FD20001129C /* UIView+Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "UIView+Signal.swift"; path = "Flow/UIView+Signal.swift"; sourceTree = "<group>"; };
