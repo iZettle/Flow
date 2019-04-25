@@ -106,7 +106,7 @@ public extension SignalProvider {
     }
 
     /// Returns a new signal combining the latest value of `self` with the provided `object` up until `object` gets deallocated.
-    /// This is a convenience helper for break retain cycles in situations such as:
+    /// This is a convenience helper for breaking retain cycles in situations such as:
     ///
     ///     class Class {
     ///       let bag = DisposeBag()
@@ -213,6 +213,18 @@ public extension SignalProvider {
     /// - Note: See `with(weak:)` for more info.
     func with<T: AnyObject, A, B, C, D, E, F, G>(_ object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, C, D, E, F, G, T)> where Value == (A, B, C, D, E, F, G) {
         return with(weak: object).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $1) }
+    }
+
+    /// Returns a new signal combining the latest tuple value of `self` with the provided `object` up until `object` gets deallocated.
+    /// - Note: See `with(weak:)` for more info.
+    func with<T: AnyObject, A, B, C, D, E, F, G, H>(_ object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, C, D, E, F, G, H, T)> where Value == (A, B, C, D, E, F, G, H) {
+        return with(weak: object).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $1) }
+    }
+
+    /// Returns a new signal combining the latest tuple value of `self` with the provided `object` up until `object` gets deallocated.
+    /// - Note: See `with(weak:)` for more info.
+    func with<T: AnyObject, A, B, C, D, E, F, G, H, I>(_ object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, C, D, E, F, G, H, I, T)> where Value == (A, B, C, D, E, F, G, H, I) {
+        return with(weak: object).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $0.8, $1) }
     }
 }
 
