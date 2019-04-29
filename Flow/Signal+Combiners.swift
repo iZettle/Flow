@@ -104,6 +104,149 @@ public extension SignalProvider {
             return state
         })
     }
+
+    /// Returns a new signal combining the latest value of `self` with the provided `object` up until `object` gets deallocated.
+    /// This is a convenience helper for breaking retain cycles in situations such as:
+    ///
+    ///     class Class {
+    ///       let bag = DisposeBag()
+    ///
+    ///       func setupUsingWeakCapture() {
+    ///         bag += someSignal.onValue { [weak self] value in
+    ///           guard let `self` = self else { return }
+    ///           self.handle(value)
+    ///       }
+    ///
+    ///       func setupWithWeak() {
+    ///         bag += someSignal.with(weak: self).onValue { value, `self` in
+    ///           self.handle(value)
+    ///       }
+    ///     }
+    ///
+    ///     a)---------b------c-----d--|
+    ///                |      |     |
+    ///     +--------------------------+
+    ///     | with(weak: o)            |
+    ///     +--------------------------+
+    ///                |      |     |
+    ///     (a,o))---(b,o)--(c,o)-(d,o)|
+    ///
+    func with<T: AnyObject>(weak object: T) -> CoreSignal<Kind.DropWrite, (Value, T)> {
+        let signal = providedSignal
+        return CoreSignal(onEventType: { [weak object] callback in
+            let state = StateAndCallback(state: (), callback: callback)
+
+            guard let object = object else {
+                return state
+            }
+
+            state += deallocSignal(for: object).onValue {
+                state.dispose()
+            }
+
+            state += signal.onEventType { [weak object] eventType in
+                guard let object = object else {
+                    state.call(.event(.end))
+                    return
+                }
+
+                switch eventType {
+                case .initial(nil):
+                    state.call(.initial(nil))
+                case .initial(let value?):
+                    state.call(.initial((value, object)))
+                case .event(.value(let value)):
+                    state.call(.event(.value((value, object))))
+                case .event(.end(let error)):
+                    state.call(.event(.end(error)))
+                }
+            }
+
+            return state
+        })
+    }
+
+    /// Returns a new signal combining the latest tuple value of `self` with the provided `object` up until `object` gets deallocated.
+    ///
+    ///     bag += combineLatest(a, b).with(weak: self).onValue { a, b, `self` in
+    ///       self.handle(a, b)
+    ///     }
+    ///
+    ///     (a,1))-----(b,1)-----(b,2)--|
+    ///                  |         |    |
+    ///     +---------------------------+
+    ///     | with(weak: o)             |
+    ///     +---------------------------+
+    ///                  |        |     |
+    ///     (a,1,o))--(b,1,o)--(b,2,o)--|
+    ///
+    /// - Note: See `with(weak:)` for more info.
+    func with<T: AnyObject, A, B>(weak object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, T)> where Value == (A, B) {
+        return with(weak: object).map { ($0.0, $0.1, $1) }
+    }
+
+    /// Returns a new signal combining the latest tuple value of `self` with the provided `object` up until `object` gets deallocated.
+    /// - Note: See `with(weak:)` for more info.
+    func with<T: AnyObject, A, B, C>(weak object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, C, T)> where Value == (A, B, C) {
+        return with(weak: object).map { ($0.0, $0.1, $0.2, $1) }
+    }
+
+    /// Returns a new signal combining the latest tuple value of `self` with the provided `object` up until `object` gets deallocated.
+    /// - Note: See `with(weak:)` for more info.
+    func with<T: AnyObject, A, B, C, D>(_ object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, C, D, T)> where Value == (A, B, C, D) {
+        return with(weak: object).map { ($0.0, $0.1, $0.2, $0.3, $1) }
+    }
+
+    /// Returns a new signal combining the latest tuple value of `self` with the provided `object` up until `object` gets deallocated.
+    /// - Note: See `with(weak:)` for more info.
+    func with<T: AnyObject, A, B, C, D, E>(_ object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, C, D, E, T)> where Value == (A, B, C, D, E) {
+        return with(weak: object).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $1) }
+    }
+
+    /// Returns a new signal combining the latest tuple value of `self` with the provided `object` up until `object` gets deallocated.
+    /// - Note: See `with(weak:)` for more info.
+    func with<T: AnyObject, A, B, C, D, E, F>(_ object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, C, D, E, F, T)> where Value == (A, B, C, D, E, F) {
+        return with(weak: object).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $1) }
+    }
+
+    /// Returns a new signal combining the latest tuple value of `self` with the provided `object` up until `object` gets deallocated.
+    /// - Note: See `with(weak:)` for more info.
+    func with<T: AnyObject, A, B, C, D, E, F, G>(_ object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, C, D, E, F, G, T)> where Value == (A, B, C, D, E, F, G) {
+        return with(weak: object).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $1) }
+    }
+
+    /// Returns a new signal combining the latest tuple value of `self` with the provided `object` up until `object` gets deallocated.
+    /// - Note: See `with(weak:)` for more info.
+    func with<T: AnyObject, A, B, C, D, E, F, G, H>(_ object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, C, D, E, F, G, H, T)> where Value == (A, B, C, D, E, F, G, H) {
+        return with(weak: object).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $1) }
+    }
+
+    /// Returns a new signal combining the latest tuple value of `self` with the provided `object` up until `object` gets deallocated.
+    /// - Note: See `with(weak:)` for more info.
+    func with<T: AnyObject, A, B, C, D, E, F, G, H, I>(_ object: T) -> CoreSignal<Kind.DropWrite.DropWrite, (A, B, C, D, E, F, G, H, I, T)> where Value == (A, B, C, D, E, F, G, H, I) {
+        return with(weak: object).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $0.8, $1) }
+    }
+}
+
+/// Returns a new signal signaling the provided `object` every time `self` signals, up until `object` gets deallocated.
+///
+///     bag += button.with(weak: self).onValue { `self` in
+///         self.handleButton()
+///     }
+///
+///     ())-----()-----()--|
+///             |      |   |
+///     +------------------+
+///     | with(weak: o)    |
+///     +------------------+
+///             |      |   |
+///     o)------o------o---|
+///
+/// - Note: See `with(weak:)` for more info.
+public extension SignalProvider where Value == () {
+    func with<T: AnyObject>(weak object: T) -> CoreSignal<Kind.DropWrite.DropWrite, T> {
+        return with(weak: object).map { $1 }
+    }
 }
 
 /// Returns a new signal merging the values emitted from `signals`

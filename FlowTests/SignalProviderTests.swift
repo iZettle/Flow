@@ -2218,6 +2218,122 @@ class SignalProviderTests: XCTestCase {
         XCTAssertEqual(p.value, 3)
         XCTAssertEqual(getCnt, 3)
     }
+
+    func testDeallocSignal() {
+        runTest { bag in
+            class Class { }
+            let object = Class()
+
+            let e = expectation(description: "dealloc")
+            bag += Flow.deallocSignal(for: object).onValue {
+                e.fulfill()
+            }
+        }
+    }
+
+    func testSignalWeakly() {
+        class Class { }
+        var object: Class! = Class()
+
+        let bag = DisposeBag()
+        let rw = ReadWriteSignal(0)
+
+        var result = [Int]()
+        bag += rw.with(weak: object).atOnce().onValue { value, object in
+            result.append(value)
+        }
+
+        XCTAssertEqual(result, [0])
+
+        rw.value = 1
+        XCTAssertEqual(result, [0, 1])
+
+        object = nil
+        rw.value = 2
+        XCTAssertEqual(result, [0, 1])
+    }
+
+    func testSignalWeaklyContainterRetainCycle() {
+        class Class {
+            let bag = DisposeBag()
+            var result = [Int]()
+            let rw = ReadWriteSignal(0)
+
+            func setup() {
+                bag += rw.with(weak: self).atOnce().onValue { value, `self` in
+                    self.result.append(value)
+                }
+            }
+        }
+
+        var object: Class! = Class()
+        weak var weakObject = object
+
+        object.setup()
+
+        XCTAssertEqual(object.result, [0])
+        XCTAssertNotNil(weakObject)
+
+        object.rw.value = 1
+        XCTAssertEqual(object.result, [0, 1])
+        XCTAssertNotNil(weakObject)
+
+        object = nil
+        XCTAssertNil(weakObject)
+    }
+
+    func testWeaklyWithTuple() {
+        class Class { }
+        var object: Class! = Class()
+
+        let bag = DisposeBag()
+        let rw1 = ReadWriteSignal(0)
+        let rw2 = ReadWriteSignal(0)
+
+        var result = [Int]()
+        bag += combineLatest(rw1, rw2).with(weak: object).atOnce().onValue { val1, val2, object in
+            print(object, val1, val2)
+            result.append(val1)
+        }
+
+        XCTAssertEqual(result, [0])
+
+        rw1.value = 1
+        XCTAssertEqual(result, [0, 1])
+
+        object = nil
+        rw1.value = 2
+        XCTAssertEqual(result, [0, 1])
+    }
+
+    func testDoubleWeakly() {
+        class Class { }
+        var object1: Class! = Class()
+        var object2: Class! = Class()
+
+        let bag = DisposeBag()
+        let rw = ReadWriteSignal(0)
+
+        var result = [Int]()
+        bag += rw.with(weak: object1).with(weak: object2).atOnce().onValue { value, obj1, obj2 in
+            XCTAssert(obj1 === object1)
+            XCTAssert(obj2 === object2)
+            result.append(value)
+        }
+
+        XCTAssertEqual(result, [0])
+
+        rw.value = 1
+        XCTAssertEqual(result, [0, 1])
+
+        object1 = nil
+        rw.value = 2
+        XCTAssertEqual(result, [0, 1])
+
+        object2 = nil
+        rw.value = 3
+        XCTAssertEqual(result, [0, 1])
+    }
 }
 
 class SignalProviderStressTests: XCTestCase {
