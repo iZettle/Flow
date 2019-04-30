@@ -91,10 +91,10 @@ private class CopyingView: UIView {
         let bag = DisposeBag()
         let longPressGesture = UILongPressGestureRecognizer()
         bag += superview.install(longPressGesture)
-        bag += longPressGesture.signal(forState: .began).onValue { [weak self] in
+        bag += longPressGesture.signal(forState: .began).with(weak: self).onValue { `self` in
             let menu = UIMenuController.shared
             guard !menu.isMenuVisible else { return }
-            self?.becomeFirstResponder()
+            self.becomeFirstResponder()
             menu.setTargetRect(superview.bounds, in: superview)
             menu.isMenuVisible = true
         }

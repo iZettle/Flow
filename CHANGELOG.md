@@ -1,3 +1,7 @@
+# 1.8.1
+
+- Added `Delegate`  `set(withWeak:callback:)` variant of `set(callback:)` to help breaking retain cycles.
+
 # 1.8
 
 - Added `deallocSignal(for:)` and `NSObject.deallocSignal` for listen on deallocation of objects.

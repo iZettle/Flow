@@ -115,11 +115,13 @@ public extension SignalProvider {
     ///         bag += someSignal.onValue { [weak self] value in
     ///           guard let `self` = self else { return }
     ///           self.handle(value)
+    ///         }
     ///       }
     ///
     ///       func setupWithWeak() {
     ///         bag += someSignal.with(weak: self).onValue { value, `self` in
     ///           self.handle(value)
+    ///         }
     ///       }
     ///     }
     ///

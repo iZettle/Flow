@@ -70,6 +70,54 @@ class DelegateTests: XCTestCase {
 
         XCTAssertEqual(onSetCount, 2)
         XCTAssertEqual(onSetDisposeCount, 2)
+    }
 
+    func testWeakDelegate() {
+        let d = Delegate<Int, Bool>()
+
+        XCTAssertNil(d.call(5))
+
+        let bag = DisposeBag()
+
+        class Class {}
+        var object: Class! = Class()
+
+        bag += d.set(withWeak: object) { value, object in
+            print(object)
+            return value > 5
+        }
+
+        XCTAssertEqual(d.call(10), true)
+        XCTAssertEqual(d.call(1), false)
+
+        object = nil
+
+        XCTAssertNil(d.call(5))
+
+        object = Class()
+        bag += d.set(withWeak: object) { value, object in
+            print(object)
+            return value < 5
+        }
+
+        XCTAssertEqual(d.call(10), false)
+        XCTAssertEqual(d.call(1), true)
+
+        object = nil
+
+        XCTAssertNil(d.call(5))
+        
+        object = Class()
+        bag += d.set(withWeak: object) { value, object in
+            print(object)
+            return value > 5
+        }
+
+        XCTAssertEqual(d.call(10), true)
+        XCTAssertEqual(d.call(1), false)
+
+        bag.dispose()
+
+        XCTAssertNil(d.call(5))
     }
 }
