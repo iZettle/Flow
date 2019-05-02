@@ -379,26 +379,43 @@ public extension SignalProvider {
 
     /// Returns a new signal returning boolean values where `true` means that at least one value so far has satisfied the given predicate.
     ///
-    ///     ?)-----1---3-------2-------1-----|
+    ///     -------1---3-------2-------1-----|
     ///            |   |       |       |
     ///     +--------------------------------+
     ///     | contains(where: { $0.isEven }) |
     ///     +--------------------------------+
     ///            |   |       |       |
-    ///     0)-----f---f-------t-------t-----|
+    ///     -------f---f-------t-------t-----|
+    ///
+    ///     1)-----3---5-------2-------7-----|
+    ///            |   |       |       |
+    ///     +--------------------------------+
+    ///     | contains(where: { $0.isEven }) |
+    ///     +--------------------------------+
+    ///            |   |       |       |
+    ///     f)-----f---f-------t-------t-----|
     func contains(on scheduler: Scheduler = .current, where predicate: @escaping (Value) -> Bool) -> CoreSignal<Kind.PotentiallyRead, Bool> {
         return reduce(on: scheduler, false, combine: { $0 || predicate($1) })
     }
 
     /// Returns a new signal returning boolean values where `true` means that at all values so far have satisfied the given predicate.
+
     ///
-    ///     ?)-----2---4-------1-------6-------|
+    ///     -------2---4-------1-------6-------|
     ///            |   |       |       |
     ///     +----------------------------------+
     ///     | allSatisfy(where: { $0.isEven }) |
     ///     +----------------------------------+
     ///            |   |       |       |
-    ///     0)-----t---t-------f-------f-------|
+    ///     -------t---t-------f-------f-------|
+    ///
+    ///     0)-----2---4-------1-------6-------|
+    ///            |   |       |       |
+    ///     +----------------------------------+
+    ///     | allSatisfy(where: { $0.isEven }) |
+    ///     +----------------------------------+
+    ///            |   |       |       |
+    ///     t)-----t---t-------f-------f-------|
     func allSatisfy(on scheduler: Scheduler = .current, where predicate: @escaping (Value) -> Bool) -> CoreSignal<Kind.PotentiallyRead, Bool> {
         return reduce(on: scheduler, true, combine: { $0 && predicate($1) })
     }
