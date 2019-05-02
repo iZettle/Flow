@@ -10,6 +10,7 @@ disabled_rules:
 
   - void_return
   - trailing_comma
+  - unused_closure_parameter
 
 included:
   - Flow
