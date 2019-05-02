@@ -619,17 +619,39 @@ public extension SignalProvider {
         }
     }
 
-    /// Returns a new signal which redirects all events from `self` and executes the `block` whenever someone subscribes to it
-    func nestingDisposable(_ block: @escaping () -> Disposable) -> CoreSignal<Kind, Value> {
-        let signal = providedSignal
-        return CoreSignal(setValue: signal.setter, onEventType: { typeCallback in
-            let bag = DisposeBag()
-            bag += signal.onEventType { eventType in
-                typeCallback(eventType)
-            }
-            bag += block()
-            return bag
-        })
+//    /// Returns a new signal which redirects all events from `self` and executes the `block` whenever someone subscribes to it
+//    func nestingDisposable(_ block: @escaping () -> Disposable) -> CoreSignal<Kind, Value> {
+//        let signal = providedSignal
+//        return CoreSignal(setValue: signal.setter, onEventType: { typeCallback in
+//            let bag = DisposeBag()
+//            bag += signal.onEventType { eventType in
+//                typeCallback(eventType)
+//            }
+//            bag += block()
+//            return bag
+//        })
+//    }
+}
+
+extension SignalProvider where Kind == Plain {
+    func nestingDisposable(_ block: @escaping () -> Disposable) -> CoreSignal<Plain, Value> {
+        return Signal<Value> { callback in
+            let innerBag = DisposeBag()
+            innerBag += self.onValue(callback)
+            innerBag += block()
+            return innerBag
+        }
+    }
+}
+
+extension SignalProvider where Kind == Read {
+    func nestingDisposable(_ block: @escaping () -> Disposable) -> CoreSignal<Read, Value> {
+        return ReadSignal<Value>(capturing: self.value) { callback in
+            let innerBag = DisposeBag()
+            innerBag += self.onValue(callback)
+            innerBag += block()
+            return innerBag
+        }
     }
 }
 

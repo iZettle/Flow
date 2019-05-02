@@ -2511,7 +2511,7 @@ class SignalProviderStressTests: XCTestCase {
 
         var results = [Int]()
 
-        let signalWithNestedSubscriptions = signal1.nestingDisposable { () -> Disposable in
+        let signalWithNestedSubscriptions = signal1.plain().nestingDisposable { () -> Disposable in
             let innerBag = DisposeBag()
             innerBag += signal2.atOnce().onValue {
                 results.append($0)
@@ -2536,7 +2536,7 @@ class SignalProviderStressTests: XCTestCase {
         bag += signalWithNestedSubscriptions.onValue { _ in }
         bag += signalWithNestedSubscriptions.onFirstValue { _ in }
 
-        XCTAssertEqual(results, [1, 2, 3, 3]) // the nested block is executed for each outer signal subscription
+        XCTAssertEqual(results, [1, 2, 3])
     }
 }
 
