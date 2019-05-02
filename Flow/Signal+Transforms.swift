@@ -377,6 +377,32 @@ public extension SignalProvider {
         })
     }
 
+    /// Returns a new signal returning boolean values where `true` means that at least one value so far has satisfied the given predicate.
+    ///
+    ///     ?)-----1---3-------2-------1-----|
+    ///            |   |       |       |
+    ///     +--------------------------------+
+    ///     | contains(where: { $0.isEven }) |
+    ///     +--------------------------------+
+    ///            |   |       |       |
+    ///     0)-----f---f-------t-------t-----|
+    func contains(on scheduler: Scheduler = .current, where predicate: @escaping (Value) -> Bool) -> CoreSignal<Kind.PotentiallyRead, Bool> {
+        return reduce(on: scheduler, false, combine: { $0 || predicate($1) })
+    }
+
+    /// Returns a new signal returning boolean values where `true` means that at all values so far have satisfied the given predicate.
+    ///
+    ///     ?)-----2---4-------1-------6-------|
+    ///            |   |       |       |
+    ///     +----------------------------------+
+    ///     | allSatisfy(where: { $0.isEven }) |
+    ///     +----------------------------------+
+    ///            |   |       |       |
+    ///     0)-----t---t-------f-------f-------|
+    func allSatisfy(on scheduler: Scheduler = .current, where predicate: @escaping (Value) -> Bool) -> CoreSignal<Kind.PotentiallyRead, Bool> {
+        return reduce(on: scheduler, true, combine: { $0 && predicate($1) })
+    }
+
     /// Returns a new signal returning pairs of count (starting from 0) and value
     ///     ?)---a----b----c----|
     ///          |    |    |
