@@ -2502,6 +2502,42 @@ class SignalProviderStressTests: XCTestCase {
         }
     }
     #endif
+
+    func testNestingDisposable() {
+        let signal1 = ReadWriteSignal(())
+        let signal2 = ReadWriteSignal(0)
+
+        let bag = DisposeBag()
+
+        var results = [Int]()
+
+        let signalWithNestedSubscriptions = signal1.nestingDisposable { () -> Disposable in
+            let innerBag = DisposeBag()
+            innerBag += signal2.atOnce().onValue {
+                results.append($0)
+            }
+            return innerBag
+        }
+
+        signal2.value = 1
+        XCTAssertEqual(results, []) // no nested signal callbacks before outer signal has listeners
+
+        bag += signalWithNestedSubscriptions.onValue { _ in }
+
+        XCTAssertEqual(results, [1])
+
+        signal2.value = 2
+        XCTAssertEqual(results, [1, 2])
+
+        bag.dispose()
+        signal2.value = 3
+        XCTAssertEqual(results, [1, 2])
+
+        bag += signalWithNestedSubscriptions.onValue { _ in }
+        bag += signalWithNestedSubscriptions.onFirstValue { _ in }
+
+        XCTAssertEqual(results, [1, 2, 3, 3]) // the nested block is executed for each outer signal subscription
+    }
 }
 
 extension XCTestCase {

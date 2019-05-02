@@ -618,6 +618,19 @@ public extension SignalProvider {
             return state
         }
     }
+
+    /// Returns a new signal which redirects all events from `self` and executes the `block` whenever someone subscribes to it
+    func nestingDisposable(_ block: @escaping () -> Disposable) -> CoreSignal<Kind, Value> {
+        let signal = providedSignal
+        return CoreSignal(setValue: signal.setter, onEventType: { typeCallback in
+            let bag = DisposeBag()
+            bag += signal.onEventType { eventType in
+                typeCallback(eventType)
+            }
+            bag += block()
+            return bag
+        })
+    }
 }
 
 public extension SignalProvider where Kind == Plain {
