@@ -348,20 +348,34 @@ public extension SignalProvider {
 
     /// Returns a new signal forwarding the result of `combine(initial, value)` where `initial` is updated to the latest result.
     ///
-    ///     ?)--1---2-------3-------4----|
+    ///     ----1---2-------3-------4----------|
     ///         |   |       |       |
-    ///     +------------------------+
-    ///     | reduce(0, combine: +)  |
-    ///     +------------------------+
+    ///     +----------------------------------+
+    ///     | reduce(0, combine: +) - plain    |
+    ///     +----------------------------------+
     ///         |   |       |       |
-    ///     0)--1---3-------6-------10---|
+    ///     ----1---3-------6-------10---------|
+    ///
+    ///     1)--2---3-------4-------5----------|
+    ///         |   |       |       |
+    ///     +----------------------------------+
+    ///     | reduce(0, combine: +) - readable |
+    ///     +----------------------------------+
+    ///         |   |       |       |
+    ///     1)--3---6-------10------15---------|
     func reduce<T>(on scheduler: Scheduler = .current, _ initial: T, combine: @escaping (T, Value) -> T) -> CoreSignal<Kind.PotentiallyRead, T> {
         let signal = providedSignal
         return CoreSignal(onEventType: { callback in
             let state = StateAndCallback(state: initial, callback: callback)
             state += signal.onEventType { eventType in
                 switch eventType {
-                case .initial:
+                case .initial(nil):
+                    state.call(.initial(initial))
+                case .initial(let val?):
+                    state.lock()
+                    let initial = combine(state.val, val)
+                    state.val = initial
+                    state.unlock()
                     state.call(.initial(initial))
                 case .event(.value(let val)):
                     state.lock()
