@@ -85,12 +85,6 @@ class SignalProviderTests: XCTestCase {
         XCTAssertEqual(result, expected)
     }
 
-    fileprivate func test<I, O: Equatable>(_ input: [I], expected: [O], initial: I, transform: (FiniteSignal<I>) -> FiniteSignal<O>) {
-        var result = [O]()
-        _ = transform(input.testSignal(with: initial)).collect().onValue { result = $0 }
-        XCTAssertEqual(result, expected)
-    }
-
     fileprivate func test<I, O>(_ input: [I], expected: [O], isEquivalent: (O, O) -> Bool, transform: (FiniteSignal<I>) -> FiniteSignal<O>) {
         var result = [O]()
         _ = transform(input.signal()).collect().onValue { result = $0 }
@@ -354,12 +348,6 @@ class SignalProviderTests: XCTestCase {
 
     func testReduce() {
         test([1, 2, 3, 4], expected: [1, 3, 6, 10]) {
-            $0.reduce(0, combine: +)
-        }
-    }
-
-    func testReduceWithInitialValue() {
-        test([1, 2, 3, 4], expected: [11, 13, 16, 20], initial: 10) {
             $0.reduce(0, combine: +)
         }
     }
@@ -2697,18 +2685,5 @@ final class SimulatedTimer {
 
         mutex.protect { count -= 1 }
         mainQueue.async { self.release() }
-    }
-}
-
-private extension Sequence {
-    /// Returns a signal that will immedialty signals all `self`'s elements and then terminate.
-    /// Also takes an initial value.
-    func testSignal(with initial: Iterator.Element) -> FiniteSignal<Iterator.Element> {
-        return FiniteSignal(onEventType: { callback in
-            callback(.initial(initial))
-            self.forEach { callback(.event(.value($0))) }
-            callback(.event(.end))
-            return NilDisposer()
-        })
     }
 }
