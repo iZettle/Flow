@@ -413,7 +413,6 @@ public extension SignalProvider {
     }
 
     /// Returns a new signal returning boolean values where `true` means that at all values so far have satisfied the given predicate.
-
     ///
     ///     -------2---4-------1-------6-------|
     ///            |   |       |       |

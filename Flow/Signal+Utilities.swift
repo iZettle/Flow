@@ -32,19 +32,6 @@ public extension Sequence {
     }
 }
 
-internal extension Sequence {
-    /// Returns a signal that will immedialty signals all `self`'s elements and then terminate.
-    /// It also has an initial value. This should only be used for facilitating tests.
-    func internalTestingSignal(with initial: Iterator.Element) -> FiniteSignal<Iterator.Element> {
-        return FiniteSignal(onEventType: { callback in
-            callback(.initial(initial))
-            self.forEach { callback(.event(.value($0))) }
-            callback(.event(.end))
-            return NilDisposer()
-        })
-    }
-}
-
 /// Returns signal that will signal once `object` is deallocated.
 public func deallocSignal(for object: AnyObject) -> Signal<()> {
     let tracker = objc_getAssociatedObject(object, &trackerKey) as? DeallocTracker ?? DeallocTracker()
