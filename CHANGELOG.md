@@ -1,3 +1,8 @@
+# 1.8.1
+
+- Added signal transformations `contains(where:)` and `allSatisfy(where:)` as wrappers for boolean `reduce()` transforms.
+- Changed `reduce()` implementation to consider initial values when performed on readable signals.
+
 # 1.8
 
 - Added `deallocSignal(for:)` and `NSObject.deallocSignal` for listen on deallocation of objects.
