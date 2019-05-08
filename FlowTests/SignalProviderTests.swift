@@ -352,6 +352,18 @@ class SignalProviderTests: XCTestCase {
         }
     }
 
+    func testContains() {
+        test([1, 3, 2, 5], expected: [false, false, true, true]) {
+            $0.contains(where: { $0 % 2 == 0 })
+        }
+    }
+
+    func testAllSatisfy() {
+        test([2, 4, 1, 6], expected: [true, true, false, false]) {
+            $0.allSatisfy(where: { $0 % 2 == 0 })
+        }
+    }
+
     func testEnumerate() {
         test([1, 2, 3, 4], expected: [(0, 1), (1, 2), (2, 3), (3, 4)], isEquivalent: ==) {
             $0.enumerate()

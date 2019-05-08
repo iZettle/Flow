@@ -348,20 +348,34 @@ public extension SignalProvider {
 
     /// Returns a new signal forwarding the result of `combine(initial, value)` where `initial` is updated to the latest result.
     ///
-    ///     ?)--1---2-------3-------4----|
+    ///     ----1---2-------3-------4----------|
     ///         |   |       |       |
-    ///     +------------------------+
-    ///     | reduce(0, combine: +)  |
-    ///     +------------------------+
+    ///     +----------------------------------+
+    ///     | reduce(0, combine: +) - plain    |
+    ///     +----------------------------------+
     ///         |   |       |       |
-    ///     0)--1---3-------6-------10---|
+    ///     ----1---3-------6-------10---------|
+    ///
+    ///     1)--2---3-------4-------5----------|
+    ///         |   |       |       |
+    ///     +----------------------------------+
+    ///     | reduce(0, combine: +) - readable |
+    ///     +----------------------------------+
+    ///         |   |       |       |
+    ///     1)--3---6-------10------15---------|
     func reduce<T>(on scheduler: Scheduler = .current, _ initial: T, combine: @escaping (T, Value) -> T) -> CoreSignal<Kind.PotentiallyRead, T> {
         let signal = providedSignal
         return CoreSignal(onEventType: { callback in
             let state = StateAndCallback(state: initial, callback: callback)
             state += signal.onEventType { eventType in
                 switch eventType {
-                case .initial:
+                case .initial(nil):
+                    state.call(.initial(initial))
+                case .initial(let val?):
+                    state.lock()
+                    let initial = combine(state.val, val)
+                    state.val = initial
+                    state.unlock()
                     state.call(.initial(initial))
                 case .event(.value(let val)):
                     state.lock()
@@ -375,6 +389,48 @@ public extension SignalProvider {
             }
             return state
         })
+    }
+
+    /// Returns a new signal returning boolean values where `true` means that at least one value so far has satisfied the given predicate.
+    ///
+    ///     -------1---3-------2-------1-----|
+    ///            |   |       |       |
+    ///     +--------------------------------+
+    ///     | contains(where: { $0.isEven }) |
+    ///     +--------------------------------+
+    ///            |   |       |       |
+    ///     -------f---f-------t-------t-----|
+    ///
+    ///     1)-----3---5-------2-------7-----|
+    ///            |   |       |       |
+    ///     +--------------------------------+
+    ///     | contains(where: { $0.isEven }) |
+    ///     +--------------------------------+
+    ///            |   |       |       |
+    ///     f)-----f---f-------t-------t-----|
+    func contains(on scheduler: Scheduler = .current, where predicate: @escaping (Value) -> Bool) -> CoreSignal<Kind.PotentiallyRead, Bool> {
+        return reduce(on: scheduler, false, combine: { $0 || predicate($1) })
+    }
+
+    /// Returns a new signal returning boolean values where `true` means that at all values so far have satisfied the given predicate.
+    ///
+    ///     -------2---4-------1-------6-------|
+    ///            |   |       |       |
+    ///     +----------------------------------+
+    ///     | allSatisfy(where: { $0.isEven }) |
+    ///     +----------------------------------+
+    ///            |   |       |       |
+    ///     -------t---t-------f-------f-------|
+    ///
+    ///     0)-----2---4-------1-------6-------|
+    ///            |   |       |       |
+    ///     +----------------------------------+
+    ///     | allSatisfy(where: { $0.isEven }) |
+    ///     +----------------------------------+
+    ///            |   |       |       |
+    ///     t)-----t---t-------f-------f-------|
+    func allSatisfy(on scheduler: Scheduler = .current, where predicate: @escaping (Value) -> Bool) -> CoreSignal<Kind.PotentiallyRead, Bool> {
+        return reduce(on: scheduler, true, combine: { $0 && predicate($1) })
     }
 
     /// Returns a new signal returning pairs of count (starting from 0) and value
