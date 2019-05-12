@@ -141,6 +141,18 @@ public func += (disposeBag: DisposeBag?, disposer: @escaping () -> Void) {
     disposeBag?.add(Disposer(disposer))
 }
 
+public func += (disposeBag: DisposeBag, disposables: [Disposable?]) {
+    disposables.compactMap { $0 }.forEach { disposable in
+        disposeBag += disposable
+    }
+}
+
+public func += (disposeBag: DisposeBag?, disposables: [Disposable?]) {
+    if let disposeBag = disposeBag {
+        disposeBag += disposables
+    }
+}
+
 public extension Disposable {
     /// Returns a future that will complete after `timeout`. Once completed or canceled, `self` will be disposed.
     @discardableResult
