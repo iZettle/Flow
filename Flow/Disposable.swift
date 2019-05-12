@@ -142,7 +142,7 @@ public func += (disposeBag: DisposeBag?, disposer: @escaping () -> Void) {
 }
 
 public func += (disposeBag: DisposeBag, disposables: [Disposable?]) {
-    disposables.compactMap { $0 }.forEach { disposable in
+    disposables.forEach { disposable in
         disposeBag += disposable
     }
 }
