@@ -11,9 +11,9 @@ import Flow
 
 class SignalTests: XCTestCase {
     func testNotifications() {
-        let notificationName = "TestNotification"
+        let notificationName = Notification.Name(rawValue: "TestNotification")
         let bag = DisposeBag()
-        let signal = NotificationCenter.default.signal(forName: NSNotification.Name(rawValue: notificationName))
+        let signal = NotificationCenter.default.signal(forName: notificationName)
 
         let expectation = self.expectation(description: "Signal notification")
 
@@ -21,10 +21,16 @@ class SignalTests: XCTestCase {
             expectation.fulfill()
         }
 
-        NotificationCenter.default.post(name: Notification.Name(rawValue: notificationName), object: nil)
+        func sendNotification() {
+            NotificationCenter.default.post(name: notificationName, object: nil)
+        }
+
+        sendNotification()
 
         waitForExpectations(timeout: 10) { error in
             bag.dispose()
+            // make sure that the subscribtion is removed - sending a notification again should not fulfill the expectation a second time (which causes a test crash)
+            sendNotification()
         }
     }
 
