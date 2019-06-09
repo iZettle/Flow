@@ -8,12 +8,30 @@
 
 import XCTest
 import Flow
+import Combine
+
+@available(iOS 13.0, *)
+public extension Publisher {
+    func onValue(_ callback: @escaping (Output) -> Void) -> Subscribers.Sink<Self> {
+        return sink(receiveValue: callback)
+    }
+}
+
+@available(iOS 13.0, *)
+public func +=<C: Cancellable> (disposeBag: DisposeBag, cancellable: C) {
+    disposeBag += Disposer {
+        cancellable.cancel()
+    }
+}
 
 class SignalTests: XCTestCase {
+
+    @available(iOS 13.0, *)
     func testNotifications() {
         let notificationName = Notification.Name(rawValue: "TestNotification")
         let bag = DisposeBag()
-        let signal = NotificationCenter.default.signal(forName: notificationName)
+//        let signal = NotificationCenter.default.signal(forName: notificationName)
+        let signal = NotificationCenter.default.publisher(for: notificationName)
 
         let expectation = self.expectation(description: "Signal notification")
 

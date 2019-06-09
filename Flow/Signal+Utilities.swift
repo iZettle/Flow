@@ -12,9 +12,17 @@ public extension NotificationCenter {
     /// Returns a signal for notifications named `name`.
     func signal(forName name: Notification.Name?, object: Any? = nil) -> Signal<Notification> {
         return Signal { callback in
-            let observer = self.addObserver(forName: name, object: object, queue: nil, using: callback)
-            return Disposer {
-                self.removeObserver(observer)
+
+            if #available(iOS 13.0, *) {
+                let cancellable = self.publisher(for: name, object: object).sink(receiveValue: callback)
+                return Disposer {
+                    cancellable.cancel()
+                }
+            } else {
+                let observer = self.addObserver(forName: name, object: object, queue: nil, using: callback)
+                return Disposer {
+                    self.removeObserver(observer)
+                }
             }
         }
     }
