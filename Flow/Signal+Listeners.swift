@@ -133,7 +133,7 @@ public extension SignalProvider where Kind == ReadWrite, Value: Equatable {
     /// Start listening on values for both `self` and `signal` and update each other's value with the latest signaled value.
     /// - Returns: A disposable that will stop listening on values when being disposed.
     /// - Note: Infinite recursion is avoided by comparing equality with the previous value.
-    func bidirectionallyBindTo<ReadWriteSignal: SignalProvider>(_ signal: ReadWriteSignal) -> Disposable where ReadWriteSignal.Value == Value, ReadWriteSignal.Kind == ReadWrite {
+    func bidirectionallyBindTo<ReadWriteSignalType: SignalProvider>(_ signal: ReadWriteSignalType) -> Disposable where ReadWriteSignalType.Value == Value, ReadWriteSignalType.Kind == ReadWrite {
         return bidirectionallyBindTo(signal, isSame: ==)
     }
 }

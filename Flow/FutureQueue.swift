@@ -209,7 +209,7 @@ private protocol Executable: class {
     func cancel()
 }
 
-private final class QueueItem<Output> : Executable {
+private final class QueueItem<Output>: Executable {
     private let operation: () throws -> Future<Output>
     private let completion: (Result<Output>) -> ()
     private weak var future: Future<Output>?
