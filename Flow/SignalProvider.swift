@@ -40,7 +40,7 @@ public protocol SignalKind {
 }
 
 public extension SignalKind {
-    static var isReadable: Bool { return DropWrite.self == Read.self  }
+    static var isReadable: Bool { return (DropWrite.self == Read.self) as Bool }
 }
 
 /// A signal kind with no read nor write access

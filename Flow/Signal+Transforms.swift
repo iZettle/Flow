@@ -43,7 +43,7 @@ public extension SignalProvider {
         let signal = providedSignal
         let shared = SharedState<Value>()
 
-        return CoreSignal(setValue: signal.setter, onEventType: { callback in
+        return CoreSignal(setValue: signal.setter, onEventType: { (callback: (@escaping (EventType) -> Void)) -> Disposable in
             let key = generateKey()
             shared.lock()
 
