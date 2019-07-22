@@ -97,6 +97,20 @@ class FutureUtilitiesTests: FutureTest {
         }
     }
 
+    func testReplaceWithResultOnCurrentScheduler() {
+        let e = expectation(description: "value")
+        testFuture {
+            return Future<Int> { completion in
+                let bag = DisposeBag()
+                bag += {
+                    XCTAssertTrue(Thread.current.isMainThread)
+                    e.fulfill()
+                }
+                return bag
+            }.replace(with: .success(8), after: 0.5)
+        }
+    }
+
     func testReplaceWithResultNoTimeout() {
         let e = expectation(description: "value")
         testFuture(timeout: 1) {
