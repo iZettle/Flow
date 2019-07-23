@@ -98,7 +98,7 @@ class FutureUtilitiesTests: FutureTest {
     }
 
     func testReplaceWithResultOnCurrentScheduler() {
-        let e = expectation(description: "value")
+        let e = expectation(description: "initial future is disposed")
         testFuture {
             return Future<Int> { completion in
                 let bag = DisposeBag()
