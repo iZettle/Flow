@@ -42,9 +42,18 @@ public extension UIView {
 }
 
 public extension UITraitEnvironment {
-    /// Returns the current traitCollection or the screen's traitCollection if `self` has no window
+    /// Returns the current traitCollection.
+    ///
+    /// Prior iOS 13 (where the traitCollection is always available), there is a fallback if `self` has no window - it falls back to the app's key window traitCollection or if that's not available to the main screen's traitCollection.
     var traitCollectionWithFallback: UITraitCollection {
-        return hasWindowTraitCollection ?? UIScreen.main.traitCollection
+        guard #available (iOS 13, *) else {
+            switch self {
+            case let view as UIView where view.window != nil: return view.traitCollection
+            case let viewController as UIViewController where viewController.isViewLoaded && viewController.view?.window != nil: return viewController.traitCollection
+            default: return UIApplication.shared.keyWindow?.traitCollection ?? UIScreen.main.traitCollection
+            }
+        }
+        return self.traitCollection
     }
 }
 
@@ -83,16 +92,6 @@ public extension UIView {
     @available(*, deprecated, renamed: "allDescendantsSignal")
     var allSubviewsSignal: ReadSignal<[UIView]> {
         return allDescendantsSignal
-    }
-}
-
-private extension UITraitEnvironment {
-    var hasWindowTraitCollection: UITraitCollection? {
-        switch self {
-        case let view as UIView where view.window != nil: return view.traitCollection
-        case let viewController as UIViewController where viewController.isViewLoaded && viewController.view?.window != nil: return viewController.traitCollection
-        default: return nil
-        }
     }
 }
 
