@@ -10,6 +10,7 @@
 		215DEF311DEC365900CEB724 /* Recursive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215DEF301DEC365900CEB724 /* Recursive.swift */; };
 		215DEF371DEC368700CEB724 /* RecursiveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215DEF351DEC367E00CEB724 /* RecursiveTests.swift */; };
 		21E1D41C1D9502A300A91CA0 /* Future+Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21E1D41B1D9502A300A91CA0 /* Future+Signal.swift */; };
+		5B46DE3D22E9CC5E00E0A4D9 /* PrefetchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B46DE3B22E9CBFA00E0A4D9 /* PrefetchTests.swift */; };
 		5BE9055B3538F1DDAB424AD2 /* FutureAdditionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE90C011B621BC2F0B9C1B8 /* FutureAdditionsTests.swift */; };
 		7484FA6B212D9E930076FD3E /* Signal+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7484FA6A212D9E930076FD3E /* Signal+Debug.swift */; };
 		792AC15B227C8A6800F8BBAD /* SignalProviderTests+Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792AC15A227C8A6800F8BBAD /* SignalProviderTests+Internal.swift */; };
@@ -83,6 +84,7 @@
 		215DEF301DEC365900CEB724 /* Recursive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Recursive.swift; path = Flow/Recursive.swift; sourceTree = SOURCE_ROOT; };
 		215DEF351DEC367E00CEB724 /* RecursiveTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RecursiveTests.swift; path = FlowTests/RecursiveTests.swift; sourceTree = SOURCE_ROOT; };
 		21E1D41B1D9502A300A91CA0 /* Future+Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Future+Signal.swift"; path = "Flow/Future+Signal.swift"; sourceTree = SOURCE_ROOT; };
+		5B46DE3B22E9CBFA00E0A4D9 /* PrefetchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefetchTests.swift; sourceTree = "<group>"; };
 		5BE90C011B621BC2F0B9C1B8 /* FutureAdditionsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FutureAdditionsTests.swift; path = FlowTests/FutureAdditionsTests.swift; sourceTree = "<group>"; };
 		7484FA6A212D9E930076FD3E /* Signal+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Signal+Debug.swift"; path = "Flow/Signal+Debug.swift"; sourceTree = "<group>"; };
 		792AC15A227C8A6800F8BBAD /* SignalProviderTests+Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProviderTests+Internal.swift"; sourceTree = "<group>"; };
@@ -309,6 +311,7 @@
 				F6F679A220A966D1004C7AA7 /* EventListenerTests.swift */,
 				8E890194B06CBB3311E44757 /* EitherTests.swift */,
 				5BE90C011B621BC2F0B9C1B8 /* FutureAdditionsTests.swift */,
+				5B46DE3B22E9CBFA00E0A4D9 /* PrefetchTests.swift */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -517,6 +520,7 @@
 				792AC15B227C8A6800F8BBAD /* SignalProviderTests+Internal.swift in Sources */,
 				F6C0FED2202B44360076B877 /* DelegateTests.swift in Sources */,
 				F6F679A320A966D1004C7AA7 /* EventListenerTests.swift in Sources */,
+				5B46DE3D22E9CC5E00E0A4D9 /* PrefetchTests.swift in Sources */,
 				F610ABBD1D91747000A161AB /* FutureQueueTests.swift in Sources */,
 				F610ABC11D91747000A161AB /* FutureUtilitiesTests.swift in Sources */,
 				8E890FC106FB7A89BD1727CC /* EitherTests.swift in Sources */,

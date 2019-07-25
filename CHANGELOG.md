@@ -1,3 +1,7 @@
+# 1.8.3
+
+- Fix race conditions for iOS 13 for Signal and cleanup CallbackState<Value> 
+
 # 1.8.2
 
 - Fix the `traitCollectionWithFallback` behaviour on iOS 13 to return the view's predicted traits and prior iOS 13 to respect the key window's traits before falling back to the main screen traits.
