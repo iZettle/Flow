@@ -102,7 +102,7 @@ extension CoreSignal {
 
 /// Helper to implement the state to handle signal's initial recursion and exclusivity.
 private final class CallbackState<Value>: Disposable {
-    var callback: ((EventType<Value>) -> Void)?
+    let callback: ((EventType<Value>) -> Void)
     var shouldCallInitial = true
     var hasTerminated = false
     var getValue: (() -> Value)?
@@ -161,9 +161,6 @@ private final class CallbackState<Value>: Disposable {
 
     func handleEventExclusiveWithState(_ event: Event<Value>) {
         lock()
-        guard let callback = callback else { // Not already disposed?
-            return unlock()
-        }
 
         if shouldCallInitial {
             if case .end = event {
@@ -200,14 +197,6 @@ private final class CallbackState<Value>: Disposable {
             }
             shared.callAll(with: .event(event))
         } else {
-            lock()
-
-            guard let callback = callback else { // No already diposed?
-                return unlock()
-            }
-
-            unlock()
-
             callback(.event(event))
         }
 
@@ -217,9 +206,7 @@ private final class CallbackState<Value>: Disposable {
     }
 
     func runExclusiveWithState(onEvent: @escaping (@escaping (Event<Value>) -> Void) -> Disposable) -> Disposable {
-        guard let callback = callback else {
-            return NilDisposer()
-        }
+        lock()
         shared?.lock()
 
         let disposable: Disposable
@@ -229,7 +216,9 @@ private final class CallbackState<Value>: Disposable {
             shared?.firstCallback = (sharedKey, callback)
             shared?.unlock()
 
+            unlock()
             let onEventDisposable = onEvent(handleEventExclusiveWithState)
+            lock()
 
             if let shared = shared {
                 shared.lock()
