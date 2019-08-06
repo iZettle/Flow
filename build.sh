@@ -7,8 +7,8 @@ set -o pipefail
 PROJECT="Flow.xcodeproj"
 SCHEME="Flow"
 
-IOS_SDK="iphonesimulator12.2"
-IOS_DESTINATION="OS=12.2,name=iPhone 8"
+IOS_SDK="iphonesimulator13.0"
+IOS_DESTINATION="OS=13.0,name=iPhone 8"
 
 usage() {
 cat << EOF
