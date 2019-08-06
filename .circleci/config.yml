@@ -14,7 +14,7 @@ jobs:
 
   test-iOS:
     macos:
-      xcode: "10.2.0"
+      xcode: "11.0.0"
     steps:
       - checkout
       - run:
@@ -28,7 +28,7 @@ jobs:
 
   test-native:
     macos:
-      xcode: "10.2.0"
+      xcode: "11.0.0"
     steps:
       - checkout
       - run:
@@ -42,7 +42,7 @@ jobs:
 
   examples:
     macos:
-      xcode: "10.2.0"
+      xcode: "11.0.0"
     steps:
       - checkout
       - run:
