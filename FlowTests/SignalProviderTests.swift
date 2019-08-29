@@ -527,6 +527,40 @@ class SignalProviderTests: XCTestCase {
         }
     }
 
+    func testWithLatestFromPlainVoid() {
+        runTest(timeout: 10) { bag in
+            let a = ReadWriteSignal<Int>(0)
+            let b = ReadWriteSignal<Int>(0)
+            let c = a.plain().toVoid()
+
+            let expected = [1, 2, 2, 3, 3, 3]
+
+            var buffer = [Int]()
+
+            let signal = c.withLatestFrom(b)
+
+            let expectation = self.expectation(description: "Values should be emitted in order")
+            bag += signal.onValue { v in
+                buffer.append(v)
+
+                if buffer.count == expected.count {
+                    if buffer == expected { expectation.fulfill() }
+                }
+            }
+
+            a.value = 0
+            b.value = 1
+            a.value = 0
+            b.value = 2
+            a.value = 0
+            a.value = 0
+            b.value = 3
+            a.value = 0
+            a.value = 0
+            a.value = 0
+        }
+    }
+
     func testCombineLatestWith() {
         runTest(timeout: 10) { bag in
             let a = ReadWriteSignal<String>("")
