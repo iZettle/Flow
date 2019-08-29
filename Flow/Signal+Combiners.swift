@@ -51,6 +51,25 @@ public func merge<Signals: Sequence>(_ signals: Signals) -> CoreSignal<Signals.I
     })
 }
 
+/// Returns a new plain signal returning the values read from the second signal.
+///
+///     ----*------*------*-----*--|
+///         |      |      |     |
+///     a)------b------c-----------|
+///         |      |      |     |
+///     +--------------------------+
+///     | withLatestFrom()         |
+///     +--------------------------+
+///         |      |      |     |
+///     ----a------b------c-----c--|
+///
+/// - Note: Will terminate when any signal terminates with an error.
+public extension SignalProvider where Value == Void, Kind.DropWrite == Plain {
+    func withLatestFrom<S: SignalProvider>(_ other: S) -> CoreSignal<Plain, S.Value> where S.Kind.DropWrite == Read {
+        return withLatestFrom(other.plain()).map { $1 }
+    }
+}
+
 /// Returns a new signal combining each value from self with the latest value from the second signal.
 ///
 ///     a)---------b------c-----d--|
