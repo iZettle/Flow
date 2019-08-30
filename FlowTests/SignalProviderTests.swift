@@ -531,13 +531,12 @@ class SignalProviderTests: XCTestCase {
         runTest(timeout: 10) { bag in
             let a = ReadWriteSignal<Int>(0)
             let b = ReadWriteSignal<Int>(0)
-            let c = a.plain().toVoid()
 
-            let expected = [1, 2, 2, 3, 3, 3]
+            let expected = [0, 1, 2, 2, 3, 3, 3]
 
             var buffer = [Int]()
 
-            let signal = c.withLatestFrom(b)
+            let signal = a.plain().toVoid().withLatestFrom(b)
 
             let expectation = self.expectation(description: "Values should be emitted in order")
             bag += signal.onValue { v in
@@ -557,6 +556,59 @@ class SignalProviderTests: XCTestCase {
             b.value = 3
             a.value = 0
             a.value = 0
+            a.value = 0
+        }
+    }
+
+    func testWithLatestFromPlainVoidMany() {
+        runTest(timeout: 10) { bag in
+            let a = ReadWriteSignal<Int>(0)
+            let b = ReadWriteSignal<Int>(0)
+            let c = ReadWriteSignal<Int>(0)
+            let d = ReadWriteSignal<Int>(0)
+            let e = ReadWriteSignal<Int>(0)
+            let f = ReadWriteSignal<Int>(0)
+            let g = ReadWriteSignal<Int>(0)
+
+            let expected = [(0, 0, 0, 0, 0, 0), (1, 0, 1, 0, 1, 0), (0, 1, 0, 1, 0, 1), (1, 1, 1, 1, 1, 1)]
+
+            var buffer = [(Int, Int, Int, Int, Int, Int)]()
+
+            let signal = a.plain().toVoid().withLatestFrom(b, c, d, e, f, g)
+
+            let expectation = self.expectation(description: "Values should be emitted in order")
+            bag += signal.onValue { v in
+                buffer.append(v)
+
+                if buffer.count == expected.count {
+                    var equal = true
+                    for (index, element) in expected.enumerated() {
+                        let t = buffer[index]
+                        if t.0 != element.0 || t.1 != element.1 || t.2 != element.2 ||
+                            t.3 != element.3 || t.4 != element.4 || t.5 != element.5 {
+                            equal = false
+                        }
+                    }
+
+                    if equal { expectation.fulfill() }
+                }
+            }
+
+            a.value = 0
+            b.value = 1
+            d.value = 1
+            f.value = 1
+            a.value = 0
+            b.value = 0
+            c.value = 1
+            d.value = 0
+            e.value = 1
+            f.value = 0
+            g.value = 1
+            a.value = 0
+            b.value = 1
+            d.value = 1
+            f.value = 1
             a.value = 0
         }
     }
