@@ -581,15 +581,7 @@ class SignalProviderTests: XCTestCase {
                 buffer.append(v)
 
                 if buffer.count == expected.count {
-                    var equal = true
-                    for (index, element) in expected.enumerated() {
-                        let t = buffer[index]
-                        if t.0 != element.0 || t.1 != element.1 || t.2 != element.2 ||
-                            t.3 != element.3 || t.4 != element.4 || t.5 != element.5 {
-                            equal = false
-                        }
-                    }
-
+                    let equal = buffer.enumerated().allSatisfy { $0.element == expected[$0.offset] }
                     if equal { expectation.fulfill() }
                 }
             }
