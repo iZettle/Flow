@@ -164,6 +164,19 @@ public extension SignalProvider {
         })
     }
 
+    /// Returns a new signal emitting the latest values when the given "driver signal" fires.
+    ///
+    ///     a)------b------c-----------|
+    ///     |       |      |
+    ///     ----*------*------*-----*--|
+    ///         |      |      |     |
+    ///     +--------------------------+
+    ///     | driven(by:)              |
+    ///     +--------------------------+
+    ///         |      |      |     |
+    ///     a)--a------b------c-----c--|
+    ///
+    /// - Note: Will terminate when any signal terminates with an error.
     func driven<S: SignalProvider>(by other: S) -> CoreSignal<S.Kind.DropWrite, Value> {
         let signal = providedSignal
         let otherSignal = other.providedSignal
