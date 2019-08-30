@@ -51,6 +51,8 @@ public func merge<Signals: Sequence>(_ signals: Signals) -> CoreSignal<Signals.I
     })
 }
 
+// swiftlint:disable identifier_name
+
 public extension SignalProvider where Value == Void, Kind == Plain {
     /// Returns a new readable signal returning the latest values from the second signal.
     ///
@@ -105,6 +107,8 @@ public extension SignalProvider where Value == Void, Kind == Plain {
             return readable().withLatestFrom(combineLatest(a, b, c, d, e, f)).map { $1 }
     }
 }
+
+// swiftlint:enable identifier_name
 
 public extension SignalProvider {
     /// Returns a new signal combining each value from self with the latest value from the second signal.
