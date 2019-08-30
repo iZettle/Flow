@@ -164,6 +164,46 @@ public extension SignalProvider {
         })
     }
 
+    func driven<S: SignalProvider>(by other: S) -> CoreSignal<S.Kind.DropWrite, Value> {
+        let signal = providedSignal
+        let otherSignal = other.providedSignal
+        return CoreSignal(onEventType: { callback in
+            let state = StateAndCallback(state: Self.Value?.none, callback: callback)
+
+            state += signal.onEventType { eventType in
+                switch eventType {
+                case .initial(nil):
+                    break
+                case .initial(let val?):
+                    state.protectedVal = val
+                case .event(.value(let val)):
+                    state.protectedVal = val
+                case .event(.end(let error)):
+                    return state.call(.event(.end(error)))
+                }
+            }
+
+            state += otherSignal.onEventType { eventType in
+                switch eventType {
+                case .initial(nil):
+                    state.call(.initial(nil))
+                case .initial:
+                    if let otherValue = state.protectedVal {
+                        state.call(.initial(otherValue))
+                    }
+                case .event(.value):
+                    if let otherValue = state.protectedVal {
+                        state.call(.event(.value(otherValue)))
+                    }
+                case .event(.end(let error)):
+                    state.call(.event(.end(error)))
+                }
+            }
+
+            return state
+        })
+    }
+
     /// Returns a new signal combining the latest value of `self` with the provided `object` up until `object` gets deallocated.
     /// This is a convenience helper for breaking retain cycles in situations such as:
     ///
