@@ -51,39 +51,75 @@ public func merge<Signals: Sequence>(_ signals: Signals) -> CoreSignal<Signals.I
     })
 }
 
-/// Returns a new plain signal returning the values read from the second signal.
-///
-///     ----*------*------*-----*--|
-///         |      |      |     |
-///     a)------b------c-----------|
-///         |      |      |     |
-///     +--------------------------+
-///     | withLatestFrom()         |
-///     +--------------------------+
-///         |      |      |     |
-///     ----a------b------c-----c--|
-///
-/// - Note: Will terminate when any signal terminates with an error.
-public extension SignalProvider where Value == Void, Kind.DropWrite == Plain {
-    func withLatestFrom<S: SignalProvider>(_ other: S) -> CoreSignal<Plain, S.Value> where S.Kind.DropWrite == Read {
-        return withLatestFrom(other.plain()).map { $1 }
+public extension SignalProvider where Value == Void, Kind == Plain {
+    /// Returns a new readable signal returning the latest values from the second signal.
+    ///
+    ///     ----*------*------*-----*--|
+    ///         |      |      |     |
+    ///     a)------b------c-----------|
+    ///         |      |      |     |
+    ///     +--------------------------+
+    ///     | withLatestFrom()         |
+    ///     +--------------------------+
+    ///         |      |      |     |
+    ///     ----a------b------c-----c--|
+    ///
+    /// - Note: Will terminate when any signal terminates with an error.
+    func withLatestFrom<S: SignalProvider>(_ other: S) -> CoreSignal<Read, S.Value>
+        where S.Kind.DropWrite == Read {
+        return readable().withLatestFrom(other).map { $1 }
+    }
+
+    /// Returns a new readable signal returning the latest values from the given signals.
+    /// - Note: See `withLatestFrom(_:)` for more info.
+    func withLatestFrom<A: SignalProvider, B: SignalProvider>(_ a: A, _ b: B) -> CoreSignal<Read, (A.Value, B.Value)>
+        where A.Kind.DropWrite == Read, B.Kind.DropWrite == Read {
+        return readable().withLatestFrom(combineLatest(a, b)).map { $1 }
+    }
+
+    /// Returns a new readable signal returning the latest values from the given signals.
+    /// - Note: See `withLatestFrom(_:)` for more info.
+    func withLatestFrom<A: SignalProvider, B: SignalProvider, C: SignalProvider>(_ a: A, _ b: B, _ c: C) -> CoreSignal<Read, (A.Value, B.Value, C.Value)>
+        where A.Kind.DropWrite == Read, B.Kind.DropWrite == Read, C.Kind.DropWrite == Read {
+            return readable().withLatestFrom(combineLatest(a, b, c)).map { $1 }
+    }
+
+    /// Returns a new readable signal returning the latest values from the given signals.
+    /// - Note: See `withLatestFrom(_:)` for more info.
+    func withLatestFrom<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D) -> CoreSignal<Read, (A.Value, B.Value, C.Value, D.Value)>
+        where A.Kind.DropWrite == Read, B.Kind.DropWrite == Read, C.Kind.DropWrite == Read, D.Kind.DropWrite == Read {
+            return readable().withLatestFrom(combineLatest(a, b, c, d)).map { $1 }
+    }
+
+    /// Returns a new readable signal returning the latest values from the given signals.
+    /// - Note: See `withLatestFrom(_:)` for more info.
+    func withLatestFrom<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> CoreSignal<Read, (A.Value, B.Value, C.Value, D.Value, E.Value)>
+        where A.Kind.DropWrite == Read, B.Kind.DropWrite == Read, C.Kind.DropWrite == Read, D.Kind.DropWrite == Read, E.Kind.DropWrite == Read {
+            return readable().withLatestFrom(combineLatest(a, b, c, d, e)).map { $1 }
+    }
+
+    /// Returns a new readable signal returning the latest values from the given signals.
+    /// - Note: See `withLatestFrom(_:)` for more info.
+    func withLatestFrom<A: SignalProvider, B: SignalProvider, C: SignalProvider, D: SignalProvider, E: SignalProvider, F: SignalProvider>(_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> CoreSignal<Read, (A.Value, B.Value, C.Value, D.Value, E.Value, F.Value)>
+        where A.Kind.DropWrite == Read, B.Kind.DropWrite == Read, C.Kind.DropWrite == Read, D.Kind.DropWrite == Read, E.Kind.DropWrite == Read, F.Kind.DropWrite == Read {
+            return readable().withLatestFrom(combineLatest(a, b, c, d, e, f)).map { $1 }
     }
 }
 
-/// Returns a new signal combining each value from self with the latest value from the second signal.
-///
-///     a)---------b------c-----d--|
-///                |      |     |
-///     0)------1------2-----------|
-///             |      |
-///     +--------------------------+
-///     | withLatestFrom()         |
-///     +--------------------------+
-///                |      |     |
-///     (a,0))---(b,1)--(c,2)-(d,2)|
-///
-/// - Note: Will terminate when any signal terminates with an error.
 public extension SignalProvider {
+    /// Returns a new signal combining each value from self with the latest value from the second signal.
+    ///
+    ///     a)---------b------c-----d--|
+    ///                |      |     |
+    ///     0)------1------2-----------|
+    ///             |      |
+    ///     +--------------------------+
+    ///     | withLatestFrom()         |
+    ///     +--------------------------+
+    ///                |      |     |
+    ///     (a,0))---(b,1)--(c,2)-(d,2)|
+    ///
+    /// - Note: Will terminate when any signal terminates with an error.
     func withLatestFrom<S: SignalProvider>(_ other: S) -> CoreSignal<Kind.DropWrite, (Value, S.Value)> where Kind.DropWrite == S.Kind.DropWrite {
         let signal = providedSignal
         let otherSignal = other.providedSignal
