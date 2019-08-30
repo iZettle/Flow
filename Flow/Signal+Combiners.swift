@@ -64,7 +64,7 @@ public extension SignalProvider where Value == Void, Kind == Plain {
     ///     | withLatestFrom()         |
     ///     +--------------------------+
     ///         |      |      |     |
-    ///     ----a------b------c-----c--|
+    ///     a)--a------b------c-----c--|
     ///
     /// - Note: Will terminate when any signal terminates with an error.
     func withLatestFrom<S: SignalProvider>(_ other: S) -> CoreSignal<Read, S.Value>
