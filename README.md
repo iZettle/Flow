@@ -96,7 +96,7 @@ class LoginController: UIViewController {
   let cancelButton: UIBarButtonItem
 
   var enableLogin: ReadSignal<Bool> { // Introduced above }
-  func login() -> Future<User> { // Introduced above }
+  func login(email: String, password: String) -> Future<User> { // Introduced above }
   func showSpinnerOverlay() -> Disposable { // Introduced above }
 
   // Returns future that completes with true if user chose to retry
@@ -110,20 +110,22 @@ class LoginController: UIViewController {
       // Make sure to signal at once to set up initial enabled state
       bag += self.enableLogin.atOnce().bindTo(self.loginButton, \.isEnabled)  
 
-      // If button is tapped, initiate potentially long running login request
-      bag += self.loginButton.onValue {
-        self.login()
-          .performWhile {
-            // Show spinner during login request
-            self.showSpinnerOverlay()
-          }.onErrorRepeat { error in
-            // If login fails with an error show an alert...
-            // ...and retry the login request if the user chose to
-            self.showRetryAlert(for: error)
-          }.onValue { user in
-            // If login is successful, complete runLogin() with the user
-            completion(.success(user))
-          }
+      // If button is tapped, initiate potentially long running login request using input
+      bag += self.loginButton
+        .withLatestFrom(emailField, passwordField)
+        .onValue { (email, password) in
+          self.login(email: email, password: password)
+            .performWhile {
+              // Show spinner during login request
+              self.showSpinnerOverlay()
+            }.onErrorRepeat { error in
+              // If login fails with an error show an alert...
+              // ...and retry the login request if the user chose to
+              self.showRetryAlert(for: error)
+            }.onValue { user in
+              // If login is successful, complete runLogin() with the user
+              completion(.success(user))
+        }
       }
 
       // If cancel is tapped, complete runLogin() with an error
