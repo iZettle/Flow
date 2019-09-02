@@ -11,12 +11,13 @@ import Flow
 
 class MemoryUtilsTests: XCTestCase {
     func testDeallocSignal() {
+        final class Foo {}
         var object: Foo? = Foo()
 
         let bag = DisposeBag()
         let expectation = self.expectation(description: "object deallocated")
 
-        bag += object?.deallocSignal.onValue { _ in
+        bag += Flow.deallocSignal(for: object!).onValue {
             expectation.fulfill()
         }
 
@@ -33,7 +34,7 @@ class MemoryUtilsTests: XCTestCase {
         let bag = DisposeBag()
         let expectation = self.expectation(description: "object deallocated")
 
-        bag += object?.deallocSignal.onValue { _ in
+        bag += object!.deallocSignal.onValue {
             expectation.fulfill()
         }
 
@@ -44,14 +45,5 @@ class MemoryUtilsTests: XCTestCase {
         waitForExpectations(timeout: 10) { _ in
             bag.dispose()
         }
-    }
-}
-
-private final class Foo: NSObject {
-    var foo: Foo? // To create retain cycle
-
-    init(withRetainCycle: Bool = false) {
-        super.init()
-        foo = withRetainCycle ? self: nil
     }
 }
