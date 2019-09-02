@@ -1,7 +1,7 @@
 # 1.8.3
 
 - Fix race conditions for iOS 13 for Signal and cleanup CallbackState<Value> 
-- Add convenience wrappers to the combiner `withLatestFrom`, overriding the behavior for plain `Void` signals. The combiner will work for readable, non-`Void` input signals, and returns those latest values (in tuples, if there are more than one input signals).
+- Add new combiner `driven(by:)` that makes a `ReadSignal` emit its latest readable values when the given "driver" signal fires events. The combined signal will derive its signal kind from the driver, but without write access.
 
 # 1.8.2
 
