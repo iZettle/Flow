@@ -4,6 +4,7 @@ xcuserdata
 *.mode1v3
 .DS_Store
 *.xccheckout
+.build
 
 # ignore all Carthage output
 Carthage/
