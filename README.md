@@ -118,20 +118,20 @@ class LoginController: UIViewController {
       let bag = DisposeBag() // Collect resources to keep alive while executing
 
       // Make sure to signal at once to set up initial enabled state
-      bag += self.enableLogin.atOnce().bindTo(self.loginButton, \.isEnabled)  
+      bag += enableLogin.atOnce().bindTo(loginButton, \.isEnabled)  
 
       // If button is tapped, initiate potentially long running login request using input
-      bag += self.loginButton
-        .withLatestFrom(emailField, passwordField)
+      bag += combineLatest(emailField, passwordField)
+        .drivenBy(loginButton)
         .onValue { email, password in
-          self.login(email: email, password: password)
+          login(email: email, password: password)
             .performWhile {
               // Show spinner during login request
-              self.showSpinnerOverlay()
+              showSpinnerOverlay()
             }.onErrorRepeat { error in
               // If login fails with an error show an alert...
               // ...and retry the login request if the user chooses to
-              self.showRetryAlert(for: error)
+              showRetryAlert(for: error)
             }.onValue { user in
               // If login is successful, complete runLogin() with the user
               completion(.success(user))
@@ -139,7 +139,7 @@ class LoginController: UIViewController {
       }
 
       // If cancel is tapped, complete runLogin() with an error
-      bag += self.cancelButton.onValue {
+      bag += cancelButton.onValue {
         completion(.failure(LoginError.dismissed))
       }
 
