@@ -25,7 +25,7 @@ Flow was carefully designed to be:
 
 ## Example usage
 
-In flow the `Disposable` protocol is used for lifetime management:
+In Flow the `Disposable` protocol is used for lifetime management:
 
 ```swift
 extension UIView {
@@ -40,19 +40,29 @@ extension UIView {
 
 let disposable = view.showSpinnerOverlay()
 
-disposable.dispose() // Hide spinner
+disposable.dispose() // Remove spinner
 ```
 
-And the `Signal<T>` type is used for event handling:
+`Disposable` resources can be collected in a common `DisposeBag`:
+```swift
+let bag = DisposeBag() // Collects resources to be disposed together
+
+bag += showSpinnerOverlay()
+bag += showLoadingText()
+
+bag.dispose() // Will dispose all held resources
+```
+
+And the `Signal<T>` type is used for event handling. Signals are provided by standard UI components:
 
 ```swift
-let bag = DisposeBag() // Bag of disposables
+let bag = DisposeBag()
 
 // UIButton provides a Signal<()>
 let loginButton = UIButton(...)
 
 bag += loginButton.onValue {
-  // Log in user if tapped
+  // Log in user when tapped
 }
 
 // UITextField provides a ReadSignal<String>
@@ -60,10 +70,10 @@ let emailField = UITextField(...)
 let passwordField = UITextField(...)
 
 // Combine and transform signals
-let enableLogin = combineLatest(emailField, passwordField)
+let enableLogin: ReadSignal<Bool> = combineLatest(emailField, passwordField)
   .map { email, password in
     email.isValidEmail && password.isValidPassword
-  } // -> ReadSignal<Bool>
+  }
 
 // Use bindings and key-paths to update your UI on changes
 bag += enableLogin.bindTo(loginButton, \.isEnabled)
@@ -95,39 +105,41 @@ class LoginController: UIViewController {
   let loginButton: UIButton
   let cancelButton: UIBarButtonItem
 
-  var enableLogin: ReadSignal<Bool> { // Introduced above }
-  func login() -> Future<User> { // Introduced above }
-  func showSpinnerOverlay() -> Disposable { // Introduced above }
+  var enableLogin: ReadSignal<Bool> { /* Introduced above */ }
+  func login(email: String, password: String) -> Future<User> { /* Introduced above */ }
+  func showSpinnerOverlay() -> Disposable { /* Introduced above */ }
 
   // Returns future that completes with true if user chose to retry
   func showRetryAlert(for error: Error) -> Future<Bool> { ... }
 
   // Will setup UI observers and return a future completing after a successful login
   func runLogin() -> Future<User> {
-    return Future { completion in // Completion to call with the result  
-      let bag = DisposeBag() // Resources to keep alive while executing
+    return Future { completion in // Complete the future by calling this with your value
+      let bag = DisposeBag() // Collect resources to keep alive while executing
 
       // Make sure to signal at once to set up initial enabled state
-      bag += self.enableLogin.atOnce().bindTo(self.loginButton, \.isEnabled)  
+      bag += enableLogin.atOnce().bindTo(loginButton, \.isEnabled)  
 
-      // If button is tapped, initiate potentially long running login request
-      bag += self.loginButton.onValue {
-        self.login()
-          .performWhile {
-            // Show spinner during login request
-            self.showSpinnerOverlay()
-          }.onErrorRepeat { error in
-            // If login fails with an error show an alert...
-            // ...and retry the login request if the user chose to
-            self.showRetryAlert(for: error)
-          }.onValue { user in
-            // If login is successful, complete runLogin() with the user
-            completion(.success(user))
-          }
+      // If button is tapped, initiate potentially long running login request using input
+      bag += combineLatest(emailField, passwordField)
+        .drivenBy(loginButton)
+        .onValue { email, password in
+          login(email: email, password: password)
+            .performWhile {
+              // Show spinner during login request
+              showSpinnerOverlay()
+            }.onErrorRepeat { error in
+              // If login fails with an error show an alert...
+              // ...and retry the login request if the user chooses to
+              showRetryAlert(for: error)
+            }.onValue { user in
+              // If login is successful, complete runLogin() with the user
+              completion(.success(user))
+        }
       }
 
       // If cancel is tapped, complete runLogin() with an error
-      bag += self.cancelButton.onValue {
+      bag += cancelButton.onValue {
         completion(.failure(LoginError.dismissed))
       }
 

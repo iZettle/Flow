@@ -51,20 +51,20 @@ public func merge<Signals: Sequence>(_ signals: Signals) -> CoreSignal<Signals.I
     })
 }
 
-/// Returns a new signal combining each value from self with the latest value from the second signal.
-///
-///     a)---------b------c-----d--|
-///                |      |     |
-///     0)------1------2-----------|
-///             |      |
-///     +--------------------------+
-///     | withLatestFrom()         |
-///     +--------------------------+
-///                |      |     |
-///     (a,0))---(b,1)--(c,2)-(d,2)|
-///
-/// - Note: Will terminate when any signal terminates with an error.
 public extension SignalProvider {
+    /// Returns a new signal combining each value from self with the latest value from the second signal.
+    ///
+    ///     a)---------b------c-----d--|
+    ///                |      |     |
+    ///     0)------1------2-----------|
+    ///             |      |
+    ///     +--------------------------+
+    ///     | withLatestFrom()         |
+    ///     +--------------------------+
+    ///                |      |     |
+    ///     (a,0))---(b,1)--(c,2)-(d,2)|
+    ///
+    /// - Note: Will terminate when any signal terminates with an error.
     func withLatestFrom<S: SignalProvider>(_ other: S) -> CoreSignal<Kind.DropWrite, (Value, S.Value)> where Kind.DropWrite == S.Kind.DropWrite {
         let signal = providedSignal
         let otherSignal = other.providedSignal
@@ -95,6 +95,59 @@ public extension SignalProvider {
                 case .event(.value(let val)):
                     if let otherValue = state.protectedVal {
                         state.call(.event(.value((val, otherValue))))
+                    }
+                case .event(.end(let error)):
+                    state.call(.event(.end(error)))
+                }
+            }
+
+            return state
+        })
+    }
+
+    /// Returns a new signal emitting the latest values when the given "driver signal" fires.
+    ///
+    ///     a)------b------c-----------|
+    ///     |       |      |
+    ///     ----*------*------*-----*--|
+    ///         |      |      |     |
+    ///     +--------------------------+
+    ///     | driven(by:)              |
+    ///     +--------------------------+
+    ///         |      |      |     |
+    ///     a)--a------b------c-----c--|
+    ///
+    /// - Note: Will terminate when any signal terminates with an error.
+    func driven<S: SignalProvider>(by other: S) -> CoreSignal<S.Kind.DropWrite, Value> {
+        let signal = providedSignal
+        let otherSignal = other.providedSignal
+        return CoreSignal(onEventType: { callback in
+            let state = StateAndCallback(state: Self.Value?.none, callback: callback)
+
+            state += signal.onEventType { eventType in
+                switch eventType {
+                case .initial(nil):
+                    break
+                case .initial(let val?):
+                    state.protectedVal = val
+                case .event(.value(let val)):
+                    state.protectedVal = val
+                case .event(.end(let error)):
+                    return state.call(.event(.end(error)))
+                }
+            }
+
+            state += otherSignal.onEventType { eventType in
+                switch eventType {
+                case .initial(nil):
+                    state.call(.initial(nil))
+                case .initial:
+                    if let otherValue = state.protectedVal {
+                        state.call(.initial(otherValue))
+                    }
+                case .event(.value):
+                    if let otherValue = state.protectedVal {
+                        state.call(.event(.value(otherValue)))
                     }
                 case .event(.end(let error)):
                     state.call(.event(.end(error)))

@@ -527,6 +527,71 @@ class SignalProviderTests: XCTestCase {
         }
     }
 
+    func testDrivenByPlainVoid() {
+        runTest(timeout: 10) { bag in
+            let a = ReadWriteSignal<Int>(0)
+            let b = ReadWriteSignal<Int>(0)
+
+            let expected = [0, 1, 2, 2, 3, 3, 3]
+
+            var buffer = [Int]()
+
+            let driver = b.plain().toVoid()
+            let signal = a.driven(by: driver)
+
+            let expectation = self.expectation(description: "Values should be emitted in order")
+            bag += signal.onValue { v in
+                buffer.append(v)
+
+                if buffer.count == expected.count {
+                    if buffer == expected { expectation.fulfill() }
+                }
+            }
+
+            b.value = 0
+            a.value = 1
+            b.value = 0
+            a.value = 2
+            b.value = 0
+            b.value = 0
+            a.value = 3
+            b.value = 0
+            b.value = 0
+            b.value = 0
+        }
+    }
+
+    func testDrivenByReadable() {
+        runTest(timeout: 10) { bag in
+            let a = ReadWriteSignal<Int>(0)
+            let b = ReadWriteSignal<Int>(0)
+
+            let signal = a.driven(by: b)
+
+            XCTAssertEqual(signal.value, a.value, "Initial value of driven signal is incorrect.")
+            let expectation = self.expectation(description: "Read value of driven signal must correspond with source.")
+
+            let expected = [0, 1, 2, 3, 4, 5]
+
+            var buffer = [Int]()
+
+            var correct = true
+            bag += signal.onValue { v in
+                buffer.append(v)
+                correct = signal.value == a.value
+
+                if buffer.count == expected.count {
+                    if correct { expectation.fulfill() }
+                }
+            }
+
+            for value in expected {
+                a.value = value
+                b.value = 0
+            }
+        }
+    }
+
     func testCombineLatestWith() {
         runTest(timeout: 10) { bag in
             let a = ReadWriteSignal<String>("")
