@@ -24,26 +24,29 @@ class LoginController: UIViewController {
     let loginButton: UIButton
     let cancelButton: UIBarButtonItem
 
+    // Will setup UI observers and return a future completing after a successful login
     func runLogin() -> Future<User> {
-        return Future { completion in // Completion to call with the result  
-            let bag = DisposeBag() // Resources to keep alive while executing 
+        return Future { completion in // Complete the future by calling this with your value
+            let bag = DisposeBag() // Collect resources to keep alive while executing
 
             // Make sure to signal at once to set up initial enabled state
             bag += self.enableLogin.atOnce().bindTo(self.loginButton, \.isEnabled)
 
-            // If button is tapped, initiate potentially long running login request
-            bag += self.loginButton.onValue {
-                self.login()
-                    .performWhile {
-                        // Show spinner during login request
-                        self.showSpinnerOverlay()
-                    }.onErrorRepeat { error in
-                        // If login fails with an error show an alert...
-                        // ...and retry the login request if the user chose to
-                        self.showRetryAlert(for: error)
-                    }.onValue { user in
-                        // If login is successful, complete runLogin() with the user
-                        completion(.success(user))
+            // If button is tapped, initiate potentially long running login request using input
+            bag += combineLatest(self.emailField, self.passwordField)
+                .driven(by: self.loginButton)
+                .onValue { email, password in
+                    self.login(email: email, password: password)
+                        .performWhile {
+                            // Show spinner during login request
+                            self.showSpinnerOverlay()
+                        }.onErrorRepeat { error in
+                            // If login fails with an error show an alert...
+                            // ...and retry the login request if the user chooses to
+                            self.showRetryAlert(for: error)
+                        }.onValue { user in
+                            // If login is successful, complete runLogin() with the user
+                            completion(.success(user))
                     }
             }
 
@@ -63,9 +66,8 @@ class LoginController: UIViewController {
             }
     }
 
-    func login() -> Future<User> {
+    func login(email: String, password: String) -> Future<User> {
         return Future {
-            let email = self.emailField.text ?? ""
             guard email.hasPrefix("valid") else {
                 throw LoginError.invalidUser
             }
