@@ -73,7 +73,7 @@ public extension Scheduler {
     func sync<T>(execute work: () throws -> T) throws -> T {
         return try sync {
             Result { try work() }
-        }.getValue()
+        }.get()
     }
 
     /// Will asynchronously schedule `work` on `self` after `delay` seconds
