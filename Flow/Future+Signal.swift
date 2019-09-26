@@ -56,7 +56,7 @@ public extension Future {
 
     /// Returns a signal that at the completion of `self` will signal the success value, unless a failure where the signal will be terminated with that failure error.
     var valueSignal: FiniteSignal<Value> {
-        return resultSignal.map { try $0.getValue() }
+        return resultSignal.map { try $0.get() }
     }
 
     /// Returns a signal that at the completion of `self` will signal the success value and thereafter terminate the signal, unless a failure where the signal will be terminated with that failure error.

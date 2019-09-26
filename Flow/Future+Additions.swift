@@ -152,7 +152,7 @@ public extension Future {
     @discardableResult
     func onResultPassItThrough<O>(on scheduler: Scheduler = .current, _ callback: @escaping (Result<Value>) throws -> Future<O>) -> Future {
         return flatMapResult(on: scheduler) { result in
-            try callback(result).map { _ in try result.getValue() }
+            try callback(result).map { _ in try result.get() }
         }
     }
 

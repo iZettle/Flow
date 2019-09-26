@@ -8,7 +8,7 @@ PROJECT="Flow.xcodeproj"
 SCHEME="Flow"
 
 IOS_SDK="${IOS_SDK:-"iphonesimulator13.0"}"
-IOS_DESTINATION_PHONE="${IOS_DESTINATION_PHONE:-"OS=13.0,name=iPhone Xs"}"
+IOS_DESTINATION_PHONE="${IOS_DESTINATION_PHONE:-"OS=13.0,name=iPhone 11"}"
 
 usage() {
 cat << EOF
