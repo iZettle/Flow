@@ -1,6 +1,10 @@
+# 2.0.0
+
+- Remove custom Result type in favour of `Swift.Result`
+
 # 1.8.3
 
-- Fix race conditions for iOS 13 for Signal and cleanup CallbackState<Value> 
+- Fix race conditions for iOS 13 for Signal and cleanup CallbackState<Value>
 - Add new combiner `driven(by:)` that makes a `ReadSignal` emit its latest readable values when the given "driver" signal fires events. The combined signal will derive its signal kind from the driver, but without write access.
 
 # 1.8.2
