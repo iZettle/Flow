@@ -88,11 +88,6 @@ public extension UIView {
             return bag
         }
     }
-
-    @available(*, deprecated, renamed: "allDescendantsSignal")
-    var allSubviewsSignal: ReadSignal<[UIView]> {
-        return allDescendantsSignal
-    }
 }
 
 private extension UIView {
