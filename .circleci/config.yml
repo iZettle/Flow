@@ -1,89 +1,148 @@
-version: 2
+%YAML 1.2
+---
+
+version: 2.1
+
+anchors: 
+  - &test_device "iPhone Xs"
+  - &clean_before_build true
+  - &test_output_folder test_output
+  - &default_executor
+    macos:
+      xcode: "11.0.0"
 
 env:
   global:
     - LC_CTYPE=en_US.UTF-8
     - LANG=en_US.UTF-8
+
+commands:
+  fetch-pod-specs:
+    steps:
+      - run:
+          name: Fetch CocoaPods Specs
+          command: |
+            curl https://cocoapods-specs.circleci.com/fetch-cocoapods-repo-from-s3.sh | bash -s cf
+
+  pod-install:
+    parameters:
+      path:
+        type: string
+    steps:
+      - fetch-pod-specs # Fetch the podspec repo changes first to be sure to always get the latest pods
+      - run:
+          command: | 
+            cd <<parameters.path>>
+            pod install --verbose
+
+  test_main_project:
+    steps:
+      - checkout
+      - test_project_and_store_results:
+          project: "Flow.xcodeproj"
+          scheme: "Flow"
+
+  test_example_project:
+    parameters:
+      path: # We need to pass a path here because the example projects are in a sub folder of the project
+        type: string
+    steps:
+      - checkout
+      - pod-install:
+          path: <<parameters.path>>
+      - test_workspace_and_store_results:
+          workspace: "Example.xcworkspace"
+          scheme: "Example"
+          path: <<parameters.path>>
+          test_output_folder: *test_output_folder
+
+  # We introduced two separate commands for projects and workspaces because we didnt find a generic and non-confusing way to introduce 
+  # a condition to only pass either the project or the workspace environment argument to the fastlane scan
+  test_project_and_store_results:
+    description: "Builds and tests a project and then stores the results of the tests as artifacts and test results report"
+    parameters:
+      project:
+        type: string
+      scheme:
+        type: string
+    steps:
+      - run:
+          command: fastlane scan
+          environment:
+              SCAN_PROJECT: <<parameters.project>>
+              SCAN_SCHEME: <<parameters.scheme>>
+              SCAN_DEVICE: *test_device
+              SCAN_CLEAN: *clean_before_build
+      - store_artifacts: # This will by default store an html and junit file as artifacts (See "Artifacts" tab in CircleCI report)
+          path: *test_output_folder # test_output is the default temporary folder for fastlane scan output
+          destination: *test_output_folder # This will create a sub structure in the artifacts section in CircleCI
+      - store_test_results: # This will store the test results so you can then see them in the "Test Summary" tab in CircleCI report
+          path: *test_output_folder
+
+  test_workspace_and_store_results:
+    description: "Builds and tests a workspace and then stores the results of the tests as artifacts and test results report"
+    parameters:
+      workspace:
+        type: string
+      scheme:
+        type: string
+      path:
+        type: string
+      test_output_folder:
+        type: string
+    steps:
+      - run:
+          command:  |
+            cd <<parameters.path>>
+            fastlane scan
+          environment:
+              SCAN_WORKSPACE: <<parameters.workspace>>
+              SCAN_SCHEME: <<parameters.scheme>>
+              SCAN_DEVICE: *test_device
+              SCAN_CLEAN: *clean_before_build
+      - store_artifacts: # This will by default store an html and junit file as artifacts (See "Artifacts" tab in CircleCI report)
+          path: <<parameters.path>>/<<parameters.test_output_folder>> # test_output is the default temporary folder for fastlane scan output
+          destination: <<parameters.test_output_folder>> # This will create a sub structure in the artifacts section in CircleCI
+      - store_test_results: # This will store the test results so you can then see them in the "Test Summary" tab in CircleCI report
+          path: <<parameters.path>>/<<parameters.test_output_folder>>
+
 jobs:
-  swiftlint:
-    docker:
-      - image: dantoml/swiftlint:latest
-    steps:
-      - checkout
-      - run: swiftlint --strict
-
-  test-iOS:
-    macos:
-      xcode: "11.0.0"
+  swiftlint: # This is a job and not a command to be able to add it as a work flow step
+    <<: *default_executor
     steps:
       - checkout
       - run:
-          name: test iOS
+          name: Install swiftlint(0.35.0)
           command: |
-            set -o pipefail
-            xcodebuild -version
-            xcodebuild -showsdks
-            swift -version
-            sh build.sh test-iOS
+            brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/ab64b13d26a3f8617689e3bc7e73a209d11f1bc8/Formula/swiftlint.rb
+      - run: swiftlint version && swiftlint --strict --reporter html > swiftlint.html
+      - store_artifacts:
+          path: swiftlint.html
+          destination: swiftlint.html
 
-  test-iOS12:
+  test-xcode10-ios12:
     macos:
-      xcode: "10.2.0"
+      xcode: "10.3.0"
     steps:
-      - checkout
-      - run:
-          name: test iOS
-          command: |
-            set -o pipefail
-            xcodebuild -version
-            xcodebuild -showsdks
-            swift -version
-            IOS_SDK="iphonesimulator12.2" \
-                IOS_DESTINATION_PHONE="OS=12.2,name=iPhone Xs" \
-                sh build.sh test-iOS
+      - test_main_project
+      
+  test-xcode11-ios13:
+    <<: *default_executor
+    steps:
+      - test_main_project
 
-  test-native:
-    macos:
-      xcode: "11.0.0"
+  test-example-login:
+    <<: *default_executor
     steps:
-      - checkout
-      - run:
-          name: test native
-          command: |
-            set -o pipefail
-            xcodebuild -version
-            xcodebuild -showsdks
-            swift -version
-            sh build.sh test-native
-
-  examples:
-    macos:
-      xcode: "11.0.0"
-    steps:
-      - checkout
-      - run:
-          name: test native
-          command: |
-            set -o pipefail
-            xcodebuild -version
-            xcodebuild -showsdks
-            swift -version
-            sh build.sh examples
+      - test_example_project:
+          path: Examples/login
 
 workflows:
-  version: 2
+  version: 2.1
   build-and-test:
     jobs:
       - swiftlint
-      - test-native:
-          requires:
-            - swiftlint
-      - test-iOS:
-          requires:
-            - swiftlint
-      - test-iOS12:
-          requires:
-            - swiftlint
-      - examples:
-          requires:
-            - swiftlint
+      - test-xcode10-ios12
+      - test-xcode11-ios13
+      - test-example-login
+      
