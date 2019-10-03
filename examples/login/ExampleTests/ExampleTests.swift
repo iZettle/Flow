@@ -2,23 +2,20 @@
 //  ExampleTests.swift
 //  ExampleTests
 //
-//  Created by Nataliya Patsovska on 2018-04-16.
-//  Copyright © 2018 iZettle. All rights reserved.
+//  Created by Philipp Otto on 2019-10-02.
+//  Copyright © 2019 iZettle. All rights reserved.
 //
 
 import XCTest
-@testable import Example
 
 class ExampleTests: XCTestCase {
 
     override func setUp() {
-        super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
 
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
     }
 
     func testExample() {
