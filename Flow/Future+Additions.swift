@@ -354,13 +354,13 @@ public extension Future {
 
     /// Will return a new future that will replace `self`'s result with a success `value` if `self` does not complete before `timeout`
     @discardableResult
-    func succeed(with value: Value, after timeout: TimeInterval) -> Future {
-        return replace(with: .success(value), after: timeout)
+    func succeed(on scheduler: Scheduler = .concurrentBackground, with value: Value, after timeout: TimeInterval) -> Future {
+        return replace(on: scheduler, with: .success(value), after: timeout)
     }
 
     /// Will return a new future that will replace `self`'s result with a failure `error` if `self` does not complete before `timeout`
     @discardableResult
-    func fail(with error: Error, after timeout: TimeInterval) -> Future {
-        return replace(with: .failure(error), after: timeout)
+    func fail(on scheduler: Scheduler = .concurrentBackground, with error: Error, after timeout: TimeInterval) -> Future {
+        return replace(on: scheduler, with: .failure(error), after: timeout)
     }
 }

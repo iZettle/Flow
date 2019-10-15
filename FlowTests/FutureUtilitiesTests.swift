@@ -97,8 +97,8 @@ class FutureUtilitiesTests: FutureTest {
         }
     }
 
-    func testReplaceWithResultOnCurrentScheduler() {
-        let e = expectation(description: "initial future is disposed")
+    func testSucceedWithResultOnMainScheduler() {
+        let e = expectation(description: "value")
         testFuture {
             return Future<Int> { completion in
                 let bag = DisposeBag()
@@ -107,7 +107,21 @@ class FutureUtilitiesTests: FutureTest {
                     e.fulfill()
                 }
                 return bag
-            }.replace(with: .success(8), after: 0.5)
+            }.succeed(on: .main, with: 8, after: 0.5)
+        }
+    }
+
+    func testSucceedWithResultOnConcurentBackground() {
+        let e = expectation(description: "value")
+        testFuture {
+            return Future<Int> { completion in
+                let bag = DisposeBag()
+                bag += {
+                    XCTAssertFalse(Thread.current.isMainThread)
+                    e.fulfill()
+                }
+                return bag
+            }.succeed(with: 8, after: 0.5)
         }
     }
 

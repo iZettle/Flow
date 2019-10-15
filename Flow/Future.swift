@@ -309,14 +309,12 @@ public extension Future {
 
     /// Returns a new future that will replace `self`'s result with `result` on provided `scheduler` if `self` does not complete before `timeout`.
     @discardableResult
-    func replace(on scheduler: Scheduler = .current, with result: Result<Value>, after timeout: TimeInterval) -> Future {
+    func replace(on scheduler: Scheduler = .concurrentBackground, with result: Result<Value>, after timeout: TimeInterval) -> Future {
         return Future(on: .none) { completion, mover in
             let future = mover.moveInside(self).onResult(on: .none, completion)
-            return disposableAsync(after: timeout) {
-                scheduler.async {
+            return disposableAsync(on: scheduler, after: timeout) {
                     future.cancel()
                     completion(result)
-                }
             }
         }
     }

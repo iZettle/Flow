@@ -152,8 +152,8 @@ public extension NSManagedObjectContext {
 #endif
 
 /// Used for scheduling delays and might be overridend in unit test with simulatated delays
-func disposableAsync(after delay: TimeInterval, execute work: @escaping () -> ()) -> Disposable {
-    return _disposableAsync(delay, work)
+func disposableAsync(on scheduler: Scheduler = .concurrentBackground, after delay: TimeInterval, execute work: @escaping () -> ()) -> Disposable {
+    return scheduler.disposableAsync(after: delay, execute: work)
 }
 
 private var _disposableAsync: (_ delay: TimeInterval, _ work: @escaping () -> ()) -> Disposable = Scheduler.concurrentBackground.disposableAsync
