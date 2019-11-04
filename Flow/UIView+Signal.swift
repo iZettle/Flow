@@ -7,6 +7,7 @@
 //
 
 #if canImport(UIKit)
+#if os(iOS)
 
 import UIKit
 
@@ -154,4 +155,5 @@ private class CallbackerView: UIView {
     }
 }
 
+#endif
 #endif

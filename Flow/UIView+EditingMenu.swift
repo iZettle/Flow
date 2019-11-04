@@ -6,7 +6,7 @@
 //  Copyright © 2015 iZettle. All rights reserved.
 //
 
-#if canImport(UIKit) && !os(tvOS)
+#if canImport(UIKit) && !os(tvOS) && !os(watchOS)
 
 import UIKit
 
