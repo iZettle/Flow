@@ -393,7 +393,7 @@
 						CreatedOnToolsVersion = 7.0.1;
 						DevelopmentTeam = G94FN7ACW4;
 						LastSwiftMigration = 1020;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 					F6D80B621BBBB2ED008F8574 = {
 						CreatedOnToolsVersion = 7.0.1;
@@ -661,6 +661,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
