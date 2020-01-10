@@ -30,7 +30,7 @@ public typealias FiniteSignal<Value> = CoreSignal<Finite, Value>
 
 public extension CoreSignal where Kind == Finite {
     /// Creates a new instance that will call `onEvent` with a callback to signal events until the returned `Disposable` is being disposed.
-    convenience init(options: SignalOptions = .default, onEvent: @escaping (@escaping (Event) -> Void) -> Disposable) {
+    convenience init(options: SignalOptions = .default, onEvent: @escaping (@escaping (Event<Value>) -> Void) -> Disposable) {
         self.init(options: options, onInternalEvent: onEvent)
     }
 
@@ -40,7 +40,7 @@ public extension CoreSignal where Kind == Finite {
     ///     let signal = Signal(callbacker: callbacker)
     ///     ...
     ///     callbacker.callAll(with: event) // Will signal `event` to all signal's listeners.
-    convenience init(callbacker: Callbacker<Event>) {
+    convenience init(callbacker: Callbacker<Event<Value>>) {
         self.init(options: [], onInternalEvent: { callback in
             return callbacker.addCallback(callback)
         })

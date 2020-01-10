@@ -19,12 +19,12 @@ import Foundation
 /// applicable to more than one of kind of signal, it often makes sense to work directly with `CoreSignal` to
 /// allow sharing of implemtenations.
 public final class CoreSignal<Kind: SignalKind, Value> {
-    internal let onEventType: (@escaping (EventType) -> Void) -> Disposable
+    internal let onEventType: (@escaping (EventType<Value>) -> Void) -> Disposable
 
-    public typealias Event = Flow.Event<Value>
-    typealias EventType = Flow.EventType<Value>
+//    public typealias Event = Flow.Event<Value>
+//    typealias EventType = Flow.EventType<Value>
 
-    internal init(onEventType: @escaping (@escaping (EventType) -> Void) -> Disposable, _ noTrailingClosure: Void = ()) {
+    internal init(onEventType: @escaping (@escaping (EventType<Value>) -> Void) -> Disposable, _ noTrailingClosure: Void = ()) {
         self.onEventType = onEventType
     }
 }

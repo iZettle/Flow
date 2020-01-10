@@ -107,7 +107,7 @@ public extension CoreSignal where Kind == Plain, Value == () {
 }
 
 internal extension CoreSignal {
-    func onEventType(on scheduler: Scheduler, _ callback: @escaping (EventType) -> Void) -> Disposable {
+    func onEventType(on scheduler: Scheduler, _ callback: @escaping (EventType<Value>) -> Void) -> Disposable {
         if scheduler == .none {
             return onEventType(callback)
         } else {

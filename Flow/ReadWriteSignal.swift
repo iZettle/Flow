@@ -95,7 +95,7 @@ internal extension SignalProvider {
 }
 
 internal extension CoreSignal {
-    convenience init(setValue: ((Value) -> ())?, onEventType: @escaping (@escaping (EventType) -> Void) -> Disposable) {
+    convenience init(setValue: ((Value) -> ())?, onEventType: @escaping (@escaping (EventType<Value>) -> Void) -> Disposable) {
         self.init(onEventType: onEventType)
         if let setter = setValue {
             objc_setAssociatedObject(self, &propertySetterKey, setter, .OBJC_ASSOCIATION_RETAIN)

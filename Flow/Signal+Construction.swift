@@ -91,7 +91,7 @@ extension CoreSignal {
     /// called and hence result will be the expected value of `2`
     ///
     /// This initializer also optionally implements sharing, see `SignalOptions.shared`, using the SharedState helper.
-    convenience init(getValue: (() -> Value)? = nil, setValue: ((Value) -> ())? = nil, options: SignalOptions, onInternalEvent onEvent: @escaping (@escaping (Event) -> Void) -> Disposable) {
+    convenience init(getValue: (() -> Value)? = nil, setValue: ((Value) -> ())? = nil, options: SignalOptions, onInternalEvent onEvent: @escaping (@escaping (Event<Value>) -> Void) -> Disposable) {
         let shared = options.contains(.shared) ? SharedState<Value>(getValue: getValue) : nil
         self.init(setValue: setValue, onEventType: { callback in
             let state = CallbackState(shared: shared, getValue: getValue, callback: callback)
