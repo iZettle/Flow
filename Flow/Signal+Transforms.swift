@@ -656,7 +656,7 @@ public extension SignalProvider {
     /// - Note: At most one value is hold at a time and released when `readSignal` becomes true.
     func wait(until readSignal: ReadSignal<Bool>) -> Signal<Value> {
         let signal = providedSignal
-        return Signal { callback in
+        return Signal(onValue: { callback in
             let state = StateAndCallback(state: Value?.none, callback: callback)
 
             state += signal.filter(on: .none) { _ in !readSignal.value }.onValue {
@@ -672,7 +672,7 @@ public extension SignalProvider {
             }.atValue(on: .none) { _ in state.protectedVal = nil }.onValue(on: .none, state.callback)
 
             return state
-        }
+        })
     }
 }
 

@@ -1135,10 +1135,10 @@ class SignalProviderTests: XCTestCase {
     func testSharedSignal() {
         let callbacker = Callbacker<Int>()
         var s1 = 0
-        let s = Signal<Int> { c in
+        let s = Signal<Int>(onValue: { c in
             s1 += 1
             return callbacker.addCallback(c)
-        }
+        })
 
         var s2 = 0
         var s3 = 0
@@ -1179,10 +1179,10 @@ class SignalProviderTests: XCTestCase {
     func testSharedRemoveAndAdd() {
         let callbacker = Callbacker<Int>()
         var s0 = 0
-        let s = Signal<Int> { c in
+        let s = Signal<Int>(onValue: { c in
             s0 += 1
             return callbacker.addCallback(c)
-        }
+        })
 
         var s1 = 0
         var s2 = 0

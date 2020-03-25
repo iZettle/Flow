@@ -97,7 +97,7 @@ public extension UIView {
 
 private extension UIView {
     func signal<T>(for keyPath: KeyPath<CallbackerView, Callbacker<T>>) -> Signal<T> {
-        return Signal { callback in
+        return Signal(onValue: { callback in
             let view = (self.viewWithTag(987892442) as? CallbackerView)  ?? {
                 let view = CallbackerView(frame: self.bounds)
                 view.autoresizingMask = [.flexibleWidth, .flexibleHeight] // trick so layoutsubViews is called when the view is resized
@@ -123,7 +123,7 @@ private extension UIView {
             bag += view[keyPath: keyPath].addCallback(callback)
 
             return bag
-        }
+        })
     }
 }
 
