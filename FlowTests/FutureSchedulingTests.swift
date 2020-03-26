@@ -184,7 +184,9 @@ class FutureNewSchedulingTests: FutureTest {
                 var f = Future(v).delay(by: delay)
                 f = f.map(on: .concurrentBackground) { $0*2 }
                 return f/*assertValue(v*2)*/.assert(on: .main).always(on: .concurrentBackground) {
-                    mutex.protect { completeCount += 1 }
+                    mutex.lock()
+                    completeCount += 1
+                    mutex.unlock()
                 }
             }).onCancel { e.fulfill() }
 

@@ -107,7 +107,7 @@ public final class Future<Value> {
                 try onResult(completion, Mover(shouldClone: true))
             }
         }
-        mutex.initialize()
+        withMutex { $0.initialize() }
 
         scheduler.async {
             do {
@@ -143,13 +143,13 @@ public final class Future<Value> {
 
         state = .completed(result)
         clone = { Future(result: result) }
-        mutex.initialize()
+        withMutex { $0.initialize() }
     }
 
     deinit {
         OSAtomicDecrement32(&futureUnitTestAliveCount)
         memPrint("Future deinit", futureUnitTestAliveCount)
-        mutex.deinitialize()
+        withMutex { $0.deinitialize() }
     }
 }
 
@@ -327,18 +327,20 @@ func memPrint(_ str: String, _ count: Int32) {
 }
 
 private extension Future {
-    var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
+        try withUnsafeMutablePointer(to: &_mutex, body)
+    }
 
     private var protectedState: State {
-        return mutex.protect { state }
+        return withMutex { $0.protect { state } }
     }
 
     func lock() {
-        mutex.lock()
+        withMutex { $0.lock() }
     }
 
     func unlock() {
-        mutex.unlock()
+        withMutex { $0.unlock() }
     }
 
     func completeWithResult(_ result: Result<Value>) {

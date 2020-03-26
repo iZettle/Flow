@@ -21,20 +21,22 @@ public final class Callbacker<Value> {
 
     private var callbacks = Callbacks.none
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
+        try withUnsafeMutablePointer(to: &_mutex, body)
+    }
 
     public init() {
-        mutex.initialize()
+        withMutex { $0.initialize() }
     }
 
     deinit {
-        mutex.deinitialize()
+        withMutex { $0.deinitialize() }
     }
 
     /// - Returns: True if no callbacks has been registered.
     public var isEmpty: Bool {
-        mutex.lock()
-        defer { mutex.unlock() }
+        withMutex { $0.lock() }
+        defer { withMutex { $0.unlock() } }
 
         switch callbacks {
         case .none: return true
@@ -46,8 +48,8 @@ public final class Callbacker<Value> {
     /// Register a callback to be called when `callAll` is executed.
     /// - Returns: A `Disposable` to be disposed to unregister the callback.
     public func addCallback(_ callback: @escaping (Value) -> Void) -> Disposable {
-        mutex.lock()
-        defer { mutex.unlock() }
+        withMutex { $0.lock() }
+        defer { withMutex { $0.unlock() } }
 
         let key = generateKey()
 
@@ -63,8 +65,8 @@ public final class Callbacker<Value> {
         }
 
         return NoLockKeyDisposer(key) { key in
-            self.mutex.lock()
-            defer { self.mutex.unlock() }
+            self.withMutex { $0.lock() }
+            defer { self.withMutex { $0.unlock() } }
 
             switch self.callbacks {
             case .single(let singleKey, _) where singleKey == key:
@@ -82,9 +84,9 @@ public final class Callbacker<Value> {
 
     /// Will call all registered callbacks with `value`
     public func callAll(with value: Value) {
-        mutex.lock()
+        withMutex { $0.lock() }
         let callbacks = self.callbacks
-        mutex.unlock()
+        withMutex { $0.unlock() }
 
         switch callbacks {
         case .none: break

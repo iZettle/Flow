@@ -65,9 +65,9 @@ public func join<T>(_ futures: [Future<T>], cancelNonCompleted: Bool = true) -> 
     var results = [T?](repeating: nil, count: futures.count)
     let mutex = Mutex()
     func onValue(_ i: Int, _ val: T) {
-        mutex.protect {
-            results[i] = val
-        }
+        mutex.lock()
+        results[i] = val
+        mutex.unlock()
     }
 
     var future = futures.first!.onValue(on: .none) { onValue(0, $0) }
@@ -220,7 +220,9 @@ public final class SingleTaskPerformer<Value> {
 
         mutex.unlock() // unlock while calling out as we might either recurs or always might execute at once.
         let singleFuture = function().always(on: .none) {
-            self.mutex.protect { self.future = nil }
+            self.mutex.lock()
+            self.future = nil
+            self.mutex.unlock()
         }
         mutex.lock()
 
@@ -233,7 +235,9 @@ public final class SingleTaskPerformer<Value> {
     }
 
     public var isPerforming: Bool {
-        return mutex.protect { self.future != nil }
+        mutex.lock()
+        defer { mutex.unlock() }
+        return self.future != nil
     }
 }
 

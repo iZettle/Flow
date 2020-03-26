@@ -113,27 +113,29 @@ private final class CallbackState<Value>: Disposable {
     let sharedKey: Key
 
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
+        try withUnsafeMutablePointer(to: &_mutex, body)
+    }
 
     init(shared: SharedState<Value>? = nil, getValue: (() -> Value)?, callback: @escaping (EventType<Value>) -> Void) {
         self.shared = shared
         self.sharedKey = shared == nil ? 0 : generateKey()
         self.getValue = getValue
         self.callback = callback
-        mutex.initialize()
+        withMutex { $0.initialize() }
     }
 
     deinit {
-        mutex.deinitialize()
+        withMutex { $0.deinitialize() }
         shared?.remove(key: sharedKey)
     }
 
     func lock() {
-        mutex.lock()
+        withMutex { $0.lock() }
     }
 
     func unlock() {
-        mutex.unlock()
+        withMutex { $0.unlock() }
     }
 
     // For efficiency `Self` could also also behave as a `NoLockKeyDisposer``, saving us an allocation for each listener.
@@ -293,7 +295,9 @@ private final class CallbackState<Value>: Disposable {
 final class SharedState<Value> {
     private let getValue: (() -> Value)?
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
+        try withUnsafeMutablePointer(to: &_mutex, body)
+    }
 
     typealias Callback = (EventType<Value>) -> Void
     var firstCallback: (key: Key, value: Callback)?
@@ -303,19 +307,19 @@ final class SharedState<Value> {
 
     init(getValue: (() -> Value)? = nil) {
         self.getValue = getValue
-        mutex.initialize()
+        withMutex { $0.initialize() }
     }
 
     deinit {
-        mutex.deinitialize()
+        withMutex { $0.deinitialize() }
     }
 
     func lock() {
-        mutex.lock()
+        withMutex { $0.lock() }
     }
 
     func unlock() {
-        mutex.unlock()
+        withMutex { $0.unlock() }
     }
 
     func remove(key: Key) {

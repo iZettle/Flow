@@ -11,32 +11,26 @@ import Foundation
 /// A reference wrapper around a POSIX thread mutex
 public final class Mutex {
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
+        try withUnsafeMutablePointer(to: &_mutex, body)
+    }
 
     public init() {
-        mutex.initialize()
+        withMutex { $0.initialize() }
     }
 
     deinit {
-        mutex.deinitialize()
+        withMutex { $0.deinitialize() }
     }
 
     /// Attempt to acquire the lock, blocking a thread’s execution until the lock can be acquired.
     public func lock() {
-        mutex.lock()
+        withMutex { $0.lock() }
     }
 
     /// Releases a previously acquired lock.
     public func unlock() {
-        mutex.unlock()
-    }
-
-    /// Will lock `self`, call `block`, then unlock `self`
-    @discardableResult
-    public func protect<T>(_ block: () throws -> T) rethrows -> T {
-        mutex.lock()
-        defer { mutex.unlock() }
-        return try block()
+        withMutex { $0.unlock() }
     }
 }
 
@@ -87,16 +81,18 @@ final class StateAndCallback<Value, State>: Disposable {
     var val: State
     fileprivate var disposables = [Disposable]()
     private var _mutex = pthread_mutex_t()
-    fileprivate var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    fileprivate func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
+        try withUnsafeMutablePointer(to: &_mutex, body)
+    }
 
     init(state: State, callback: @escaping (Value) -> ()) {
         val = state
         self.callback = callback
-        mutex.initialize()
+        withMutex { $0.initialize() }
     }
 
     deinit {
-        mutex.deinitialize()
+        withMutex { $0.deinitialize() }
         dispose()
     }
 
@@ -106,27 +102,27 @@ final class StateAndCallback<Value, State>: Disposable {
     }
 
     func lock() {
-        mutex.lock()
+        withMutex { $0.lock() }
     }
 
     func unlock() {
-        mutex.unlock()
+        withMutex { $0.unlock() }
     }
 
     @discardableResult
     func protect<T>(_ block: () throws -> T) rethrows -> T {
-        mutex.lock()
-        defer { mutex.unlock() }
+        withMutex { $0.lock() }
+        defer { withMutex { $0.unlock() } }
         return try block()
     }
 
     func dispose() {
-        mutex.lock()
+        withMutex { $0.lock() }
         let disposables = self.disposables // make sure to make a copy in the case any call to dispose will recursivaly call us back.
         callback = nil
         exclusiveQueue = []
         self.disposables = []
-        mutex.unlock()
+        withMutex { $0.unlock() }
         for disposable in disposables { disposable.dispose() }
     }
 
@@ -192,12 +188,12 @@ extension StateAndCallback where Value == () {
 
 func +=<Value, State>(bag: StateAndCallback<Value, State>, disposable: Disposable?) {
     guard let disposable = disposable else { return }
-    bag.mutex.lock()
+    bag.withMutex { $0.lock() }
     let hasBeenDisposed = bag.callback == nil
     if !hasBeenDisposed {
         bag.disposables.append(disposable)
     }
-    bag.mutex.unlock()
+    bag.withMutex { $0.unlock() }
     if hasBeenDisposed {
         disposable.dispose()
     }
