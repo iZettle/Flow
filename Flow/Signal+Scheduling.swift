@@ -120,9 +120,6 @@ internal extension CoreSignal {
 private final class OnEventTypeDisposer<Value>: Disposable {
     private var disposable: Disposable?
     private var _mutex = pthread_mutex_t()
-    private func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
-        try withUnsafeMutablePointer(to: &_mutex, body)
-    }
 
     private let scheduler: Scheduler
     private var callback: ((EventType<Value>) -> Void)?
@@ -130,41 +127,41 @@ private final class OnEventTypeDisposer<Value>: Disposable {
     init(on scheduler: Scheduler, callback: @escaping (EventType<Value>) -> Void, onEventType: @escaping (@escaping (EventType<Value>) -> Void) -> Disposable) {
         self.scheduler = scheduler
         self.callback = callback
-        withMutex { $0.initialize() }
+        _mutex.initialize()
 
         let disposable = onEventType { [weak self] in self?.handleEventType($0) }
 
-        withMutex { $0.lock() }
+        _mutex.lock()
         if self.callback == nil {
             disposable.dispose()
         } else {
             self.disposable = disposable
         }
-        withMutex { $0.unlock() }
+        _mutex.unlock()
     }
 
     deinit {
         dispose()
-        withMutex { $0.deinitialize() }
+        _mutex.deinitialize()
     }
 
     public func dispose() {
-        withMutex { $0.lock() }
+        _mutex.lock()
         let disposable = self.disposable
         self.disposable = nil
         callback = nil
-        withMutex { $0.unlock() }
+        _mutex.unlock()
         disposable?.dispose()
     }
 
     func handleEventType(_ eventType: EventType<Value>) {
-        withMutex { $0.lock() }
+        _mutex.lock()
 
         guard let callback = self.callback else {
-            return withMutex { $0.unlock() }
+            return _mutex.unlock()
         }
 
-        withMutex { $0.unlock() }
+        _mutex.unlock()
 
         if scheduler.isImmediate {
             validate(eventType: eventType)
@@ -179,14 +176,14 @@ private final class OnEventTypeDisposer<Value>: Disposable {
             scheduler.async { [weak self] in
                 guard let `self` = self else { return }
                 // At the time we are scheduled, we might already been disposed
-                self.withMutex { $0.lock() }
+                self._mutex.lock()
                 guard let callback = self.callback else {
-                    return self.withMutex { $0.unlock() }
+                    return self._mutex.unlock()
                 }
 
                 self.validate(eventType: eventType)
 
-                self.withMutex { $0.unlock() }
+                self._mutex.unlock()
                 callback(eventType)
                 if case .event(.end) = eventType {
                     self.dispose()

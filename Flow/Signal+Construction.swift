@@ -113,29 +113,26 @@ private final class CallbackState<Value>: Disposable {
     let sharedKey: Key
 
     private var _mutex = pthread_mutex_t()
-    private func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
-        try withUnsafeMutablePointer(to: &_mutex, body)
-    }
 
     init(shared: SharedState<Value>? = nil, getValue: (() -> Value)?, callback: @escaping (EventType<Value>) -> Void) {
         self.shared = shared
         self.sharedKey = shared == nil ? 0 : generateKey()
         self.getValue = getValue
         self.callback = callback
-        withMutex { $0.initialize() }
+        _mutex.initialize()
     }
 
     deinit {
-        withMutex { $0.deinitialize() }
+        _mutex.deinitialize()
         shared?.remove(key: sharedKey)
     }
 
     func lock() {
-        withMutex { $0.lock() }
+        _mutex.lock()
     }
 
     func unlock() {
-        withMutex { $0.unlock() }
+        _mutex.unlock()
     }
 
     // For efficiency `Self` could also also behave as a `NoLockKeyDisposer``, saving us an allocation for each listener.
@@ -295,9 +292,6 @@ private final class CallbackState<Value>: Disposable {
 final class SharedState<Value> {
     private let getValue: (() -> Value)?
     private var _mutex = pthread_mutex_t()
-    private func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
-        try withUnsafeMutablePointer(to: &_mutex, body)
-    }
 
     typealias Callback = (EventType<Value>) -> Void
     var firstCallback: (key: Key, value: Callback)?
@@ -307,19 +301,19 @@ final class SharedState<Value> {
 
     init(getValue: (() -> Value)? = nil) {
         self.getValue = getValue
-        withMutex { $0.initialize() }
+        _mutex.initialize()
     }
 
     deinit {
-        withMutex { $0.deinitialize() }
+        _mutex.deinitialize()
     }
 
     func lock() {
-        withMutex { $0.lock() }
+        _mutex.lock()
     }
 
     func unlock() {
-        withMutex { $0.unlock() }
+        _mutex.unlock()
     }
 
     func remove(key: Key) {

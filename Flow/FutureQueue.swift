@@ -61,9 +61,9 @@ public extension FutureQueue {
         return Future { completion in
             let item = QueueItem<Output>(operation: operation, completion: completion)
 
-            self.withMutex { $0.lock() }
+            self._mutex.lock()
             self.items.append(item)
-            self.withMutex { $0.unlock() }
+            self._mutex.unlock()
 
             self.executeNextItem()
 
@@ -119,7 +119,9 @@ public extension FutureQueue {
 public extension FutureQueue {
     /// Do we have any enqueued operations?
     var isEmpty: Bool {
-        return withMutex { $0.protect { items.isEmpty } }
+        _mutex.lock()
+        defer { _mutex.unlock() }
+        return items.isEmpty
     }
 
     /// Returns a signal that will signal when `isEmpty` is changed.
@@ -164,22 +166,20 @@ public extension FutureQueue {
 
     /// The error passed to `abortQueuedExecutionWithError()` if called with `shouldCloseQueue` as true.
     var closedError: Error? {
-        return withMutex { $0.protect { _closedError } }
+        _mutex.lock()
+        defer { _mutex.unlock() }
+        return _closedError
     }
 }
 
 private extension FutureQueue {
-    private func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
-        try withUnsafeMutablePointer(to: &_mutex, body)
-    }
-
-    func lock() { withMutex { $0.lock() } }
-    func unlock() { withMutex { $0.unlock() } }
+    func lock() { _mutex.lock() }
+    func unlock() { _mutex.unlock() }
 
     func removeItem(_ item: Executable) {
-        withMutex { $0.lock() }
+        _mutex.lock()
         _ = items.firstIndex { $0 === item }.map { items.remove(at: $0) }
-        withMutex { $0.unlock() }
+        _mutex.unlock()
     }
 
     func executeNextItem() {
@@ -218,27 +218,24 @@ private final class QueueItem<Output>: Executable {
     private weak var future: Future<Output>?
     private var hasBeenCancelled = false
     private var _mutex = pthread_mutex_t()
-    private func withMutex<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
-        try withUnsafeMutablePointer(to: &_mutex, body)
-    }
 
     init(operation: @escaping () throws -> Future<Output>, completion: @escaping (Result<Output>) -> ()) {
         self.completion = completion
         self.operation = operation
-        withMutex { $0.initialize() }
+        _mutex.initialize()
 
         OSAtomicIncrement32(&queueItemUnitTestAliveCount)
         memPrint("Queue Item init", queueItemUnitTestAliveCount)
     }
 
     deinit {
-        withMutex { $0.deinitialize() }
+        _mutex.deinitialize()
         OSAtomicDecrement32(&queueItemUnitTestAliveCount)
         memPrint("Queue Item deinit", queueItemUnitTestAliveCount)
     }
 
-    private func lock() { withMutex { $0.lock() } }
-    private func unlock() { withMutex { $0.unlock() } }
+    private func lock() { _mutex.lock() }
+    private func unlock() { _mutex.unlock() }
 
     private func complete(_ result: (Result<Output>)) {
         lock()
