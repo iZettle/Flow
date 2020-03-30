@@ -33,7 +33,7 @@ public final class Mutex {
 
 extension pthread_mutex_t {
     mutating func withPointer<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
-        try withUnsafeMutablePointer(to: &self, body)
+        return try withUnsafeMutablePointer(to: &self, body)
     }
 
     mutating func initialize() {
