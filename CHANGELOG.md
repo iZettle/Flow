@@ -1,6 +1,15 @@
+# 1.8.5
+
+
+# 1.8.4
+
+- Fix compilation errors in Xcode 11.4 beta
+- Use Swift.Result instead of custom result implementation
+- Update sample to match readme.
+
 # 1.8.3
 
-- Fix race conditions for iOS 13 for Signal and cleanup CallbackState<Value> 
+- Fix race conditions for iOS 13 for Signal and cleanup CallbackState<Value>
 - Add new combiner `driven(by:)` that makes a `ReadSignal` emit its latest readable values when the given "driver" signal fires events. The combined signal will derive its signal kind from the driver, but without write access.
 
 # 1.8.2
