@@ -10,24 +10,24 @@ import Foundation
 
 /// A reference wrapper around a POSIX thread mutex
 public final class Mutex {
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     public init() {
-        _mutex.initialize()
+        mutex.initialize()
     }
 
     deinit {
-        _mutex.deinitialize()
+        mutex.deinitialize()
     }
 
     /// Attempt to acquire the lock, blocking a thread’s execution until the lock can be acquired.
     public func lock() {
-        _mutex.lock()
+        mutex.lock()
     }
 
     /// Releases a previously acquired lock.
     public func unlock() {
-        _mutex.unlock()
+        mutex.unlock()
     }
 }
 
@@ -35,7 +35,7 @@ extension pthread_mutex_t {
     mutating func withPointer<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
         try withUnsafeMutablePointer(to: &self, body)
     }
-    
+
     mutating func initialize() {
         withPointer { $0.initialize() }
     }
@@ -99,16 +99,16 @@ final class StateAndCallback<Value, State>: Disposable {
     var callback: ((Value) -> ())?
     var val: State
     fileprivate var disposables = [Disposable]()
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     init(state: State, callback: @escaping (Value) -> ()) {
         val = state
         self.callback = callback
-        _mutex.initialize()
+        mutex.initialize()
     }
 
     deinit {
-        _mutex.deinitialize()
+        mutex.deinitialize()
         dispose()
     }
 
@@ -118,27 +118,27 @@ final class StateAndCallback<Value, State>: Disposable {
     }
 
     func lock() {
-        _mutex.lock()
+        mutex.lock()
     }
 
     func unlock() {
-        _mutex.unlock()
+        mutex.unlock()
     }
 
     @discardableResult
     func protect<T>(_ block: () throws -> T) rethrows -> T {
-        _mutex.lock()
-        defer { _mutex.unlock() }
+        mutex.lock()
+        defer { mutex.unlock() }
         return try block()
     }
 
     func dispose() {
-        _mutex.lock()
+        mutex.lock()
         let disposables = self.disposables // make sure to make a copy in the case any call to dispose will recursivaly call us back.
         callback = nil
         exclusiveQueue = []
         self.disposables = []
-        _mutex.unlock()
+        mutex.unlock()
         for disposable in disposables { disposable.dispose() }
     }
 

@@ -14,21 +14,21 @@ import Foundation
 /// - Note: Is thread safe.
 public final class OrderedCallbacker<OrderedValue, CallbackValue> {
     private var callbacks: [Key: (OrderedValue, (CallbackValue) -> Future<()>)] = [:]
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     public init() {
-        _mutex.initialize()
+        mutex.initialize()
     }
 
     deinit {
-        _mutex.deinitialize()
+        mutex.deinitialize()
     }
 
     /// - Returns: True if no callbacks has been registered.
     public var isEmpty: Bool {
-        _mutex.lock()
+        mutex.lock()
         let isEmpty = callbacks.isEmpty
-        _mutex.unlock()
+        mutex.unlock()
         return isEmpty
     }
 
@@ -37,14 +37,14 @@ public final class OrderedCallbacker<OrderedValue, CallbackValue> {
     /// - Parameter orderedValue: The value used to order this callback
     /// - Returns: A `Disposable` to be disposed to unregister the callback.
     public func addCallback(_ callback: @escaping (CallbackValue) -> Future<()>, orderedBy orderedValue: OrderedValue) -> Disposable {
-        _mutex.lock()
-        defer { _mutex.unlock() }
+        mutex.lock()
+        defer { mutex.unlock() }
         let key = generateKey()
         callbacks[key] = (orderedValue, callback)
         return Disposer {
-            self._mutex.lock()
+            self.mutex.lock()
             self.callbacks[key] = nil
-            self._mutex.unlock()
+            self.mutex.unlock()
         }
     }
 
@@ -52,9 +52,9 @@ public final class OrderedCallbacker<OrderedValue, CallbackValue> {
     /// - Returns: A `Future` that will complete when all callbacks has been called.
     @discardableResult
     public func callAll(with value: CallbackValue, isOrderedBefore: (OrderedValue, OrderedValue) -> Bool) -> Future<()> {
-        _mutex.lock()
+        mutex.lock()
         let sortedCallbacks = callbacks.values.sorted { isOrderedBefore($0.0, $1.0) }.map { $1 }
-        _mutex.unlock()
+        mutex.unlock()
         return sortedCallbacks.mapToFuture { $0(value) }.toVoid()
     }
 }

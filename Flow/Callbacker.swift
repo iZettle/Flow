@@ -20,20 +20,20 @@ public final class Callbacker<Value> {
     }
 
     private var callbacks = Callbacks.none
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     public init() {
-        _mutex.initialize()
+        mutex.initialize()
     }
 
     deinit {
-        _mutex.deinitialize()
+        mutex.deinitialize()
     }
 
     /// - Returns: True if no callbacks has been registered.
     public var isEmpty: Bool {
-        _mutex.lock()
-        defer { _mutex.unlock() }
+        mutex.lock()
+        defer { mutex.unlock() }
 
         switch callbacks {
         case .none: return true
@@ -45,8 +45,8 @@ public final class Callbacker<Value> {
     /// Register a callback to be called when `callAll` is executed.
     /// - Returns: A `Disposable` to be disposed to unregister the callback.
     public func addCallback(_ callback: @escaping (Value) -> Void) -> Disposable {
-        _mutex.lock()
-        defer { _mutex.unlock() }
+        mutex.lock()
+        defer { mutex.unlock() }
 
         let key = generateKey()
 
@@ -62,8 +62,8 @@ public final class Callbacker<Value> {
         }
 
         return NoLockKeyDisposer(key) { key in
-            self._mutex.lock()
-            defer { self._mutex.unlock() }
+            self.mutex.lock()
+            defer { self.mutex.unlock() }
 
             switch self.callbacks {
             case .single(let singleKey, _) where singleKey == key:
@@ -81,9 +81,9 @@ public final class Callbacker<Value> {
 
     /// Will call all registered callbacks with `value`
     public func callAll(with value: Value) {
-        _mutex.lock()
+        mutex.lock()
         let callbacks = self.callbacks
-        _mutex.unlock()
+        mutex.unlock()
 
         switch callbacks {
         case .none: break

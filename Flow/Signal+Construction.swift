@@ -112,27 +112,27 @@ private final class CallbackState<Value>: Disposable {
     private var shared: SharedState<Value>?
     let sharedKey: Key
 
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     init(shared: SharedState<Value>? = nil, getValue: (() -> Value)?, callback: @escaping (EventType<Value>) -> Void) {
         self.shared = shared
         self.sharedKey = shared == nil ? 0 : generateKey()
         self.getValue = getValue
         self.callback = callback
-        _mutex.initialize()
+        mutex.initialize()
     }
 
     deinit {
-        _mutex.deinitialize()
+        mutex.deinitialize()
         shared?.remove(key: sharedKey)
     }
 
     func lock() {
-        _mutex.lock()
+        mutex.lock()
     }
 
     func unlock() {
-        _mutex.unlock()
+        mutex.unlock()
     }
 
     // For efficiency `Self` could also also behave as a `NoLockKeyDisposer``, saving us an allocation for each listener.
@@ -291,7 +291,7 @@ private final class CallbackState<Value>: Disposable {
 /// Helper to implement sharing of a single `onEvent` if more than one listner, see `SignalOption.shared`
 final class SharedState<Value> {
     private let getValue: (() -> Value)?
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     typealias Callback = (EventType<Value>) -> Void
     var firstCallback: (key: Key, value: Callback)?
@@ -301,19 +301,19 @@ final class SharedState<Value> {
 
     init(getValue: (() -> Value)? = nil) {
         self.getValue = getValue
-        _mutex.initialize()
+        mutex.initialize()
     }
 
     deinit {
-        _mutex.deinitialize()
+        mutex.deinitialize()
     }
 
     func lock() {
-        _mutex.lock()
+        mutex.lock()
     }
 
     func unlock() {
-        _mutex.unlock()
+        mutex.unlock()
     }
 
     func remove(key: Key) {

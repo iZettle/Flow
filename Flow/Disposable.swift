@@ -28,24 +28,24 @@ public struct NilDisposer: Disposable {
 /// - Note: Is thread safe and reentrant (dispose callback could call itself)
 public final class Disposer: Disposable {
     private var disposer: (() -> ())?
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     /// Pass a closure to be called when being disposed
     public init(_ disposer: @escaping () -> () = {}) {
         self.disposer = disposer
-        _mutex.initialize()
+        mutex.initialize()
     }
 
     deinit {
         dispose()
-        _mutex.deinitialize()
+        mutex.deinitialize()
     }
 
     public func dispose() {
-        _mutex.lock()
+        mutex.lock()
         let disposer = self.disposer
         self.disposer = nil
-        _mutex.unlock()
+        mutex.unlock()
         disposer?()
     }
 }
@@ -57,51 +57,51 @@ public final class Disposer: Disposable {
 /// - Note: New disposables could be added after a disposal.
 public final class DisposeBag: Disposable {
     private var disposables: [Disposable]
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     /// Create an empty instance
     public init() {
         self.disposables = []
-        _mutex.initialize()
+        mutex.initialize()
     }
 
     /// Create an instance already containing `disposables`
     public init<S: Sequence>(_ disposables: S) where S.Iterator.Element == Disposable {
         self.disposables = Array(disposables)
-        _mutex.initialize()
+        mutex.initialize()
     }
 
     /// Create an instance already containing `disposables`
     public init(_ disposables: Disposable...) {
         self.disposables = disposables
-        _mutex.initialize()
+        mutex.initialize()
     }
 
     deinit {
         dispose()
-        _mutex.deinitialize()
+        mutex.deinitialize()
     }
 
     /// Returns true if there is currently no disposables to dispose.
     public var isEmpty: Bool {
-        _mutex.lock()
+        mutex.lock()
         let isEmpty = disposables.isEmpty
-        _mutex.unlock()
+        mutex.unlock()
         return isEmpty
     }
 
     public func dispose() {
-        _mutex.lock()
+        mutex.lock()
         let disposables = self.disposables // make sure to make a copy in the case any call to dispose will recursivaly call us back.
         self.disposables = []
-        _mutex.unlock()
+        mutex.unlock()
         for disposable in disposables { disposable.dispose() }
     }
 
     /// Add `disposable` to `self`
     public func add(_ disposable: Disposable) {
-        _mutex.lock()
-        defer { _mutex.unlock() }
+        mutex.lock()
+        defer { mutex.unlock() }
         disposables.append(disposable)
     }
 }
