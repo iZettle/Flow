@@ -14,34 +14,34 @@ public extension UIView {
     /// Returns a signal that will signal when user selects the copy command from the editing menu.
     /// - Note: Will display an editing menu on long press including the pasteboard actions currently listened on.
     var copySignal: Signal<()> {
-        return Signal { callback in
+        return Signal(onValue: { callback in
             let bag = DisposeBag()
             bag += self.copyingView.copyCallbacker.addCallback(callback)
             bag += { self.cleanUpCopyingView() }
             return bag
-        }
+        })
     }
 
     /// Returns a signal that will signal when user selects the paste command from the editing menu.
     /// - Note: Will display an editing menu on long press including the pasteboard actions currently listened on.
     var pasteSignal: Signal<()> {
-        return Signal { callback in
+        return Signal(onValue: { callback in
             let bag = DisposeBag()
             bag += self.copyingView.pasteCallbacker.addCallback(callback)
             bag += { self.cleanUpCopyingView() }
             return bag
-        }
+        })
     }
 
     /// Returns a signal that will signal when user selects the cut command from the editing menu.
     /// - Note: Will display an editing menu on long press including the pasteboard actions currently listened on.
     var cutSignal: Signal<()> {
-        return Signal { callback in
+        return Signal(onValue: { callback in
             let bag = DisposeBag()
             bag += self.copyingView.cutCallbacker.addCallback(callback)
             bag += { self.cleanUpCopyingView() }
             return bag
-        }
+        })
     }
 }
 

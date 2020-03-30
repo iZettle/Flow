@@ -24,7 +24,7 @@ public final class CoreSignal<Kind: SignalKind, Value> {
     public typealias Event = Flow.Event<Value>
     typealias EventType = Flow.EventType<Value>
 
-    internal init(onEventType: @escaping (@escaping (EventType) -> Void) -> Disposable, _ noTrailingClosure: Void = ()) {
+    internal init(onEventType: @escaping (@escaping (EventType) -> Void) -> Disposable) {
         self.onEventType = onEventType
     }
 }

@@ -71,7 +71,7 @@ public extension CoreSignal where Kind == Plain, Value == () {
     /// - Parameter delay: If provided will delay the first event by `delay`. If nil (default), `interval` will be used as the delay.
     convenience init(every interval: TimeInterval, delay: TimeInterval? = nil) {
         precondition(interval >= 0)
-        self.init { callback in
+        self.init(onValue: { callback in
             let bag = DisposeBag()
             guard interval.isFinite else { return bag }
 
@@ -93,7 +93,7 @@ public extension CoreSignal where Kind == Plain, Value == () {
             timer.resume()
 
             return bag
-        }
+        })
     }
 
     /// Creates a new signal that will signal once after `delay` seconds. Shorter version of `Signal(just: ()).delay(by: ...)`

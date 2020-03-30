@@ -15,7 +15,7 @@ public extension UIControl {
     ///
     ///     bag += textField.signal(for: .editingDidBegin).onValue { ... }
     func signal(for controlEvents: UIControl.Event) -> Signal<()> {
-        return Signal { callback in
+        return Signal(onValue: { callback in
             let targetAction = TargetAction()
             self.addTarget(targetAction, action: TargetAction.selector, for: controlEvents)
 
@@ -28,7 +28,7 @@ public extension UIControl {
                 self.updateAutomaticEnabling()
             }
             return bag
-        }
+        })
     }
 }
 
@@ -148,7 +148,7 @@ public extension UIBarButtonItem {
 
 extension UIGestureRecognizer: SignalProvider {
     public var providedSignal: ReadSignal<UIGestureRecognizer.State> {
-        return Signal { callback in
+        return Signal(onValue: { callback in
             let targetAction = TargetAction()
             self.addTarget(targetAction, action: TargetAction.selector)
             let bag = DisposeBag()
@@ -159,7 +159,7 @@ extension UIGestureRecognizer: SignalProvider {
                 self.removeTarget(targetAction, action: TargetAction.selector)
             }
             return bag
-        }.readable(initial: self.state)
+        }).readable(initial: self.state)
     }
 
     /// Returns a signal that will signal only for `state`, equivalent to `filter { $0 == forState }.toVoid()`

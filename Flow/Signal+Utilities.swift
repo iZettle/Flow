@@ -11,12 +11,12 @@ import Foundation
 public extension NotificationCenter {
     /// Returns a signal for notifications named `name`.
     func signal(forName name: Notification.Name?, object: Any? = nil) -> Signal<Notification> {
-        return Signal { callback in
+        return Signal(onValue: { callback in
             let observer = self.addObserver(forName: name, object: object, queue: nil, using: callback)
             return Disposer {
                 self.removeObserver(observer)
             }
-        }
+        })
     }
 }
 
