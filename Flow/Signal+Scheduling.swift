@@ -120,7 +120,9 @@ internal extension CoreSignal {
 private final class OnEventTypeDisposer<Value>: Disposable {
     private var disposable: Disposable?
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { withUnsafeMutablePointer(to: &_mutex) { PThreadMutex($0) } }
+    private var mutex: PThreadMutex {
+        return withUnsafeMutablePointer(to: &_mutex) { return PThreadMutex($0) }
+    }
     private let scheduler: Scheduler
     private var callback: ((EventType<Value>) -> Void)?
 

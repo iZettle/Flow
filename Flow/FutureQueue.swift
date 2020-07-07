@@ -169,7 +169,9 @@ public extension FutureQueue {
 }
 
 private extension FutureQueue {
-    var mutex: PThreadMutex { withUnsafeMutablePointer(to: &_mutex) { PThreadMutex($0) } }
+    var mutex: PThreadMutex {
+        return withUnsafeMutablePointer(to: &_mutex) { return PThreadMutex($0) }
+    }
     func lock() { mutex.lock() }
     func unlock() { mutex.unlock() }
 
@@ -231,7 +233,9 @@ private final class QueueItem<Output>: Executable {
         memPrint("Queue Item deinit", queueItemUnitTestAliveCount)
     }
 
-    private var mutex: PThreadMutex { withUnsafeMutablePointer(to: &_mutex) { PThreadMutex($0) } }
+    private var mutex: PThreadMutex {
+        return withUnsafeMutablePointer(to: &_mutex) { return PThreadMutex($0) }
+    }
     private func lock() { mutex.lock() }
     private func unlock() { mutex.unlock() }
 

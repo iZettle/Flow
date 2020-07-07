@@ -21,7 +21,9 @@ public final class Callbacker<Value> {
 
     private var callbacks = Callbacks.none
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { withUnsafeMutablePointer(to: &_mutex) { PThreadMutex($0) } }
+    private var mutex: PThreadMutex {
+        return withUnsafeMutablePointer(to: &_mutex) { return PThreadMutex($0) }
+    }
 
     public init() {
         mutex.initialize()

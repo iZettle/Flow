@@ -11,7 +11,9 @@ import Foundation
 /// A reference wrapper around a POSIX thread mutex
 public final class Mutex {
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { withUnsafeMutablePointer(to: &_mutex) { PThreadMutex($0) } }
+    private var mutex: PThreadMutex {
+        return withUnsafeMutablePointer(to: &_mutex) { return PThreadMutex($0) }
+    }
 
     public init() {
         mutex.initialize()
@@ -87,7 +89,9 @@ final class StateAndCallback<Value, State>: Disposable {
     var val: State
     fileprivate var disposables = [Disposable]()
     private var _mutex = pthread_mutex_t()
-    fileprivate var mutex: PThreadMutex { withUnsafeMutablePointer(to: &_mutex) { PThreadMutex($0) } }
+    fileprivate var mutex: PThreadMutex {
+        return withUnsafeMutablePointer(to: &_mutex) { return PThreadMutex($0) }
+    }
 
     init(state: State, callback: @escaping (Value) -> ()) {
         val = state

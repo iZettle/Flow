@@ -15,7 +15,9 @@ import Foundation
 public final class OrderedCallbacker<OrderedValue, CallbackValue> {
     private var callbacks: [Key: (OrderedValue, (CallbackValue) -> Future<()>)] = [:]
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { withUnsafeMutablePointer(to: &_mutex) { PThreadMutex($0) } }
+    private var mutex: PThreadMutex {
+        return withUnsafeMutablePointer(to: &_mutex) { return PThreadMutex($0) }
+    }
 
     public init() {
         mutex.initialize()
