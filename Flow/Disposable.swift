@@ -29,7 +29,7 @@ public struct NilDisposer: Disposable {
 public final class Disposer: Disposable {
     private var disposer: (() -> ())?
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex: PThreadMutex { withUnsafeMutablePointer(to: &_mutex) { PThreadMutex($0) } }
 
     /// Pass a closure to be called when being disposed
     public init(_ disposer: @escaping () -> () = {}) {
@@ -59,7 +59,7 @@ public final class Disposer: Disposable {
 public final class DisposeBag: Disposable {
     private var disposables: [Disposable]
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex: PThreadMutex { withUnsafeMutablePointer(to: &_mutex) { PThreadMutex($0) } }
 
     /// Create an empty instance
     public init() {

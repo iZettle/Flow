@@ -327,7 +327,7 @@ func memPrint(_ str: String, _ count: Int32) {
 }
 
 private extension Future {
-    var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    var mutex: PThreadMutex { withUnsafeMutablePointer(to: &_mutex) { PThreadMutex($0) } }
 
     private var protectedState: State {
         return mutex.protect { state }
