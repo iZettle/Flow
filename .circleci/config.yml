@@ -9,7 +9,7 @@ anchors:
   - &test_output_folder test_output
   - &default_executor
     macos:
-      xcode: "11.3.0"
+      xcode: "11.4.0"
 
 env:
   global:
@@ -107,18 +107,30 @@ commands:
           path: <<parameters.path>>/<<parameters.test_output_folder>>
 
 jobs:
-  swiftlint: # This is a job and not a command to be able to add it as a work flow step
+  swiftlint:
+    parameters:
+      version:
+        type: string
     <<: *default_executor
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
-          name: Install swiftlint(0.35.0)
+          name: Install SwiftLint(<< parameters.version >>)
           command: |
-            brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/ab64b13d26a3f8617689e3bc7e73a209d11f1bc8/Formula/swiftlint.rb
-      - run: swiftlint version && swiftlint --strict --reporter html > swiftlint.html
+            brew extract --version='<< parameters.version >>' swiftlint homebrew/cask
+            brew install swiftlint@<< parameters.version >>
+      # Run SwiftLint.
+      - run:
+          name: Lint Codebase
+          command: |
+            swiftlint version && swiftlint --strict --reporter html > swiftlint.html
       - store_artifacts:
           path: swiftlint.html
           destination: swiftlint.html
+      - store_test_results:
+          path: swiftlint.html
 
   test-xcode11-4-beta-ios13:
     macos:
@@ -147,7 +159,8 @@ workflows:
   version: 2.1
   build-and-test:
     jobs:
-      - swiftlint
+      - swiftlint:
+          version: 0.39.2
       - test-xcode10-ios12
       - test-xcode11-ios13
       - test-xcode11-4-beta-ios13
