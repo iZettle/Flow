@@ -3,7 +3,7 @@
 //  FlowTests
 //
 //  Created by Måns Bernhardt on 15/03/16.
-//  Copyright © 2016 iZettle. All rights reserved.
+//  Copyright © 2016 PayPal Inc. All rights reserved.
 //
 
 import XCTest

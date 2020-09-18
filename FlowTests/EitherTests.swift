@@ -1,6 +1,6 @@
 //
 // Created by Niil Öhlin on 2018-09-03.
-// Copyright (c) 2018 iZettle. All rights reserved.
+// Copyright © 2018 PayPal Inc. All rights reserved.
 //
 
 import Foundation
