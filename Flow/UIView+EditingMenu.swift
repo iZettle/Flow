@@ -3,7 +3,7 @@
 //  Flow
 //
 //  Created by Måns Bernhardt on 2015-09-17.
-//  Copyright © 2015 iZettle. All rights reserved.
+//  Copyright © 2015 PayPal Inc. All rights reserved.
 //
 
 #if canImport(UIKit) && !os(tvOS)
