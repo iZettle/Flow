@@ -18,7 +18,7 @@ public final class FutureQueue<Resource> {
     private let queueScheduler: Scheduler
     private var _closedError: Error?
     private let isEmptyCallbacker = Callbacker<Bool>()
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     // enqueued items.
     private var items: [Executable] = [] {
@@ -61,10 +61,7 @@ public extension FutureQueue {
         return Future { completion in
             let item = QueueItem<Output>(operation: operation, completion: completion)
 
-            self.mutex.protect {
-                self.items.append(item)
-            }
-
+            self.mutex.throughUnsafeMutablePointer { $0.protect { self.items.append(item) } }
             self.executeNextItem()
 
             return Disposer(item.cancel)
@@ -119,7 +116,7 @@ public extension FutureQueue {
 public extension FutureQueue {
     /// Do we have any enqueued operations?
     var isEmpty: Bool {
-        return mutex.protect { items.isEmpty }
+        return mutex.throughUnsafeMutablePointer { $0.protect { items.isEmpty } }
     }
 
     /// Returns a signal that will signal when `isEmpty` is changed.
@@ -164,18 +161,17 @@ public extension FutureQueue {
 
     /// The error passed to `abortQueuedExecutionWithError()` if called with `shouldCloseQueue` as true.
     var closedError: Error? {
-        return mutex.protect { _closedError }
+        return mutex.throughUnsafeMutablePointer { $0.protect { _closedError } }
     }
 }
 
 private extension FutureQueue {
-    var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
-    func lock() { mutex.lock() }
-    func unlock() { mutex.unlock() }
+    func lock() { mutex.throughUnsafeMutablePointer { $0.lock() } }
+    func unlock() { mutex.throughUnsafeMutablePointer { $0.unlock() } }
 
     func removeItem(_ item: Executable) {
-        mutex.protect {
-            _ = items.firstIndex { $0 === item }.map { items.remove(at: $0) }
+        mutex.throughUnsafeMutablePointer {
+            $0.protect { _ = items.firstIndex { $0 === item }.map { items.remove(at: $0) } }
         }
     }
 
@@ -188,8 +184,8 @@ private extension FutureQueue {
         unlock()
 
         item.execute(on: queueScheduler) {
-            self.mutex.protect {
-                self.concurrentCount -= 1
+            self.mutex.throughUnsafeMutablePointer {
+                $0.protect { self.concurrentCount -= 1 }
             }
             self.removeItem(item)
             self.executeNextItem()
@@ -214,31 +210,27 @@ private final class QueueItem<Output>: Executable {
     private let completion: (Result<Output>) -> ()
     private weak var future: Future<Output>?
     private var hasBeenCancelled = false
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     init(operation: @escaping () throws -> Future<Output>, completion: @escaping (Result<Output>) -> ()) {
         self.completion = completion
         self.operation = operation
-        mutex.initialize()
+        mutex.throughUnsafeMutablePointer { $0.initialize() }
 
         OSAtomicIncrement32(&queueItemUnitTestAliveCount)
         memPrint("Queue Item init", queueItemUnitTestAliveCount)
     }
 
     deinit {
-        mutex.deinitialize()
+        self.mutex.throughUnsafeMutablePointer { $0.deinitialize() }
         OSAtomicDecrement32(&queueItemUnitTestAliveCount)
         memPrint("Queue Item deinit", queueItemUnitTestAliveCount)
     }
 
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
-    private func lock() { mutex.lock() }
-    private func unlock() { mutex.unlock() }
-
     private func complete(_ result: (Result<Output>)) {
-        lock()
+        mutex.throughUnsafeMutablePointer { $0.lock() }
         let future = self.future
-        unlock()
+        mutex.throughUnsafeMutablePointer { $0.unlock() }
         future?.cancel()
         completion(result)
     }
@@ -248,13 +240,13 @@ private final class QueueItem<Output>: Executable {
             self.complete(result)
         }.always(completion)
 
-        lock()
+        mutex.throughUnsafeMutablePointer { $0.lock() }
         self.future = future
         if hasBeenCancelled {
-            unlock()
+            mutex.throughUnsafeMutablePointer { $0.unlock() }
             future.cancel()
         } else {
-            unlock()
+            mutex.throughUnsafeMutablePointer { $0.unlock() }
         }
     }
 
@@ -263,16 +255,16 @@ private final class QueueItem<Output>: Executable {
     }
 
     var isExecuting: Bool {
-        lock()
-        defer { unlock() }
+        mutex.throughUnsafeMutablePointer { $0.lock() }
+        defer { mutex.throughUnsafeMutablePointer { $0.unlock() } }
         return future != nil
     }
 
     func cancel() {
-        lock()
+        mutex.throughUnsafeMutablePointer { $0.lock() }
         hasBeenCancelled = true
         let future = self.future
-        unlock()
+        mutex.throughUnsafeMutablePointer { $0.unlock() }
         future?.cancel()
     }
 }

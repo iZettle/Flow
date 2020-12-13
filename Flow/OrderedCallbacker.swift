@@ -15,19 +15,18 @@ import Foundation
 public final class OrderedCallbacker<OrderedValue, CallbackValue> {
     private var callbacks: [Key: (OrderedValue, (CallbackValue) -> Future<()>)] = [:]
     private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
 
     public init() {
-        mutex.initialize()
+        _mutex.throughUnsafeMutablePointer { $0.initialize() }
     }
 
     deinit {
-        mutex.deinitialize()
+        _mutex.throughUnsafeMutablePointer { $0.deinitialize() }
     }
 
     /// - Returns: True if no callbacks has been registered.
     public var isEmpty: Bool {
-        return mutex.protect { callbacks.isEmpty }
+        _mutex.throughUnsafeMutablePointer { $0.protect { callbacks.isEmpty } }
     }
 
     /// Register a callback and orderedValue to be called when `callAll` is executed.
@@ -35,22 +34,23 @@ public final class OrderedCallbacker<OrderedValue, CallbackValue> {
     /// - Parameter orderedValue: The value used to order this callback
     /// - Returns: A `Disposable` to be disposed to unregister the callback.
     public func addCallback(_ callback: @escaping (CallbackValue) -> Future<()>, orderedBy orderedValue: OrderedValue) -> Disposable {
-        return mutex.protect {
+        return _mutex.throughUnsafeMutablePointer { $0.protect {
             let key = generateKey()
             callbacks[key] = (orderedValue, callback)
             return Disposer {
-                self.mutex.protect { self.callbacks[key] = nil }
+                self._mutex.throughUnsafeMutablePointer { $0.protect { self.callbacks[key] = nil } }
             }
-        }
+        } }
     }
 
     /// Will call all registered callbacks with `value` in the order set by `isOrderedBefore`
     /// - Returns: A `Future` that will complete when all callbacks has been called.
     @discardableResult
     public func callAll(with value: CallbackValue, isOrderedBefore: (OrderedValue, OrderedValue) -> Bool) -> Future<()> {
-        return mutex.protect {
-            callbacks.values.sorted { isOrderedBefore($0.0, $1.0) }.map { $1 }
-        }.mapToFuture { $0(value) }.toVoid()
+        return _mutex.throughUnsafeMutablePointer {
+            $0.protect { callbacks.values.sorted { isOrderedBefore($0.0, $1.0) }.map { $1 } }
+                .mapToFuture { $0(value) }.toVoid()
+        }
     }
 }
 

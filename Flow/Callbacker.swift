@@ -20,21 +20,20 @@ public final class Callbacker<Value> {
     }
 
     private var callbacks = Callbacks.none
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     public init() {
-        mutex.initialize()
+        mutex.throughUnsafeMutablePointer { $0.initialize() }
     }
 
     deinit {
-        mutex.deinitialize()
+        mutex.throughUnsafeMutablePointer { $0.deinitialize() }
     }
 
     /// - Returns: True if no callbacks has been registered.
     public var isEmpty: Bool {
-        mutex.lock()
-        defer { mutex.unlock() }
+        mutex.throughUnsafeMutablePointer { $0.lock() }
+        defer { mutex.throughUnsafeMutablePointer { $0.unlock() } }
 
         switch callbacks {
         case .none: return true
@@ -46,8 +45,8 @@ public final class Callbacker<Value> {
     /// Register a callback to be called when `callAll` is executed.
     /// - Returns: A `Disposable` to be disposed to unregister the callback.
     public func addCallback(_ callback: @escaping (Value) -> Void) -> Disposable {
-        mutex.lock()
-        defer { mutex.unlock() }
+        mutex.throughUnsafeMutablePointer { $0.lock() }
+        defer { mutex.throughUnsafeMutablePointer { $0.unlock() } }
 
         let key = generateKey()
 
@@ -63,8 +62,8 @@ public final class Callbacker<Value> {
         }
 
         return NoLockKeyDisposer(key) { key in
-            self.mutex.lock()
-            defer { self.mutex.unlock() }
+            self.mutex.throughUnsafeMutablePointer { $0.lock() }
+            defer { self.mutex.throughUnsafeMutablePointer { $0.unlock() } }
 
             switch self.callbacks {
             case .single(let singleKey, _) where singleKey == key:
@@ -82,9 +81,9 @@ public final class Callbacker<Value> {
 
     /// Will call all registered callbacks with `value`
     public func callAll(with value: Value) {
-        mutex.lock()
+        mutex.throughUnsafeMutablePointer { $0.lock() }
         let callbacks = self.callbacks
-        mutex.unlock()
+        mutex.throughUnsafeMutablePointer { $0.unlock() }
 
         switch callbacks {
         case .none: break
