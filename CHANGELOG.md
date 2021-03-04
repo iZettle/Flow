@@ -1,5 +1,6 @@
 # 1.9.0
 
+- Xcode 12.4 compatibility
 
 # 1.8.4
 
