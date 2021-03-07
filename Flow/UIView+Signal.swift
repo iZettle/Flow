@@ -98,13 +98,22 @@ public extension UIView {
 private extension UIView {
     func signal<T>(for keyPath: KeyPath<CallbackerView, Callbacker<T>>) -> Signal<T> {
         return Signal(onValue: { callback in
-            let view = (self.viewWithTag(987892442) as? CallbackerView)  ?? {
+            var callbackerViewParent: UIView {
+                if let parent = self as? UIVisualEffectView {
+                    return parent.contentView
+                }
+
+                return self
+            }
+
+            let view = (callbackerViewParent.viewWithTag(987892442) as? CallbackerView)  ?? {
                 let view = CallbackerView(frame: self.bounds)
                 view.autoresizingMask = [.flexibleWidth, .flexibleHeight] // trick so layoutsubViews is called when the view is resized
                 view.tag = 987892442
                 view.backgroundColor = .clear
                 view.isUserInteractionEnabled = false
-                self.insertSubview(view, at: 0)
+                callbackerViewParent.insertSubview(view, at: 0)
+
                 view.setNeedsLayout()
                 return view
             }()

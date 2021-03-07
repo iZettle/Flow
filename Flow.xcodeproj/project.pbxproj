@@ -16,6 +16,7 @@
 		792AC15B227C8A6800F8BBAD /* SignalProviderTests+Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792AC15A227C8A6800F8BBAD /* SignalProviderTests+Internal.swift */; };
 		8E890FC106FB7A89BD1727CC /* EitherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E890194B06CBB3311E44757 /* EitherTests.swift */; };
 		DA6D58EF230E925700564CC1 /* MemoryUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6D58EB230E918800564CC1 /* MemoryUtilsTests.swift */; };
+		EB4E033624E5707000CD7F8F /* CallbackerView+UIVisualEffectViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4E033524E5707000CD7F8F /* CallbackerView+UIVisualEffectViewTests.swift */; };
 		F610ABAE1D91743500A161AB /* Future+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABA71D91743500A161AB /* Future+Additions.swift */; };
 		F610ABB01D91743500A161AB /* FutureQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABA91D91743500A161AB /* FutureQueue.swift */; };
 		F610ABB21D91743500A161AB /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABAB1D91743500A161AB /* Result.swift */; };
@@ -91,6 +92,7 @@
 		792AC15A227C8A6800F8BBAD /* SignalProviderTests+Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "SignalProviderTests+Internal.swift"; path = "FlowTests/SignalProviderTests+Internal.swift"; sourceTree = "<group>"; };
 		8E890194B06CBB3311E44757 /* EitherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = EitherTests.swift; path = FlowTests/EitherTests.swift; sourceTree = "<group>"; };
 		DA6D58EB230E918800564CC1 /* MemoryUtilsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MemoryUtilsTests.swift; path = FlowTests/MemoryUtilsTests.swift; sourceTree = "<group>"; };
+		EB4E033524E5707000CD7F8F /* CallbackerView+UIVisualEffectViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "CallbackerView+UIVisualEffectViewTests.swift"; path = "FlowTests/CallbackerView+UIVisualEffectViewTests.swift"; sourceTree = "<group>"; };
 		F610ABA61D91743500A161AB /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Future.swift; path = Flow/Future.swift; sourceTree = SOURCE_ROOT; };
 		F610ABA71D91743500A161AB /* Future+Additions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Future+Additions.swift"; path = "Flow/Future+Additions.swift"; sourceTree = SOURCE_ROOT; };
 		F610ABA91D91743500A161AB /* FutureQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FutureQueue.swift; path = Flow/FutureQueue.swift; sourceTree = SOURCE_ROOT; };
@@ -298,6 +300,7 @@
 				F610ABB51D91747000A161AB /* FutureQueueTests.swift */,
 				F610ABB61D91747000A161AB /* FutureRepeatTests.swift */,
 				F610ABB71D91747000A161AB /* FutureSchedulingTests.swift */,
+				EB4E033524E5707000CD7F8F /* CallbackerView+UIVisualEffectViewTests.swift */,
 				F610ABB81D91747000A161AB /* FutureSplitTests.swift */,
 				F610ABB91D91747000A161AB /* FutureUtilitiesTests.swift */,
 				F6A8808D1D9182B900CA257F /* CallbackerTests.swift */,
@@ -519,6 +522,7 @@
 				F610ABBE1D91747000A161AB /* FutureRepeatTests.swift in Sources */,
 				F610ABC01D91747000A161AB /* FutureSplitTests.swift in Sources */,
 				215DEF371DEC368700CEB724 /* RecursiveTests.swift in Sources */,
+				EB4E033624E5707000CD7F8F /* CallbackerView+UIVisualEffectViewTests.swift in Sources */,
 				F66835D42091C29C002D2676 /* UIViewSignalTests.swift in Sources */,
 				792AC15B227C8A6800F8BBAD /* SignalProviderTests+Internal.swift in Sources */,
 				F6C0FED2202B44360076B877 /* DelegateTests.swift in Sources */,
