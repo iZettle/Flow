@@ -57,7 +57,7 @@ public final class Future<Value> {
 
     private var state: State
     private let clone: () -> Future
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     /// Helper used to move external futures inside `Future.init`'s `onComplete` closure. Needed for repetition to work properly.
     public struct Mover {
@@ -327,10 +327,10 @@ func memPrint(_ str: String, _ count: Int32) {
 }
 
 private extension Future {
-    var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
-
     private var protectedState: State {
-        return mutex.protect { state }
+        mutex.lock()
+        defer { mutex.unlock() }
+        return state
     }
 
     func lock() {

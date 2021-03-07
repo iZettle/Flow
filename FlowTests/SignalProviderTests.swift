@@ -1718,13 +1718,19 @@ class SignalProviderTests: XCTestCase {
             _ = Signal(callbacker: callbacker).start(with: 1).take(first: 2).onEvent(on: .concurrentBackground) { event in
                 switch event {
                 case .value(let val):
-                    mutex.protect { result.append(val) }
+                    mutex.lock()
+                    result.append(val)
+                    mutex.unlock()
                     backgroundQueue.async {
                         callbacker.callAll(with: val + 1)
                     }
-                    mutex.protect { result.append(val*10) }
+                    mutex.lock()
+                    result.append(val*10)
+                    mutex.unlock()
                 case .end:
-                    XCTAssertEqual(mutex.protect { result }, [1, 10, 2, 20])
+                    mutex.lock()
+                    XCTAssertEqual(result, [1, 10, 2, 20])
+                    mutex.unlock()
                 }
             }
         }
@@ -2718,13 +2724,15 @@ final class SimulatedTimer {
 
     func schedule(at time: TimeInterval, execute work: @escaping () -> ()) -> Disposable {
         let key = UUID()
-        mutex.protect {
-            assert(time >= self.time)
-            scheduledWork[key] = (time, work)
-        }
+        mutex.lock()
+        assert(time >= self.time)
+        scheduledWork[key] = (time, work)
+        mutex.unlock()
 
         return Disposer {
-            self.mutex.protect { self.scheduledWork[key] = nil }
+            self.mutex.lock()
+            self.scheduledWork[key] = nil
+            self.mutex.unlock()
         }
     }
 
@@ -2748,7 +2756,9 @@ final class SimulatedTimer {
         //print("call", next)
         next.value.work()
 
-        mutex.protect { count -= 1 }
+        mutex.lock()
+        count -= 1
+        mutex.unlock()
         mainQueue.async { self.release() }
     }
 }

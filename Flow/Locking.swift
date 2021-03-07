@@ -10,8 +10,7 @@ import Foundation
 
 /// A reference wrapper around a POSIX thread mutex
 public final class Mutex {
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     public init() {
         mutex.initialize()
@@ -30,13 +29,27 @@ public final class Mutex {
     public func unlock() {
         mutex.unlock()
     }
+}
 
-    /// Will lock `self`, call `block`, then unlock `self`
-    @discardableResult
-    public func protect<T>(_ block: () throws -> T) rethrows -> T {
-        mutex.lock()
-        defer { mutex.unlock() }
-        return try block()
+extension pthread_mutex_t {
+    mutating func withPointer<T>(_ body: (PThreadMutex) throws -> T) rethrows -> T {
+        return try withUnsafeMutablePointer(to: &self, body)
+    }
+
+    mutating func initialize() {
+        withPointer { $0.initialize() }
+    }
+
+    mutating func deinitialize() {
+        withPointer { $0.deinitialize() }
+    }
+
+    mutating func lock() {
+        withPointer { $0.lock() }
+    }
+
+    mutating func unlock() {
+        withPointer { $0.unlock() }
     }
 }
 
@@ -86,8 +99,7 @@ final class StateAndCallback<Value, State>: Disposable {
     var callback: ((Value) -> ())?
     var val: State
     fileprivate var disposables = [Disposable]()
-    private var _mutex = pthread_mutex_t()
-    fileprivate var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     init(state: State, callback: @escaping (Value) -> ()) {
         val = state
@@ -192,12 +204,12 @@ extension StateAndCallback where Value == () {
 
 func +=<Value, State>(bag: StateAndCallback<Value, State>, disposable: Disposable?) {
     guard let disposable = disposable else { return }
-    bag.mutex.lock()
+    bag.lock()
     let hasBeenDisposed = bag.callback == nil
     if !hasBeenDisposed {
         bag.disposables.append(disposable)
     }
-    bag.mutex.unlock()
+    bag.unlock()
     if hasBeenDisposed {
         disposable.dispose()
     }

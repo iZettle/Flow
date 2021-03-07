@@ -18,7 +18,7 @@ public final class FutureQueue<Resource> {
     private let queueScheduler: Scheduler
     private var _closedError: Error?
     private let isEmptyCallbacker = Callbacker<Bool>()
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     // enqueued items.
     private var items: [Executable] = [] {
@@ -61,9 +61,9 @@ public extension FutureQueue {
         return Future { completion in
             let item = QueueItem<Output>(operation: operation, completion: completion)
 
-            self.mutex.protect {
-                self.items.append(item)
-            }
+            self.mutex.lock()
+            self.items.append(item)
+            self.mutex.unlock()
 
             self.executeNextItem()
 
@@ -119,7 +119,9 @@ public extension FutureQueue {
 public extension FutureQueue {
     /// Do we have any enqueued operations?
     var isEmpty: Bool {
-        return mutex.protect { items.isEmpty }
+        mutex.lock()
+        defer { mutex.unlock() }
+        return items.isEmpty
     }
 
     /// Returns a signal that will signal when `isEmpty` is changed.
@@ -164,19 +166,20 @@ public extension FutureQueue {
 
     /// The error passed to `abortQueuedExecutionWithError()` if called with `shouldCloseQueue` as true.
     var closedError: Error? {
-        return mutex.protect { _closedError }
+        mutex.lock()
+        defer { mutex.unlock() }
+        return _closedError
     }
 }
 
 private extension FutureQueue {
-    var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
     func lock() { mutex.lock() }
     func unlock() { mutex.unlock() }
 
     func removeItem(_ item: Executable) {
-        mutex.protect {
-            _ = items.firstIndex { $0 === item }.map { items.remove(at: $0) }
-        }
+        mutex.lock()
+        _ = items.firstIndex { $0 === item }.map { items.remove(at: $0) }
+        mutex.unlock()
     }
 
     func executeNextItem() {
@@ -188,9 +191,9 @@ private extension FutureQueue {
         unlock()
 
         item.execute(on: queueScheduler) {
-            self.mutex.protect {
-                self.concurrentCount -= 1
-            }
+            self.lock()
+            self.concurrentCount -= 1
+            self.unlock()
             self.removeItem(item)
             self.executeNextItem()
         }
@@ -214,7 +217,7 @@ private final class QueueItem<Output>: Executable {
     private let completion: (Result<Output>) -> ()
     private weak var future: Future<Output>?
     private var hasBeenCancelled = false
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     init(operation: @escaping () throws -> Future<Output>, completion: @escaping (Result<Output>) -> ()) {
         self.completion = completion
@@ -231,7 +234,6 @@ private final class QueueItem<Output>: Executable {
         memPrint("Queue Item deinit", queueItemUnitTestAliveCount)
     }
 
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
     private func lock() { mutex.lock() }
     private func unlock() { mutex.unlock() }
 
