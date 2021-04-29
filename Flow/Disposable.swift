@@ -84,7 +84,10 @@ public final class DisposeBag: Disposable {
 
     /// Returns true if there is currently no disposables to dispose.
     public var isEmpty: Bool {
-        return mutex.protect { disposables.isEmpty }
+        mutex.lock()
+        defer { mutex.unlock() }
+        
+        return disposables.isEmpty
     }
 
     public func dispose() {
