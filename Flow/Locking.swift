@@ -39,11 +39,24 @@ public final class Mutex {
     }
 }
 
+@usableFromInline
+enum MutexType {
+    case normal
+    case recursive
+
+    var attrType: Int32 {
+        switch self {
+        case .normal: return PTHREAD_MUTEX_NORMAL
+        case .recursive: return PTHREAD_MUTEX_RECURSIVE
+        }
+    }
+}
+
 internal extension pthread_mutex_t {
 
-    @inlinable mutating func initialize() {
+    @inlinable mutating func initialize(as type: MutexType = .normal) {
         withUnsafeMutablePointer(to: &self) {
-            $0.initialize()
+            $0.initialize(as: type)
         }
     }
 
@@ -65,12 +78,6 @@ internal extension pthread_mutex_t {
         }
     }
 
-    @inlinable mutating func protect<T>(_ block: () throws -> T) rethrows -> T {
-        try withUnsafeMutablePointer(to: &self) {
-            return try $0.protect(block)
-        }
-    }
-
 }
 
 typealias PThreadMutex = UnsafeMutablePointer<pthread_mutex_t>
@@ -79,14 +86,14 @@ typealias PThreadMutex = UnsafeMutablePointer<pthread_mutex_t>
 /// - Note: You have to explicity call `initialize()` before use (typically in a class init) and `deinitialize()` when done (typically in a class deinit)
 extension UnsafeMutablePointer where Pointee == pthread_mutex_t {
     @usableFromInline
-    func initialize() {
+    func initialize(as type: MutexType = .normal) {
         var attr = pthread_mutexattr_t()
         defer { pthread_mutexattr_destroy(&attr) }
         guard pthread_mutexattr_init(&attr) == 0 else {
             preconditionFailure()
         }
 
-        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL)
+        pthread_mutexattr_settype(&attr, type.attrType)
 
         guard pthread_mutex_init(self, &attr) == 0 else {
             preconditionFailure()
@@ -110,13 +117,6 @@ extension UnsafeMutablePointer where Pointee == pthread_mutex_t {
         pthread_mutex_unlock(self)
     }
 
-    /// Will lock `self`, call `block`, then unlock `self`
-    @discardableResult @usableFromInline
-    func protect<T>(_ block: () throws -> T) rethrows -> T {
-        pthread_mutex_lock(self)
-        defer { pthread_mutex_unlock(self) }
-        return try block()
-    }
 }
 
 /// Internal helper to help manage state in stateful transforms.

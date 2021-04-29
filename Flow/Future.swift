@@ -329,7 +329,10 @@ func memPrint(_ str: String, _ count: Int32) {
 private extension Future {
 
     private var protectedState: State {
-        return mutex.protect { state }
+        mutex.lock()
+        defer { mutex.unlock() }
+        
+        return state
     }
 
     func lock() {
