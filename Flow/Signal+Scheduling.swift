@@ -119,8 +119,7 @@ internal extension CoreSignal {
 // Using custom Disposable instead of DisposeBag for efficiency (less allocations)
 private final class OnEventTypeDisposer<Value>: Disposable {
     private var disposable: Disposable?
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
     private let scheduler: Scheduler
     private var callback: ((EventType<Value>) -> Void)?
 

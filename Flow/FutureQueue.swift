@@ -214,7 +214,7 @@ private final class QueueItem<Output>: Executable {
     private let completion: (Result<Output>) -> ()
     private weak var future: Future<Output>?
     private var hasBeenCancelled = false
-    private var _mutex = pthread_mutex_t()
+    private var mutex = pthread_mutex_t()
 
     init(operation: @escaping () throws -> Future<Output>, completion: @escaping (Result<Output>) -> ()) {
         self.completion = completion
@@ -231,7 +231,6 @@ private final class QueueItem<Output>: Executable {
         memPrint("Queue Item deinit", queueItemUnitTestAliveCount)
     }
 
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
     private func lock() { mutex.lock() }
     private func unlock() { mutex.unlock() }
 

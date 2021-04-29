@@ -112,8 +112,7 @@ private final class CallbackState<Value>: Disposable {
     private var shared: SharedState<Value>?
     let sharedKey: Key
 
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     init(shared: SharedState<Value>? = nil, getValue: (() -> Value)?, callback: @escaping (EventType<Value>) -> Void) {
         self.shared = shared
@@ -292,8 +291,7 @@ private final class CallbackState<Value>: Disposable {
 /// Helper to implement sharing of a single `onEvent` if more than one listner, see `SignalOption.shared`
 final class SharedState<Value> {
     private let getValue: (() -> Value)?
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     typealias Callback = (EventType<Value>) -> Void
     var firstCallback: (key: Key, value: Callback)?

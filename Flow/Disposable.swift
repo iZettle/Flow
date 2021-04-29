@@ -28,8 +28,7 @@ public struct NilDisposer: Disposable {
 /// - Note: Is thread safe and reentrant (dispose callback could call itself)
 public final class Disposer: Disposable {
     private var disposer: (() -> ())?
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     /// Pass a closure to be called when being disposed
     public init(_ disposer: @escaping () -> () = {}) {
@@ -58,8 +57,7 @@ public final class Disposer: Disposable {
 /// - Note: New disposables could be added after a disposal.
 public final class DisposeBag: Disposable {
     private var disposables: [Disposable]
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     /// Create an empty instance
     public init() {

@@ -10,8 +10,7 @@ import Foundation
 
 /// A reference wrapper around a POSIX thread mutex
 public final class Mutex {
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     public init() {
         mutex.initialize()
@@ -125,8 +124,7 @@ final class StateAndCallback<Value, State>: Disposable {
     var callback: ((Value) -> ())?
     var val: State
     fileprivate var disposables = [Disposable]()
-    private var _mutex = pthread_mutex_t()
-    fileprivate var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    fileprivate var mutex = pthread_mutex_t()
 
     init(state: State, callback: @escaping (Value) -> ()) {
         val = state
