@@ -40,11 +40,46 @@ public final class Mutex {
     }
 }
 
+internal extension pthread_mutex_t {
+
+    @inlinable mutating func initialize() {
+        withUnsafeMutablePointer(to: &self) {
+            $0.initialize()
+        }
+    }
+
+    @inlinable mutating func deinitialize() {
+        withUnsafeMutablePointer(to: &self) {
+            $0.deinitialize()
+        }
+    }
+
+    @inlinable mutating func lock() {
+        withUnsafeMutablePointer(to: &self) {
+            $0.lock()
+        }
+    }
+
+    @inlinable mutating func unlock() {
+        withUnsafeMutablePointer(to: &self) {
+            $0.unlock()
+        }
+    }
+
+    @inlinable mutating func protect<T>(_ block: () throws -> T) rethrows -> T {
+        try withUnsafeMutablePointer(to: &self) {
+            return try $0.protect(block)
+        }
+    }
+
+}
+
 typealias PThreadMutex = UnsafeMutablePointer<pthread_mutex_t>
 
 /// Helper methods to work directly with a Pthread mutex pointer to avoid overhead of alloction and reference counting of using the Mutex reference type.
 /// - Note: You have to explicity call `initialize()` before use (typically in a class init) and `deinitialize()` when done (typically in a class deinit)
 extension UnsafeMutablePointer where Pointee == pthread_mutex_t {
+    @usableFromInline
     func initialize() {
         var attr = pthread_mutexattr_t()
         defer { pthread_mutexattr_destroy(&attr) }
@@ -59,22 +94,25 @@ extension UnsafeMutablePointer where Pointee == pthread_mutex_t {
         }
     }
 
+    @usableFromInline
     func deinitialize() {
         pthread_mutex_destroy(self)
     }
 
     /// Attempt to acquire the lock, blocking a thread’s execution until the lock can be acquired.
+    @usableFromInline
     func lock() {
         pthread_mutex_lock(self)
     }
 
     /// Releases a previously acquired lock.
+    @usableFromInline
     func unlock() {
         pthread_mutex_unlock(self)
     }
 
     /// Will lock `self`, call `block`, then unlock `self`
-    @discardableResult
+    @discardableResult @usableFromInline
     func protect<T>(_ block: () throws -> T) rethrows -> T {
         pthread_mutex_lock(self)
         defer { pthread_mutex_unlock(self) }
