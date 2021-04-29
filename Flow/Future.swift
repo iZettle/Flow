@@ -331,7 +331,6 @@ private extension Future {
     private var protectedState: State {
         mutex.lock()
         defer { mutex.unlock() }
-        
         return state
     }
 
