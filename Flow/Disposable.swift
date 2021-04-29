@@ -86,7 +86,6 @@ public final class DisposeBag: Disposable {
     public var isEmpty: Bool {
         mutex.lock()
         defer { mutex.unlock() }
-        
         return disposables.isEmpty
     }
 
