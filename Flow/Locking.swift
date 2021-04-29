@@ -47,6 +47,7 @@ typealias PThreadMutex = UnsafeMutablePointer<pthread_mutex_t>
 extension UnsafeMutablePointer where Pointee == pthread_mutex_t {
     func initialize() {
         var attr = pthread_mutexattr_t()
+        defer { pthread_mutexattr_destroy(&attr) }
         guard pthread_mutexattr_init(&attr) == 0 else {
             preconditionFailure()
         }
