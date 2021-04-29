@@ -14,8 +14,7 @@ import Foundation
 /// - Note: Is thread safe.
 public final class OrderedCallbacker<OrderedValue, CallbackValue> {
     private var callbacks: [Key: (OrderedValue, (CallbackValue) -> Future<()>)] = [:]
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     public init() {
         mutex.initialize()
