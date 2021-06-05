@@ -85,7 +85,7 @@ typealias PThreadMutex = UnsafeMutablePointer<pthread_mutex_t>
 /// - Note: You have to explicity call `initialize()` before use (typically in a class init) and `deinitialize()` when done (typically in a class deinit)
 extension UnsafeMutablePointer where Pointee == pthread_mutex_t {
 
-    func initialize(as type: MutexType = .normal) {
+    func initialize(as type: MutexType = .recursive) {
         var attr = pthread_mutexattr_t()
         defer { pthread_mutexattr_destroy(&attr) }
         guard pthread_mutexattr_init(&attr) == 0 else {
