@@ -20,8 +20,7 @@ public final class Callbacker<Value> {
     }
 
     private var callbacks = Callbacks.none
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     public init() {
         mutex.initialize()

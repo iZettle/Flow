@@ -10,8 +10,7 @@ import Foundation
 
 /// A reference wrapper around a POSIX thread mutex
 public final class Mutex {
-    private var _mutex = pthread_mutex_t()
-    private var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    private var mutex = pthread_mutex_t()
 
     public init() {
         mutex.initialize()
@@ -40,18 +39,60 @@ public final class Mutex {
     }
 }
 
+enum MutexType {
+    case normal
+    case recursive
+
+    var attrType: Int32 {
+        switch self {
+        case .normal: return PTHREAD_MUTEX_NORMAL
+        case .recursive: return PTHREAD_MUTEX_RECURSIVE
+        }
+    }
+}
+
+internal extension pthread_mutex_t {
+
+    mutating func initialize(as type: MutexType = .normal) {
+        withUnsafeMutablePointer(to: &self) {
+            $0.initialize(as: type)
+        }
+    }
+
+    mutating func deinitialize() {
+        withUnsafeMutablePointer(to: &self) {
+            $0.deinitialize()
+        }
+    }
+
+    mutating func lock() {
+        withUnsafeMutablePointer(to: &self) {
+            $0.lock()
+        }
+    }
+
+    mutating func unlock() {
+        withUnsafeMutablePointer(to: &self) {
+            $0.unlock()
+        }
+    }
+
+}
+
 typealias PThreadMutex = UnsafeMutablePointer<pthread_mutex_t>
 
 /// Helper methods to work directly with a Pthread mutex pointer to avoid overhead of alloction and reference counting of using the Mutex reference type.
 /// - Note: You have to explicity call `initialize()` before use (typically in a class init) and `deinitialize()` when done (typically in a class deinit)
 extension UnsafeMutablePointer where Pointee == pthread_mutex_t {
-    func initialize() {
+
+    func initialize(as type: MutexType = .recursive) {
         var attr = pthread_mutexattr_t()
+        defer { pthread_mutexattr_destroy(&attr) }
         guard pthread_mutexattr_init(&attr) == 0 else {
             preconditionFailure()
         }
 
-        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL)
+        pthread_mutexattr_settype(&attr, type.attrType)
 
         guard pthread_mutex_init(self, &attr) == 0 else {
             preconditionFailure()
@@ -71,14 +112,6 @@ extension UnsafeMutablePointer where Pointee == pthread_mutex_t {
     func unlock() {
         pthread_mutex_unlock(self)
     }
-
-    /// Will lock `self`, call `block`, then unlock `self`
-    @discardableResult
-    func protect<T>(_ block: () throws -> T) rethrows -> T {
-        pthread_mutex_lock(self)
-        defer { pthread_mutex_unlock(self) }
-        return try block()
-    }
 }
 
 /// Internal helper to help manage state in stateful transforms.
@@ -86,8 +119,7 @@ final class StateAndCallback<Value, State>: Disposable {
     var callback: ((Value) -> ())?
     var val: State
     fileprivate var disposables = [Disposable]()
-    private var _mutex = pthread_mutex_t()
-    fileprivate var mutex: PThreadMutex { return PThreadMutex(&_mutex) }
+    fileprivate var mutex = pthread_mutex_t()
 
     init(state: State, callback: @escaping (Value) -> ()) {
         val = state
