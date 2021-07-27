@@ -119,8 +119,8 @@ jobs:
       - run:
           name: Install SwiftLint(<< parameters.version >>)
           command: |
-            brew extract --version='<< parameters.version >>' swiftlint homebrew/cask
-            brew install swiftlint@<< parameters.version >>
+            curl -L -k -o /Users/distiller/Downloads/SwiftLint.pkg https://github.com/realm/SwiftLint/releases/download/<< parameters.version >>/SwiftLint.pkg
+            sudo installer -pkg /Users/distiller/Downloads/SwiftLint.pkg -target /
       # Run SwiftLint.
       - run:
           name: Lint Codebase
