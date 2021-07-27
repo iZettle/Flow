@@ -201,7 +201,7 @@ var queueItemUnitTestAliveCount: Int32 = 0
 var futureQueueUnitTestAliveCount: Int32 = 0
 
 /// QueueItem is generic on Output but we can't hold a queue of heterogeneous items, hence this helper protocol
-private protocol Executable: class {
+private protocol Executable: AnyObject {
     func execute(on scheduler: Scheduler, completion: @escaping () -> Void)
     var isExecuting: Bool { get }
 

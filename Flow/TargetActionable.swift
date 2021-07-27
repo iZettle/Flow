@@ -9,7 +9,7 @@
 import Foundation
 
 /// Whether the conforming object supports a single target and action.
-public protocol TargetActionable: class {
+public protocol TargetActionable: AnyObject {
     var action: Selector? { get set }
     var target: AnyObject? { get set }
 }

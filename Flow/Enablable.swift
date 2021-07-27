@@ -9,7 +9,7 @@
 import Foundation
 
 /// Whether the conforming object can be enabled and disabled.
-public protocol Enablable: class {
+public protocol Enablable: AnyObject {
     var isEnabled: Bool { get set }
 }
 
