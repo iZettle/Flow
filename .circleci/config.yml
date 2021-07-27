@@ -9,7 +9,7 @@ anchors:
   - &test_output_folder test_output
   - &default_executor
     macos:
-      xcode: "12.4.0"
+      xcode: "12.5.0"
 
 env:
   global:
