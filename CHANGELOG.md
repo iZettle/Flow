@@ -1,3 +1,8 @@
+
+# 1.9.1
+
+- Xcode 12.5 compatibility
+
 # 1.9.0
 
 - Xcode 12.4 compatibility
