@@ -9,7 +9,7 @@
 import Foundation
 
 /// Whether the conforming class has event listeners.
-public protocol HasEventListeners: class {
+public protocol HasEventListeners: AnyObject {
     /// Boolean value indicating whether the instance currently has event listeners.
     var hasEventListeners: Bool { get }
 }
