@@ -132,7 +132,7 @@ jobs:
       - store_test_results:
           path: swiftlint.html
 
-  test-xcode11-ios13:
+  test-xcode12-ios14:
     macos:
       xcode: "12.5.0"
     steps:
