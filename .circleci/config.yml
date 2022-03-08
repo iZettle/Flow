@@ -9,7 +9,7 @@ anchors:
   - &test_output_folder test_output
   - &default_executor
     macos:
-      xcode: "13.0.0"
+      xcode: "13.2.1"
 
 env:
   global:
@@ -29,7 +29,7 @@ commands:
       path:
         type: string
     steps:
-      - fetch-pod-specs # Fetch the podspec repo changes first to be sure to always get the latest pods
+      # - fetch-pod-specs # Fetch the podspec repo changes first to be sure to always get the latest pods
       - run:
           command: |
             cd <<parameters.path>>
@@ -56,7 +56,7 @@ commands:
           path: <<parameters.path>>
           test_output_folder: *test_output_folder
 
-  # We introduced two separate commands for projects and workspaces because we didnt find a generic and non-confusing way to introduce
+  # We introduced two separate commands for projects and workspaces because we didn't find a generic and non-confusing way to introduce
   # a condition to only pass either the project or the workspace environment argument to the fastlane scan
   test_project_and_store_results:
     description: "Builds and tests a project and then stores the results of the tests as artifacts and test results report"
