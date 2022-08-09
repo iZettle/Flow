@@ -1,3 +1,6 @@
+# 1.10.2
+- Specify type of the library for `spm` builds as `dynamic`
+
 # 1.10.1
 
 - Xcode 13.2 compatibility
