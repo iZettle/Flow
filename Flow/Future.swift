@@ -323,7 +323,7 @@ public extension Future {
 var futureUnitTestAliveCount: Int32 = 0
 
 func memPrint(_ str: String, _ count: Int32) {
-    //print(str, count)
+    // print(str, count)
 }
 
 private extension Future {
