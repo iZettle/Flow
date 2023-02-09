@@ -240,7 +240,6 @@
 		F6A8803C1D9181EC00CA257F /* Signal */ = {
 			isa = PBXGroup;
 			children = (
-				5BB2E8C72994E54C0095F9E1 /* Bridges */,
 				F6B6A6602056AF0300B9FC9D /* Signal.swift */,
 				F67C4797206CDDCC00BEBDFD /* FiniteSignal.swift */,
 				F6B6A65E2056AEA400B9FC9D /* ReadSignal.swift */,
@@ -283,6 +282,7 @@
 				F688B944205FB78B00BA5A70 /* FlowFramework.podspec */,
 				F688B943205FB78A00BA5A70 /* Package.swift */,
 				F6EDC6DE2066BD39007AC39B /* Documentation */,
+				5BB2E8C72994E54C0095F9E1 /* Bridges */,
 				F6A8803C1D9181EC00CA257F /* Signal */,
 				F6D80B5B1BBBB2ED008F8574 /* Future */,
 				F66F8528205AAE5700347601 /* Scheduler */,
