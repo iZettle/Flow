@@ -5,6 +5,7 @@ version: 2.1
 
 anchors:
   - &test_device "iPhone 14"
+  - &test_device_os "16.2"
   - &clean_before_build true
   - &default_executor
     macos:
@@ -35,11 +36,18 @@ commands:
             pod install --verbose
 
   test_main_project:
+    parameters:
+        simulator:
+          type: string
+          default: *test_device
+        os_version:
+          type: string
+          default: *test_device_os
     steps:
       - checkout
       - test_project_and_store_results:
-          project: "Flow.xcodeproj"
-          scheme: "Flow"
+          simulator: <<parameters.os_version>>
+          os_version: <<parameters.simulator>>
 
   test_example_project:
     parameters:
@@ -53,23 +61,27 @@ commands:
           workspace: "Example.xcworkspace"
           scheme: "Example"
           path: <<parameters.path>>
-          test_output_folder: test_output
 
   # We introduced two separate commands for projects and workspaces because we didn't find a generic and non-confusing way to introduce
   # a condition to only pass either the project or the workspace environment argument to the fastlane scan
   test_project_and_store_results:
     description: "Builds and tests a project and then stores the results of the tests as artifacts and test results report"
     parameters:
-      project:
+      simulator:
         type: string
-      scheme:
+        default: *test_device
+      os_version:
         type: string
+        default: *test_device_os
     steps:
       - run:
+          name: Run tests on iOS <<parameters.os_version>>
           command: |
+            OS_VERSION=<<parameters.os_version>>
+            SIMULATOR=<<parameters.simulator>>
             xcodebuild -scheme Flow \
             -project Flow.xcodeproj \
-            -destination "platform=iOS Simulator,OS=16.2,name=iPhone 14" \
+            -destination "platform=iOS Simulator,OS=$OS_VERSION,name=$SIMULATOR" \
              build test \
              | xcpretty --report junit --output 'test_output/report.junit'
       - store_artifacts: # This will by default store an html and junit file as artifacts (See "Artifacts" tab in CircleCI report)
@@ -87,22 +99,28 @@ commands:
         type: string
       path:
         type: string
-      test_output_folder:
+      simulator:
         type: string
+        default: *test_device
+      os_version:
+        type: string
+        default: *test_device_os
     steps:
       - run:
-          command:  |
+          command: |
+            OS_VERSION=<<parameters.os_version>>
+            SIMULATOR=<<parameters.simulator>>
             cd <<parameters.path>>
-            xcodebuild -workspace Example.xcworkspace \
-            -scheme Example \
-            -destination "platform=iOS Simulator,OS=16.2,name=iPhone 14" \
+            xcodebuild -workspace <<parameters.workspace>> \
+            -scheme <<parameters.scheme>> \
+            -destination "platform=iOS Simulator,OS=$OS_VERSION,name=$SIMULATOR" \
              build test \
              | xcpretty --report junit --output 'test_output/report.junit'
       - store_artifacts: # This will by default store an html and junit file as artifacts (See "Artifacts" tab in CircleCI report)
-          path: <<parameters.path>>/<<parameters.test_output_folder>> # test_output is the default temporary folder for fastlane scan output
-          destination: <<parameters.test_output_folder>> # This will create a sub structure in the artifacts section in CircleCI
+          path: <<parameters.path>>/test_output # test_output is the default temporary folder for fastlane scan output
+          destination: test_output # This will create a sub structure in the artifacts section in CircleCI
       - store_test_results: # This will store the test results so you can then see them in the "Test Summary" tab in CircleCI report
-          path: <<parameters.path>>/<<parameters.test_output_folder>>
+          path: <<parameters.path>>/test_output
 
 jobs:
   swiftlint:
@@ -134,7 +152,9 @@ jobs:
     macos:
       xcode: "13.0.0"
     steps:
-      - test_main_project
+      - test_main_project:
+          simulator: "iPhone 13"
+          os_version: "15.0"
 
   test-xcode14-ios16:
     <<: *default_executor
