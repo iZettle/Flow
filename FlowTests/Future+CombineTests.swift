@@ -14,10 +14,10 @@ import Combine
 @available(iOS 13.0, macOS 10.15, *)
 final class Future_CombineTests: XCTestCase {
 
-    var cancelable: AnyCancellable?
+    var bag = CancelBag()
     
     override func tearDownWithError() throws {
-        cancelable = nil
+        bag.empty()
         
         try super.tearDownWithError()
     }
@@ -28,8 +28,8 @@ final class Future_CombineTests: XCTestCase {
         
         let combineFuture = flowFuture.toCombineFuture()
         let expectation = self.expectation(description: "Result expected")
-        
-        cancelable = combineFuture.sink { completion in
+
+        bag += combineFuture.sink { completion in
             if case .failure = completion {
                 XCTFail("Expected to succeed")
             }
@@ -49,7 +49,7 @@ final class Future_CombineTests: XCTestCase {
         let combineFuture = flowFuture.toCombineFuture()
         let expectation = self.expectation(description: "Failiure expected")
         
-        cancelable = combineFuture.sink { completion in
+        bag += combineFuture.sink { completion in
             switch completion {
             case .failure(let error):
                 XCTAssertEqual(error as! TestError, .fatal)

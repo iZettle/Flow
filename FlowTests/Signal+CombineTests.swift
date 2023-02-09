@@ -19,10 +19,10 @@ import Combine
 @available(iOS 13.0, macOS 10.15, *)
 final class Signal_CombineTests: XCTestCase {
     
-    var cancelable: AnyCancellable?
-    
+    var bag = CancelBag()
+
     override func tearDownWithError() throws {
-        self.cancelable = nil
+        bag.empty()
         
         try super.tearDownWithError()
     }
@@ -33,7 +33,7 @@ final class Signal_CombineTests: XCTestCase {
         
         let valueExpectation = self.expectation(description: "value should fire")
         
-        cancelable = publisher.sink { completion in
+        bag += publisher.sink { completion in
             XCTFail("Should not complete")
         } receiveValue: { value in
             XCTAssertEqual(value, "2")
@@ -53,7 +53,7 @@ final class Signal_CombineTests: XCTestCase {
         
         let endExpectation = self.expectation(description: "signal should end")
         
-        cancelable = publisher.sink { completion in
+        bag += publisher.sink { completion in
             switch completion {
             case .finished:
                 endExpectation.fulfill()
@@ -77,8 +77,7 @@ final class Signal_CombineTests: XCTestCase {
         let publisher = signal.toAnyPublisher()
         
         let endExpectation = self.expectation(description: "signal should end with error")
-        
-        cancelable = publisher.sink { completion in
+        bag += publisher.sink { completion in
             switch completion {
             case .finished:
                 XCTFail("Should fail")
@@ -87,12 +86,12 @@ final class Signal_CombineTests: XCTestCase {
                 endExpectation.fulfill()
             }
         } receiveValue: { value in
-            XCTFail("Cancelable should have ended")
+            XCTFail("Cancellable should have ended")
         }
 
         callbacker.callAll(with: .end(TestError.fatal))
         callbacker.callAll(with: .value(1))
-        
+
         wait(for: [endExpectation], timeout: 1)
     }
 
