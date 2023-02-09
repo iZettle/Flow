@@ -63,7 +63,7 @@ commands:
           path: <<parameters.path>>
 
   # We introduced two separate commands for projects and workspaces because we didn't find a generic and non-confusing way to introduce
-  # a condition to only pass either the project or the workspace environment argument to the fastlane scan
+  # a condition to only pass either the project or the workspace environment argument to the test output
   test_project_and_store_results:
     description: "Builds and tests a project and then stores the results of the tests as artifacts and test results report"
     parameters:
@@ -77,15 +77,15 @@ commands:
       - run:
           name: Run tests on iOS <<parameters.os_version>>
           command: |
-            OS_VERSION=<<parameters.os_version>>
-            SIMULATOR=<<parameters.simulator>>
+            export OS_VERSION=<<parameters.os_version>>
+            export SIMULATOR=<<parameters.simulator>>
             xcodebuild -scheme Flow \
             -project Flow.xcodeproj \
             -destination "platform=iOS Simulator,OS=$OS_VERSION,name=$SIMULATOR" \
              build test \
              | xcpretty --report junit --output 'test_output/report.junit'
       - store_artifacts: # This will by default store an html and junit file as artifacts (See "Artifacts" tab in CircleCI report)
-          path: test_output # test_output is the default temporary folder for fastlane scan output
+          path: test_output # test_output is the default temporary folder for test output
           destination: test_output # This will create a sub structure in the artifacts section in CircleCI
       - store_test_results: # This will store the test results so you can then see them in the "Test Summary" tab in CircleCI report
           path: test_output
@@ -107,9 +107,10 @@ commands:
         default: *test_device_os
     steps:
       - run:
+          name: Run examples
           command: |
-            OS_VERSION=<<parameters.os_version>>
-            SIMULATOR=<<parameters.simulator>>
+            export OS_VERSION=<<parameters.os_version>>
+            export SIMULATOR=<<parameters.simulator>>
             cd <<parameters.path>>
             xcodebuild -workspace <<parameters.workspace>> \
             -scheme <<parameters.scheme>> \
@@ -117,7 +118,7 @@ commands:
              build test \
              | xcpretty --report junit --output 'test_output/report.junit'
       - store_artifacts: # This will by default store an html and junit file as artifacts (See "Artifacts" tab in CircleCI report)
-          path: <<parameters.path>>/test_output # test_output is the default temporary folder for fastlane scan output
+          path: <<parameters.path>>/test_output # test_output is the default temporary folder for test output
           destination: test_output # This will create a sub structure in the artifacts section in CircleCI
       - store_test_results: # This will store the test results so you can then see them in the "Test Summary" tab in CircleCI report
           path: <<parameters.path>>/test_output
