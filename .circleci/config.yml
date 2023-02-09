@@ -46,8 +46,8 @@ commands:
     steps:
       - checkout
       - test_project_and_store_results:
-          simulator: <<parameters.os_version>>
-          os_version: <<parameters.simulator>>
+          simulator: <<parameters.simulator>>
+          os_version: <<parameters.os_version>>
 
   test_example_project:
     parameters:
