@@ -38,7 +38,7 @@ extension CancelBag {
 
 @available(iOS 13.0, macOS 10.15, *)
 public func += (cancelBag: inout CancelBag, cancellable: AnyCancellable?) {
-    if let cancellable {
+    if let cancellable = cancellable {
         cancelBag.insert(cancellable)
     }
 }
