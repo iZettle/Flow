@@ -95,6 +95,35 @@ final class Signal_CombineTests: XCTestCase {
         wait(for: [endExpectation], timeout: 1)
     }
 
+    func testAutosink() {
+        let completed = expectation(description: "Completed")
+        let valueSunk = expectation(description: "Value sunk")
+        valueSunk.expectedFulfillmentCount = 3
+
+        let autocancel1 = expectation(description: "1")
+        let autocancel2 = expectation(description: "2")
+        let autocancel3 = expectation(description: "3")
+
+        bag += (1...3).publisher.autosink { completion in
+            completed.fulfill()
+        } receiveValue: { value in
+            valueSunk.fulfill()
+
+            var subBag = self.bag.subset()
+
+            switch value {
+            case 1: subBag += { autocancel1.fulfill() }
+            case 2: subBag += { autocancel2.fulfill() }
+            case 3: subBag += { autocancel3.fulfill() }
+            default: XCTFail("Unexpected value out of range")
+            }
+
+            return subBag.asAnyCancellable
+        }
+
+        wait(for: [valueSunk, autocancel1, autocancel2, autocancel3, completed], timeout: 1)
+    }
+
 }
 
 #endif

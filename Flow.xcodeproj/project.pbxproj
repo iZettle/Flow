@@ -23,6 +23,7 @@
 		B6B4E3572994FB6500D7FFF2 /* Disposable+Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B4E3562994FB6500D7FFF2 /* Disposable+Cancellable.swift */; };
 		B6B4E35A299506BF00D7FFF2 /* Disposable+CombineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B4E3582995028900D7FFF2 /* Disposable+CombineTests.swift */; };
 		B6B4E35C29952CCC00D7FFF2 /* CancelBag.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B4E35B29952CCC00D7FFF2 /* CancelBag.swift */; };
+		B6B4E36029954B4600D7FFF2 /* Publisher+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B4E35F29954B4600D7FFF2 /* Publisher+Utilities.swift */; };
 		DA6D58EF230E925700564CC1 /* MemoryUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6D58EB230E918800564CC1 /* MemoryUtilsTests.swift */; };
 		F610ABAE1D91743500A161AB /* Future+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABA71D91743500A161AB /* Future+Additions.swift */; };
 		F610ABB01D91743500A161AB /* FutureQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABA91D91743500A161AB /* FutureQueue.swift */; };
@@ -106,6 +107,7 @@
 		B6B4E3562994FB6500D7FFF2 /* Disposable+Cancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Disposable+Cancellable.swift"; sourceTree = "<group>"; };
 		B6B4E3582995028900D7FFF2 /* Disposable+CombineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Disposable+CombineTests.swift"; sourceTree = "<group>"; };
 		B6B4E35B29952CCC00D7FFF2 /* CancelBag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelBag.swift; sourceTree = "<group>"; };
+		B6B4E35F29954B4600D7FFF2 /* Publisher+Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+Utilities.swift"; sourceTree = "<group>"; };
 		DA6D58EB230E918800564CC1 /* MemoryUtilsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MemoryUtilsTests.swift; path = FlowTests/MemoryUtilsTests.swift; sourceTree = "<group>"; };
 		F610ABA61D91743500A161AB /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Future.swift; path = Flow/Future.swift; sourceTree = SOURCE_ROOT; };
 		F610ABA71D91743500A161AB /* Future+Additions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Future+Additions.swift"; path = "Flow/Future+Additions.swift"; sourceTree = SOURCE_ROOT; };
@@ -197,11 +199,12 @@
 		5BB2E8C72994E54C0095F9E1 /* Bridges */ = {
 			isa = PBXGroup;
 			children = (
+				B6B4E35B29952CCC00D7FFF2 /* CancelBag.swift */,
 				5BB2E8C22994E5360095F9E1 /* Future+Combine.swift */,
 				5BB2E8C12994E5360095F9E1 /* Signal+Combine.swift */,
 				5BB2E8C02994E5360095F9E1 /* Signal+SwiftUI.swift */,
-				B6B4E35B29952CCC00D7FFF2 /* CancelBag.swift */,
 				B6B4E3562994FB6500D7FFF2 /* Disposable+Cancellable.swift */,
+				B6B4E35F29954B4600D7FFF2 /* Publisher+Utilities.swift */,
 			);
 			path = Bridges;
 			sourceTree = "<group>";
@@ -519,6 +522,7 @@
 				F6FF03E21D926AC300B93771 /* Signal+Transforms.swift in Sources */,
 				F6FF03E31D926AC300B93771 /* Signal+KeyValueObserving.swift in Sources */,
 				F68EF3551FD58FD20001129C /* UIView+Signal.swift in Sources */,
+				B6B4E36029954B4600D7FFF2 /* Publisher+Utilities.swift in Sources */,
 				F6B6A6632056AF4300B9FC9D /* ReadWriteSignal.swift in Sources */,
 				F68EF3531FD58FC70001129C /* Event.swift in Sources */,
 				B6B4E35C29952CCC00D7FFF2 /* CancelBag.swift in Sources */,
