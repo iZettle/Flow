@@ -24,7 +24,7 @@ extension CoreSignal {
             if let finiteVersion = signal as? FiniteSignal<Value> {
                 bag += finiteVersion.onEvent { event in
                     if case let .end(error) = event {
-                        if let error {
+                        if let error = error {
                             subscription.end(with: error)
                         } else {
                             subscription.end()
