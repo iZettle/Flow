@@ -8,19 +8,33 @@ import Combine
 
 extension CoreSignal {
     @available(iOS 13.0, macOS 10.15, *)
-    struct SignalPublisher: Publisher {
+    final class SignalPublisher: Publisher, Cancellable {
+        typealias Output = Value
+        typealias Failure = Error
+        
+        internal var signal: CoreSignal<Kind, Value>
+        internal var bag: CancelBag
+
+        init(signal: CoreSignal<Kind, Value>) {
+            self.signal = signal
+            self.bag = []
+        }
+
         func receive<S>(
             subscriber: S
         ) where S : Subscriber, Failure == S.Failure, Value == S.Input {
             // Creating our custom subscription instance:
             let subscription = EventSubscription<S>()
             subscription.target = subscriber
-            
+
             // Attaching our subscription to the subscriber:
             subscriber.receive(subscription: subscription)
-            
-            bag += signal.onValue { subscription.trigger(for: $0) }
-            
+
+            // Collect cancellables when attaching to signal
+            bag += signal
+                .onValue { subscription.trigger(for: $0) }
+                .asAnyCancellable
+
             if let finiteVersion = signal as? FiniteSignal<Value> {
                 bag += finiteVersion.onEvent { event in
                     if case let .end(error) = event {
@@ -30,15 +44,17 @@ extension CoreSignal {
                             subscription.end()
                         }
                     }
-                }
+                }.asAnyCancellable
             }
         }
-        
-        typealias Output = Value
-        typealias Failure = Error
-        
-        fileprivate var signal: CoreSignal<Kind, Value>
-        fileprivate var bag = DisposeBag()
+
+        func cancel() {
+            bag.cancel()
+        }
+
+        deinit {
+            cancel()
+        }
     }
     
     @available(iOS 13.0, macOS 10.15, *)
@@ -65,10 +81,15 @@ extension CoreSignal {
             _ = target?.receive(value)
         }
     }
+
+    @available(iOS 13.0, macOS 10.15, *)
+    var publisher: SignalPublisher {
+        SignalPublisher(signal: self)
+    }
     
     @available(iOS 13.0, macOS 10.15, *)
-    func toAnyPublisher() -> AnyPublisher<Value, SignalPublisher.Failure> {
-        SignalPublisher(signal: self).eraseToAnyPublisher()
+    var asAnyPublisher: AnyPublisher<Value, SignalPublisher.Failure> {
+        publisher.eraseToAnyPublisher()
     }
 }
 

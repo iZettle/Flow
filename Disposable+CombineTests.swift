@@ -90,7 +90,7 @@ final class Disposable_CombineTests: XCTestCase {
         let callbacker = Callbacker<Event<Int>>()
 
         let signal = FiniteSignal(callbacker: callbacker)
-        let publisher = signal.toAnyPublisher()
+        let publisher = signal.asAnyPublisher
 
         let cancelled = expectation(description: "Cancelled")
 

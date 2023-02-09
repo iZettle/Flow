@@ -29,7 +29,7 @@ final class Signal_CombineTests: XCTestCase {
     
     func testValueReceived() {
         let signal = ReadWriteSignal("1")
-        let publisher = signal.toAnyPublisher()
+        let publisher = signal.asAnyPublisher
         
         let valueExpectation = self.expectation(description: "value should fire")
         
@@ -47,13 +47,11 @@ final class Signal_CombineTests: XCTestCase {
     
     func testEndReceived() {
         let callbacker = Callbacker<Event<Int>>()
-
         let signal = FiniteSignal(callbacker: callbacker)
-        let publisher = signal.toAnyPublisher()
-        
+
         let endExpectation = self.expectation(description: "signal should end")
         
-        bag += publisher.sink { completion in
+        bag += signal.asAnyPublisher.sink { completion in
             switch completion {
             case .finished:
                 endExpectation.fulfill()
@@ -72,12 +70,10 @@ final class Signal_CombineTests: XCTestCase {
     
     func testErrorReceived() {
         let callbacker = Callbacker<Event<Int>>()
-
         let signal = FiniteSignal(callbacker: callbacker)
-        let publisher = signal.toAnyPublisher()
-        
+
         let endExpectation = self.expectation(description: "signal should end with error")
-        bag += publisher.sink { completion in
+        bag += signal.asAnyPublisher.sink { completion in
             switch completion {
             case .finished:
                 XCTFail("Should fail")
@@ -93,6 +89,31 @@ final class Signal_CombineTests: XCTestCase {
         callbacker.callAll(with: .value(1))
 
         wait(for: [endExpectation], timeout: 1)
+    }
+
+    func testPublisherCancellation() {
+        let callbacker = Callbacker<Event<Int>>()
+        let signal = FiniteSignal(callbacker: callbacker)
+        let publisher = signal.publisher
+
+        let completed = expectation(description: "Completed")
+        completed.isInverted = true
+        let published = expectation(description: "Published")
+        published.expectedFulfillmentCount = 1
+
+        bag += publisher.sink { completion in
+            completed.fulfill()
+        } receiveValue: { value in
+            published.fulfill()
+        }
+
+        callbacker.callAll(with: .value(1))
+        publisher.bag.cancel()
+        callbacker.callAll(with: .value(2))
+        callbacker.callAll(with: .end)
+
+        wait(for: [completed, published], timeout: 1)
+
     }
 
     func testAutosink() {
