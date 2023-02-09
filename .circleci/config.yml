@@ -77,8 +77,8 @@ commands:
       - run:
           name: Run tests on iOS <<parameters.os_version>>
           command: |
-            export OS_VERSION=<<parameters.os_version>>
-            export SIMULATOR=<<parameters.simulator>>
+            export OS_VERSION="<<parameters.os_version>>"
+            export SIMULATOR="<<parameters.simulator>>"
             xcodebuild -scheme Flow \
             -project Flow.xcodeproj \
             -destination "platform=iOS Simulator,OS=$OS_VERSION,name=$SIMULATOR" \
@@ -109,8 +109,8 @@ commands:
       - run:
           name: Run examples
           command: |
-            export OS_VERSION=<<parameters.os_version>>
-            export SIMULATOR=<<parameters.simulator>>
+            export OS_VERSION="<<parameters.os_version>>"
+            export SIMULATOR="<<parameters.simulator>>"
             cd <<parameters.path>>
             xcodebuild -workspace <<parameters.workspace>> \
             -scheme <<parameters.scheme>> \
