@@ -27,12 +27,24 @@ extension CancelBag: Cancellable {
         cancel()
         removeAll()
     }
+
+    /// Create a new, empty set, which is itself a part of self.
+    /// Corresponds to `innerBag()` for `DisposeBag`.
+    public mutating func subset() -> CancelBag {
+        let bag = CancelBag()
+        self.insert(AnyCancellable(bag))
+        return bag
+    }
 }
 
 @available(iOS 13.0, macOS 10.15, *)
 extension CancelBag {
     init(disposable: Disposable) {
         self.init([disposable.asAnyCancellable])
+    }
+
+    var asAnyCancellable: AnyCancellable {
+        AnyCancellable(self)
     }
 }
 
