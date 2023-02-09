@@ -8,7 +8,7 @@ import Combine
 
 extension CoreSignal {
     @available(iOS 13.0, macOS 10.15, *)
-    struct ReadSignalPublisher: Publisher {
+    struct SignalPublisher: Publisher {
         func receive<S>(
             subscriber: S
         ) where S : Subscriber, Failure == S.Failure, Value == S.Input {
@@ -67,8 +67,8 @@ extension CoreSignal {
     }
     
     @available(iOS 13.0, macOS 10.15, *)
-    func toAnyPublisher() -> AnyPublisher<Value, ReadSignalPublisher.Failure> {
-        ReadSignalPublisher(signal: self).eraseToAnyPublisher()
+    func toAnyPublisher() -> AnyPublisher<Value, SignalPublisher.Failure> {
+        SignalPublisher(signal: self).eraseToAnyPublisher()
     }
 }
 
