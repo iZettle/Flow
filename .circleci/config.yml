@@ -77,11 +77,9 @@ commands:
       - run:
           name: Run tests on iOS <<parameters.os_version>>
           command: |
-            export OS_VERSION="<<parameters.os_version>>"
-            export SIMULATOR="<<parameters.simulator>>"
             xcodebuild -scheme Flow \
             -project Flow.xcodeproj \
-            -destination "platform=iOS Simulator,OS=$OS_VERSION,name=$SIMULATOR" \
+            -destination "platform=iOS Simulator,OS=<<parameters.os_version>>,name=<<parameters.simulator>>" \
              build test \
              | xcpretty --report junit --output 'test_output/report.junit'
       - store_artifacts: # This will by default store an html and junit file as artifacts (See "Artifacts" tab in CircleCI report)
@@ -109,12 +107,10 @@ commands:
       - run:
           name: Run examples
           command: |
-            export OS_VERSION="<<parameters.os_version>>"
-            export SIMULATOR="<<parameters.simulator>>"
             cd <<parameters.path>>
             xcodebuild -workspace <<parameters.workspace>> \
             -scheme <<parameters.scheme>> \
-            -destination "platform=iOS Simulator,OS=$OS_VERSION,name=$SIMULATOR" \
+            -destination "platform=iOS Simulator,OS=<<parameters.os_version>>,name=<<parameters.simulator>>" \
              build test \
              | xcpretty --report junit --output 'test_output/report.junit'
       - store_artifacts: # This will by default store an html and junit file as artifacts (See "Artifacts" tab in CircleCI report)
