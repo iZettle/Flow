@@ -54,7 +54,7 @@ extension CoreSignal {
         }
 
         func end(with error: Target.Failure? = nil) {
-            if let error {
+            if let error = error {
                 _ = target?.receive(completion: .failure(error))
             } else {
                 _ = target?.receive(completion: .finished)
@@ -67,7 +67,7 @@ extension CoreSignal {
     }
     
     @available(iOS 13.0, macOS 10.15, *)
-    func toAnyPublisher() -> any Publisher<Value, ReadSignalPublisher.Failure> {
+    func toAnyPublisher() -> AnyPublisher<Value, ReadSignalPublisher.Failure> {
         ReadSignalPublisher(signal: self).eraseToAnyPublisher()
     }
 }
