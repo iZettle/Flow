@@ -26,7 +26,7 @@ final class Future_CombineTests: XCTestCase {
         let callbacker = Callbacker<Result<Int>>()
         let flowFuture = Flow.Future(callbacker: callbacker)
         
-        let combineFuture = flowFuture.toCombineFuture()
+        let combineFuture = flowFuture.toCombineFuture
         let expectation = self.expectation(description: "Result expected")
 
         bag += combineFuture.sink { completion in
@@ -46,7 +46,7 @@ final class Future_CombineTests: XCTestCase {
         let callbacker = Callbacker<Result<Int>>()
         let flowFuture = Flow.Future(callbacker: callbacker)
         
-        let combineFuture = flowFuture.toCombineFuture()
+        let combineFuture = flowFuture.toCombineFuture
         let expectation = self.expectation(description: "Failiure expected")
         
         bag += combineFuture.sink { completion in
