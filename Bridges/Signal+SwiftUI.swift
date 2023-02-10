@@ -13,6 +13,8 @@ import SwiftUI
 @available(iOS 13.0, macOS 10.15, *)
 extension CoreSignal where Kind == ReadWrite {
 
+    /// Convert a `ReadWriteSignal` to a `Binding` intended to be used for SwiftUI view models
+    /// to bridge between the `Flow` and `SwiftUI` world
     var asBinding: Binding<Value> {
         Binding<Value>(
             get: { self.value },
@@ -25,6 +27,8 @@ extension CoreSignal where Kind == ReadWrite {
 @available(iOS 13.0, macOS 10.15, *)
 extension CoreSignal where Kind == Read {
 
+    /// Convert a `ReadSignal` to a `Binding` intended to be used for SwiftUI view models
+    /// to bridge between the `Flow` and `SwiftUI` world
     var asBinding: Binding<Value> {
         Binding<Value>(
             get: { self.value },
