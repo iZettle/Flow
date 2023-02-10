@@ -48,10 +48,11 @@ final class Signal_CombineTests: XCTestCase {
     func testEndReceived() {
         let callbacker = Callbacker<Event<Int>>()
         let signal = FiniteSignal(callbacker: callbacker)
+        let publisher = signal.asAnyPublisher
 
         let endExpectation = self.expectation(description: "signal should end")
         
-        bag += signal.asAnyPublisher.sink { completion in
+        bag += publisher.sink { completion in
             switch completion {
             case .finished:
                 endExpectation.fulfill()
@@ -71,9 +72,10 @@ final class Signal_CombineTests: XCTestCase {
     func testErrorReceived() {
         let callbacker = Callbacker<Event<Int>>()
         let signal = FiniteSignal(callbacker: callbacker)
+        let publisher = signal.asAnyPublisher
 
         let endExpectation = self.expectation(description: "signal should end with error")
-        bag += signal.asAnyPublisher.sink { completion in
+        bag += publisher.sink { completion in
             switch completion {
             case .finished:
                 XCTFail("Should fail")
