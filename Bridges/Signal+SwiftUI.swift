@@ -10,10 +10,10 @@ import Foundation
 #if canImport(SwiftUI)
 import SwiftUI
 
+@available(iOS 13.0, macOS 10.15, *)
 extension CoreSignal where Kind == ReadWrite {
 
-    @available(iOS 13.0, macOS 10.15, *)
-    func asBinding() -> Binding<Value> {
+    var asBinding: Binding<Value> {
         Binding<Value>(
             get: { self.value },
             set: { self.value = $0 }
@@ -22,10 +22,10 @@ extension CoreSignal where Kind == ReadWrite {
 
 }
 
+@available(iOS 13.0, macOS 10.15, *)
 extension CoreSignal where Kind == Read {
 
-    @available(iOS 13.0, macOS 10.15, *)
-    func asBinding() -> Binding<Value> {
+    var asBinding: Binding<Value> {
         Binding<Value>(
             get: { self.value },
             set: { _ in }
