@@ -1,3 +1,6 @@
+# 1.11.0
+- Add Compose and SwiftUI bridging functions
+
 # 1.10.2
 - Specify type of the library for `spm` builds as `dynamic`
 

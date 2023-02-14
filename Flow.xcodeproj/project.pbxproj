@@ -11,10 +11,19 @@
 		215DEF371DEC368700CEB724 /* RecursiveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215DEF351DEC367E00CEB724 /* RecursiveTests.swift */; };
 		21E1D41C1D9502A300A91CA0 /* Future+Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21E1D41B1D9502A300A91CA0 /* Future+Signal.swift */; };
 		5B46DE3D22E9CC5E00E0A4D9 /* PrefetchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B46DE3B22E9CBFA00E0A4D9 /* PrefetchTests.swift */; };
+		5BB2E8AD2994238C0095F9E1 /* Signal+CombineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB2E8AC2994238C0095F9E1 /* Signal+CombineTests.swift */; };
+		5BB2E8C32994E5360095F9E1 /* Signal+SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB2E8C02994E5360095F9E1 /* Signal+SwiftUI.swift */; };
+		5BB2E8C42994E5360095F9E1 /* Future+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB2E8C22994E5360095F9E1 /* Future+Combine.swift */; };
+		5BB2E8C52994E5360095F9E1 /* Signal+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB2E8C12994E5360095F9E1 /* Signal+Combine.swift */; };
+		5BB2E8CC2994F0160095F9E1 /* Future+CombineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB2E8CA2994F0080095F9E1 /* Future+CombineTests.swift */; };
 		5BE9055B3538F1DDAB424AD2 /* FutureAdditionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE90C011B621BC2F0B9C1B8 /* FutureAdditionsTests.swift */; };
 		7484FA6B212D9E930076FD3E /* Signal+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7484FA6A212D9E930076FD3E /* Signal+Debug.swift */; };
 		792AC15B227C8A6800F8BBAD /* SignalProviderTests+Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792AC15A227C8A6800F8BBAD /* SignalProviderTests+Internal.swift */; };
 		8E890FC106FB7A89BD1727CC /* EitherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E890194B06CBB3311E44757 /* EitherTests.swift */; };
+		B6B4E3572994FB6500D7FFF2 /* Disposable+Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B4E3562994FB6500D7FFF2 /* Disposable+Cancellable.swift */; };
+		B6B4E35A299506BF00D7FFF2 /* Disposable+CombineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B4E3582995028900D7FFF2 /* Disposable+CombineTests.swift */; };
+		B6B4E35C29952CCC00D7FFF2 /* CancelBag.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B4E35B29952CCC00D7FFF2 /* CancelBag.swift */; };
+		B6B4E36029954B4600D7FFF2 /* Publisher+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B4E35F29954B4600D7FFF2 /* Publisher+Utilities.swift */; };
 		DA6D58EF230E925700564CC1 /* MemoryUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6D58EB230E918800564CC1 /* MemoryUtilsTests.swift */; };
 		F610ABAE1D91743500A161AB /* Future+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABA71D91743500A161AB /* Future+Additions.swift */; };
 		F610ABB01D91743500A161AB /* FutureQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F610ABA91D91743500A161AB /* FutureQueue.swift */; };
@@ -86,10 +95,19 @@
 		215DEF351DEC367E00CEB724 /* RecursiveTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RecursiveTests.swift; path = FlowTests/RecursiveTests.swift; sourceTree = SOURCE_ROOT; };
 		21E1D41B1D9502A300A91CA0 /* Future+Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Future+Signal.swift"; path = "Flow/Future+Signal.swift"; sourceTree = SOURCE_ROOT; };
 		5B46DE3B22E9CBFA00E0A4D9 /* PrefetchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PrefetchTests.swift; path = FlowTests/PrefetchTests.swift; sourceTree = "<group>"; };
+		5BB2E8AC2994238C0095F9E1 /* Signal+CombineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Signal+CombineTests.swift"; path = "FlowTests/Signal+CombineTests.swift"; sourceTree = "<group>"; };
+		5BB2E8C02994E5360095F9E1 /* Signal+SwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Signal+SwiftUI.swift"; sourceTree = "<group>"; };
+		5BB2E8C12994E5360095F9E1 /* Signal+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Signal+Combine.swift"; sourceTree = "<group>"; };
+		5BB2E8C22994E5360095F9E1 /* Future+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Future+Combine.swift"; sourceTree = "<group>"; };
+		5BB2E8CA2994F0080095F9E1 /* Future+CombineTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Future+CombineTests.swift"; path = "FlowTests/Future+CombineTests.swift"; sourceTree = "<group>"; };
 		5BE90C011B621BC2F0B9C1B8 /* FutureAdditionsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FutureAdditionsTests.swift; path = FlowTests/FutureAdditionsTests.swift; sourceTree = "<group>"; };
 		7484FA6A212D9E930076FD3E /* Signal+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Signal+Debug.swift"; path = "Flow/Signal+Debug.swift"; sourceTree = "<group>"; };
 		792AC15A227C8A6800F8BBAD /* SignalProviderTests+Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "SignalProviderTests+Internal.swift"; path = "FlowTests/SignalProviderTests+Internal.swift"; sourceTree = "<group>"; };
 		8E890194B06CBB3311E44757 /* EitherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = EitherTests.swift; path = FlowTests/EitherTests.swift; sourceTree = "<group>"; };
+		B6B4E3562994FB6500D7FFF2 /* Disposable+Cancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Disposable+Cancellable.swift"; sourceTree = "<group>"; };
+		B6B4E3582995028900D7FFF2 /* Disposable+CombineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Disposable+CombineTests.swift"; sourceTree = "<group>"; };
+		B6B4E35B29952CCC00D7FFF2 /* CancelBag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelBag.swift; sourceTree = "<group>"; };
+		B6B4E35F29954B4600D7FFF2 /* Publisher+Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+Utilities.swift"; sourceTree = "<group>"; };
 		DA6D58EB230E918800564CC1 /* MemoryUtilsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MemoryUtilsTests.swift; path = FlowTests/MemoryUtilsTests.swift; sourceTree = "<group>"; };
 		F610ABA61D91743500A161AB /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Future.swift; path = Flow/Future.swift; sourceTree = SOURCE_ROOT; };
 		F610ABA71D91743500A161AB /* Future+Additions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Future+Additions.swift"; path = "Flow/Future+Additions.swift"; sourceTree = SOURCE_ROOT; };
@@ -178,6 +196,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5BB2E8C72994E54C0095F9E1 /* Bridges */ = {
+			isa = PBXGroup;
+			children = (
+				B6B4E35B29952CCC00D7FFF2 /* CancelBag.swift */,
+				5BB2E8C22994E5360095F9E1 /* Future+Combine.swift */,
+				5BB2E8C12994E5360095F9E1 /* Signal+Combine.swift */,
+				5BB2E8C02994E5360095F9E1 /* Signal+SwiftUI.swift */,
+				B6B4E3562994FB6500D7FFF2 /* Disposable+Cancellable.swift */,
+				B6B4E35F29954B4600D7FFF2 /* Publisher+Utilities.swift */,
+			);
+			name = Bridges;
+			path = Flow/Bridges;
+			sourceTree = "<group>";
+		};
 		F6442D7220C6C9A400319327 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -254,6 +286,7 @@
 				F688B944205FB78B00BA5A70 /* FlowFramework.podspec */,
 				F688B943205FB78A00BA5A70 /* Package.swift */,
 				F6EDC6DE2066BD39007AC39B /* Documentation */,
+				5BB2E8C72994E54C0095F9E1 /* Bridges */,
 				F6A8803C1D9181EC00CA257F /* Signal */,
 				F6D80B5B1BBBB2ED008F8574 /* Future */,
 				F66F8528205AAE5700347601 /* Scheduler */,
@@ -315,6 +348,9 @@
 				5BE90C011B621BC2F0B9C1B8 /* FutureAdditionsTests.swift */,
 				5B46DE3B22E9CBFA00E0A4D9 /* PrefetchTests.swift */,
 				DA6D58EB230E918800564CC1 /* MemoryUtilsTests.swift */,
+				5BB2E8AC2994238C0095F9E1 /* Signal+CombineTests.swift */,
+				5BB2E8CA2994F0080095F9E1 /* Future+CombineTests.swift */,
+				B6B4E3582995028900D7FFF2 /* Disposable+CombineTests.swift */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -476,6 +512,7 @@
 				F6B6A65F2056AEA400B9FC9D /* ReadSignal.swift in Sources */,
 				F6FF03E71D926AC300B93771 /* Utilities.swift in Sources */,
 				F66C47A720077B2500333410 /* Signal+Combiners.swift in Sources */,
+				5BB2E8C42994E5360095F9E1 /* Future+Combine.swift in Sources */,
 				F662C0A71FDFDEB300E5F869 /* Signal+Scheduling.swift in Sources */,
 				F6FF03E41D926AC300B93771 /* CoreSignal.swift in Sources */,
 				F67C4798206CDDCC00BEBDFD /* FiniteSignal.swift in Sources */,
@@ -486,11 +523,15 @@
 				F6FF03E21D926AC300B93771 /* Signal+Transforms.swift in Sources */,
 				F6FF03E31D926AC300B93771 /* Signal+KeyValueObserving.swift in Sources */,
 				F68EF3551FD58FD20001129C /* UIView+Signal.swift in Sources */,
+				B6B4E36029954B4600D7FFF2 /* Publisher+Utilities.swift in Sources */,
 				F6B6A6632056AF4300B9FC9D /* ReadWriteSignal.swift in Sources */,
 				F68EF3531FD58FC70001129C /* Event.swift in Sources */,
+				B6B4E35C29952CCC00D7FFF2 /* CancelBag.swift in Sources */,
 				F6462A421EFAAD06007E2198 /* Scheduler.swift in Sources */,
 				7484FA6B212D9E930076FD3E /* Signal+Debug.swift in Sources */,
+				5BB2E8C32994E5360095F9E1 /* Signal+SwiftUI.swift in Sources */,
 				F6B6A6652056B2CA00B9FC9D /* EventType.swift in Sources */,
+				B6B4E3572994FB6500D7FFF2 /* Disposable+Cancellable.swift in Sources */,
 				F610ABB21D91743500A161AB /* Result.swift in Sources */,
 				F66C47A920077BC700333410 /* Signal+Listeners.swift in Sources */,
 				F64E975F201888EB00865380 /* Future+Combiners.swift in Sources */,
@@ -498,6 +539,7 @@
 				F66835CF2091B887002D2676 /* UIView+EditingMenu.swift in Sources */,
 				F6FF03E51D926AC300B93771 /* TargetActionable.swift in Sources */,
 				F699C483205C1A5C001378C0 /* Signal+Utilities.swift in Sources */,
+				5BB2E8C52994E5360095F9E1 /* Signal+Combine.swift in Sources */,
 				F667FCD8200604570014DA7D /* Enablable.swift in Sources */,
 				F681B3481DB6566E00E44ABD /* Either.swift in Sources */,
 			);
@@ -507,7 +549,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5BB2E8AD2994238C0095F9E1 /* Signal+CombineTests.swift in Sources */,
 				F610ABBC1D91747000A161AB /* FutureBasicTests.swift in Sources */,
+				5BB2E8CC2994F0160095F9E1 /* Future+CombineTests.swift in Sources */,
 				F6A880921D9182B900CA257F /* SignalProviderTests.swift in Sources */,
 				F610ABBF1D91747000A161AB /* FutureSchedulingTests.swift in Sources */,
 				F6AC447F1FDE6F240090FBE7 /* SignalConcurrenceyTests.swift in Sources */,
@@ -523,6 +567,7 @@
 				792AC15B227C8A6800F8BBAD /* SignalProviderTests+Internal.swift in Sources */,
 				F6C0FED2202B44360076B877 /* DelegateTests.swift in Sources */,
 				F6F679A320A966D1004C7AA7 /* EventListenerTests.swift in Sources */,
+				B6B4E35A299506BF00D7FFF2 /* Disposable+CombineTests.swift in Sources */,
 				5B46DE3D22E9CC5E00E0A4D9 /* PrefetchTests.swift in Sources */,
 				F610ABBD1D91747000A161AB /* FutureQueueTests.swift in Sources */,
 				DA6D58EF230E925700564CC1 /* MemoryUtilsTests.swift in Sources */,
