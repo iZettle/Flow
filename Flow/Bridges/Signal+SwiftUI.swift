@@ -33,6 +33,6 @@ extension CoreSignal where Kind == Read {
             set: { _ in }
         )
     }
-    
+
 }
 #endif
