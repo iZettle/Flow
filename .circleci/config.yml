@@ -154,12 +154,14 @@ jobs:
           os_version: "16.0"
 
   test-xcode15-ios17:
-    macos:
-      xcode: "14.0.0"
+    <<: *default_executor
     steps:
       - test_main_project
 
   test-example-login:
+    # can not use xcode > 14 since we have this error.
+    # deprecate to_default_s: :to_s, deprecator: ActiveSupport.deprecator
+    # to solve it we need to update the podspec.
     <<: *default_executor
     steps:
       - test_example_project:
