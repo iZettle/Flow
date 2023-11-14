@@ -11,7 +11,7 @@ extension CoreSignal {
     final class SignalPublisher: Publisher, Cancellable {
         typealias Output = Value
         typealias Failure = Error
-        
+
         internal var signal: CoreSignal<Kind, Value>
         internal var bag: CancelBag
 
@@ -22,7 +22,7 @@ extension CoreSignal {
 
         func receive<S>(
             subscriber: S
-        ) where S : Subscriber, Failure == S.Failure, Value == S.Input {
+        ) where S: Subscriber, Failure == S.Failure, Value == S.Input {
             // Creating our custom subscription instance:
             let subscription = EventSubscription<S>()
             subscription.target = subscriber
@@ -56,11 +56,11 @@ extension CoreSignal {
             cancel()
         }
     }
-    
+
     @available(iOS 13.0, macOS 10.15, *)
     final class EventSubscription<Target: Subscriber>: Subscription
         where Target.Input == Value {
-        
+
         var target: Target?
 
         func request(_ demand: Subscribers.Demand) {}
@@ -76,12 +76,12 @@ extension CoreSignal {
                 _ = target?.receive(completion: .finished)
             }
         }
-        
+
         func trigger(for value: Value) {
             _ = target?.receive(value)
         }
     }
-    
+
     @available(iOS 13.0, macOS 10.15, *)
     public var asAnyPublisher: AnyPublisher<Value, Error> {
         SignalPublisher(signal: self).eraseToAnyPublisher()
