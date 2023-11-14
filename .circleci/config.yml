@@ -62,7 +62,7 @@ commands:
           scheme: "Example"
           path: <<parameters.path>>
           simulator: "iPhone 14"
-          os_version: "17.0"
+          os_version: "16.0"
 
   # We introduced two separate commands for projects and workspaces because we didn't find a generic and non-confusing way to introduce
   # a condition to only pass either the project or the workspace environment argument to the test output
