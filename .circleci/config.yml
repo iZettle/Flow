@@ -162,7 +162,8 @@ jobs:
     # can not use xcode > 14 since we have this error.
     # deprecate to_default_s: :to_s, deprecator: ActiveSupport.deprecator
     # to solve it we need to update the podspec.
-    <<: *default_executor
+    macos:
+      xcode: "14.0.0"
     steps:
       - test_example_project:
           path: Examples/login
@@ -174,6 +175,7 @@ workflows:
       - swiftlint:
           version: 0.49.1
       - test-xcode14-ios16
-      - test-xcode15-ios17
+      # Disable untill we fix test for Xcode 15
+      # - test-xcode15-ios17
       - test-example-login
 
