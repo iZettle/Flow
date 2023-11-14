@@ -154,7 +154,8 @@ jobs:
           os_version: "16.0"
 
   test-xcode15-ios17:
-    <<: *default_executor
+    macos:
+      xcode: "14.0.0"
     steps:
       - test_main_project
 
