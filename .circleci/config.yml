@@ -9,7 +9,7 @@ anchors:
   - &clean_before_build true
   - &default_executor
     macos:
-      xcode: "15.0.0"
+      xcode: "15.1.0"
 
 env:
   global:
@@ -177,7 +177,6 @@ workflows:
       - swiftlint:
           version: 0.49.1
       - test-xcode14-ios16
-      # Disable untill we fix test for Xcode 15
-      # - test-xcode15-ios17
+      - test-xcode15-ios17
       - test-example-login
 
