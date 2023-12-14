@@ -10,6 +10,7 @@ anchors:
   - &default_executor
     macos:
       xcode: "15.1.0"
+    resource_class: macos.m1.large.gen1
 
 env:
   global:
