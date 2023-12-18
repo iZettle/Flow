@@ -2635,7 +2635,7 @@ class SignalProviderStressTests: XCTestCase {
 
             let signals: [(TimeInterval, Int)] = [
                 (0.1, 3),
-                (0.15, 4),
+                (0.2, 4),
                 (0.3, 5),
                 (0.5, 6),
                 (0.55, 7),
