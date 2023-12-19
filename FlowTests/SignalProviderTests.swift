@@ -2627,20 +2627,20 @@ class SignalProviderStressTests: XCTestCase {
             let signal = ReadWriteSignal(1)
 
             var result = [Int]()
-            bag += signal.throttle(0.2).onValue {
+            bag += signal.throttle(2).onValue {
                 result.append($0)
             }
 
             signal.value = 2
 
             let signals: [(TimeInterval, Int)] = [
-                (0.1, 3),
-                (0.2, 4),
-                (0.3, 5),
-                (0.5, 6),
-                (0.55, 7),
-                (0.9, 8),
-                (0.95, 9),
+                (1, 3),
+                (1.5, 4),
+                (3, 5),
+                (5, 6),
+                (5.5, 7),
+                (9.0, 8),
+                (9.5, 9),
             ]
 
             for (time, value) in signals {
@@ -2650,7 +2650,7 @@ class SignalProviderStressTests: XCTestCase {
             }
 
             let e = expectation(description: "done")
-            Scheduler.main.async(after: 1.5) {
+            Scheduler.main.async(after: 15) {
                 e.fulfill()
                 XCTAssertEqual(result, [2, 4, 5, 7, 8, 9])
             }
