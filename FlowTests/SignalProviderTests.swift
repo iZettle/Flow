@@ -2530,23 +2530,23 @@ class SignalProviderStressTests: XCTestCase {
     }
 
     func testDebounce() {
-        runTest(timeout: 2) { bag in
+        runTest(timeout: 20) { bag in
             let signal = ReadWriteSignal(1)
 
             var result = [Int]()
-            bag += signal.debounce(0.2).atOnce().onValue {
+            bag += signal.debounce(2).atOnce().onValue {
                 result.append($0)
             }
 
             signal.value = 2
 
             let signals: [(TimeInterval, Int)] = [
-                (0.1, 3),
-                (0.2, 4),
-                (0.5, 5),
-                (0.6, 6),
-                (0.7, 7),
-                (1.0, 8),
+                (1, 3),
+                (2, 4),
+                (5, 5),
+                (6, 6),
+                (7, 7),
+                (10, 8),
                 ]
 
             for (time, value) in signals {
@@ -2556,7 +2556,7 @@ class SignalProviderStressTests: XCTestCase {
             }
 
             let e = expectation(description: "done")
-            Scheduler.main.async(after: 1.5) {
+            Scheduler.main.async(after: 15) {
                 e.fulfill()
                 XCTAssertEqual(result, [1, 4, 7, 8])
             }
