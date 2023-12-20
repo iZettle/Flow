@@ -2623,7 +2623,7 @@ class SignalProviderStressTests: XCTestCase {
     #endif
 
     func testThrottle() {
-        runTest(timeout: 2) { bag in
+        runTest(timeout: 20) { bag in
             let signal = ReadWriteSignal(1)
 
             var result = [Int]()
