@@ -1,5 +1,11 @@
+# 1.11.1
+- Xcode 15.1 compatibility
+
 # 1.11.0
 - Add Compose and SwiftUI bridging functions
+
+# 1.10.3
+- Xcode 14.0 compatibility
 
 # 1.10.2
 - Specify type of the library for `spm` builds as `dynamic`
