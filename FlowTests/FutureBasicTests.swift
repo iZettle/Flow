@@ -242,7 +242,7 @@ class FutureBasicTests: FutureTest {
         }
     }
 
-    func _testRecursiveImmediateFlatMap() {
+    func testRecursiveImmediateFlatMap() {
         testFuture(timeout: 1000) { () -> Future<Int> in
             func test(_ val: Int) -> Future<Int> {
                 if val > 0 {
@@ -256,7 +256,7 @@ class FutureBasicTests: FutureTest {
         }
     }
 
-    func _testRecursiveImmediateMap() {
+    func testRecursiveImmediateMap() {
         testFuture(timeout: 1000) { () -> Future<Int> in
             var f = Future(4711).delay(by: 1)
             for _ in 1...100000 {
@@ -294,7 +294,7 @@ class FutureBasicTests: FutureTest {
         }
     }
 
-    func _testRecursiveMapCancel() {
+    func testRecursiveMapCancel() {
         testFuture(timeout: 1000) { () -> Future<Int> in
             var f = Future(4711).delay(by: 1)
             for _ in 1...10000 {
@@ -305,7 +305,7 @@ class FutureBasicTests: FutureTest {
         }
     }
 
-    func _testRecursiveFlatMapCancel() {
+    func testRecursiveFlatMapCancel() {
         testFuture(timeout: 1000) { () -> Future<Int> in
             var f = Future(4711).delay(by: 1)
             for _ in 1...10000 {
