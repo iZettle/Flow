@@ -149,7 +149,7 @@ jobs:
           path: swiftlint.html
 
   test-xcode16-ios18:
-     <<: *default_executor
+    <<: *default_executor
     steps:
       - test_main_project
 
