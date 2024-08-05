@@ -155,7 +155,7 @@ jobs:
 
   test-xcode15-ios17:
     macos:
-      xcode: "15.1.0"
+      xcode: "15.4.0"
     steps:
       - test_main_project:
           simulator: "iPhone 15"
