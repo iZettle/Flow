@@ -83,7 +83,7 @@ commands:
             xcodebuild -scheme Flow \
             -project Flow.xcodeproj \
             -destination "platform=iOS Simulator,OS=<<parameters.os_version>>,name=<<parameters.simulator>>" \
-            -testPlan Flow
+            -testPlan Flow \
             test \
              | xcpretty --report junit --output 'test_output/report.junit'
       - store_artifacts: # This will by default store an html and junit file as artifacts (See "Artifacts" tab in CircleCI report)
