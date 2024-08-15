@@ -735,8 +735,6 @@ public extension SignalProvider where Kind.DropWrite == Read {
 }
 
 private extension SignalProvider {
-    
-    // swiftlint:disable:next identifier_name
     func _flatMapLatest<KI, T, KO>(on scheduler: Scheduler = .current, _ transform: @escaping (Value) -> CoreSignal<KI, T>) -> CoreSignal<KO, T> {
         let signal = providedSignal
 
