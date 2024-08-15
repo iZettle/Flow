@@ -5,7 +5,7 @@ version: 2.1
 
 anchors:
   - &test_device "iPhone 15"
-  - &test_device_os "18.0"
+  - &test_device_os "18.1"
   - &clean_before_build true
   - &default_executor
     macos:
