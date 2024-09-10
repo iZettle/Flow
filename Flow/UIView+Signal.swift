@@ -98,13 +98,20 @@ public extension UIView {
 private extension UIView {
     func signal<T>(for keyPath: KeyPath<CallbackerView, Callbacker<T>>) -> Signal<T> {
         return Signal(onValue: { callback in
-            let view = (self.viewWithTag(987892442) as? CallbackerView)  ?? {
+            let view = (self.subviews.compactMap({ $0 as?  CallbackerView}).first)  ?? {
                 let view = CallbackerView(frame: self.bounds)
-                view.autoresizingMask = [.flexibleWidth, .flexibleHeight] // trick so layoutsubViews is called when the view is resized
-                view.tag = 987892442
+                view.translatesAutoresizingMaskIntoConstraints = false
                 view.backgroundColor = .clear
                 view.isUserInteractionEnabled = false
                 self.insertSubview(view, at: 0)
+
+                NSLayoutConstraint.activate([
+                    view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                    view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                    view.topAnchor.constraint(equalTo: self.topAnchor),
+                    view.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+                ])
+
                 view.setNeedsLayout()
                 return view
             }()
