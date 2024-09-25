@@ -4,12 +4,12 @@
 version: 2.1
 
 anchors:
-  - &test_device "iPhone 15"
-  - &test_device_os "17.0"
+  - &test_device "iPhone 16"
+  - &test_device_os "18.0"
   - &clean_before_build true
   - &default_executor
     macos:
-      xcode: "15.1.0"
+      xcode: "16.0.0"
     resource_class: macos.m1.large.gen1
 
 env:
@@ -62,8 +62,8 @@ commands:
           workspace: "Example.xcworkspace"
           scheme: "Example"
           path: <<parameters.path>>
-          simulator: "iPhone 14"
-          os_version: "16.0"
+          simulator: *test_device
+          os_version: *test_device_os
 
   # We introduced two separate commands for projects and workspaces because we didn't find a generic and non-confusing way to introduce
   # a condition to only pass either the project or the workspace environment argument to the test output
@@ -83,7 +83,7 @@ commands:
             xcodebuild -scheme Flow \
             -project Flow.xcodeproj \
             -destination "platform=iOS Simulator,OS=<<parameters.os_version>>,name=<<parameters.simulator>>" \
-             build test \
+            build test \
              | xcpretty --report junit --output 'test_output/report.junit'
       - store_artifacts: # This will by default store an html and junit file as artifacts (See "Artifacts" tab in CircleCI report)
           path: test_output # test_output is the default temporary folder for test output
@@ -148,25 +148,21 @@ jobs:
       - store_test_results:
           path: swiftlint.html
 
-  test-xcode14-ios16:
-    macos:
-      xcode: "14.0.0"
-    steps:
-      - test_main_project:
-          simulator: "iPhone 14"
-          os_version: "16.0"
-
-  test-xcode15-ios17:
+  test-xcode16-ios18:
     <<: *default_executor
     steps:
       - test_main_project
 
-  test-example-login:
-    # can not use xcode > 14 since we have this error.
-    # deprecate to_default_s: :to_s, deprecator: ActiveSupport.deprecator
-    # to solve it we need to update the podspec.
+  test-xcode15-ios17:
     macos:
-      xcode: "14.0.0"
+      xcode: "15.4.0"
+    steps:
+      - test_main_project:
+          simulator: "iPhone 15"
+          os_version: "17.0"
+
+  test-example-login:
+    <<: *default_executor
     steps:
       - test_example_project:
           path: Examples/login
@@ -177,7 +173,7 @@ workflows:
     jobs:
       - swiftlint:
           version: 0.49.1
-      - test-xcode14-ios16
+      - test-xcode16-ios18
       - test-xcode15-ios17
       - test-example-login
 

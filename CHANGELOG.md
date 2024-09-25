@@ -1,3 +1,6 @@
+# 1.12.0
+- Xcode 16.0 compatibility
+
 # 1.11.1
 - Xcode 15.1 compatibility
 
@@ -57,7 +60,7 @@
 
 # 1.6
 
- - Addition: Make `Callbacker` conform to `SignalProvider`.
+- Addition: Make `Callbacker` conform to `SignalProvider`.
 
 # 1.5.2
 
