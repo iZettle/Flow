@@ -1,3 +1,6 @@
+# 1.12.1
+- Remove `dynamic` type from `spm` builds
+
 # 1.12.0
 - Xcode 16.0 compatibility
 
