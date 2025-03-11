@@ -741,14 +741,20 @@ private extension SignalProvider {
         let mutex = Mutex()
         var setter: ((T) -> ())?
         func setValue(_ value: T) {
-            let setValue = mutex.protect { setter ?? transform(signal.getter()!).setter! }
+            mutex.lock()
+            let setValue = setter ?? transform(signal.getter()!).setter!
+            mutex.unlock()
             setValue(value)
         }
 
         return CoreSignal(setValue: setValue, onEventType: { callback in
             let latestBag = DisposeBag()
             let bag = DisposeBag(latestBag)
-            bag += { mutex.protect { setter = nil } }
+            bag += {
+                mutex.lock()
+                setter = nil
+                mutex.unlock()
+            }
 
             bag += signal.onEventType(on: scheduler) { eventType in
                 switch eventType {
@@ -756,13 +762,17 @@ private extension SignalProvider {
                     callback(.initial(nil))
                 case .initial(let val?):
                     let signal = scheduler.sync { transform(val) }
-                    mutex.protect { setter = signal.setter }
+                    mutex.lock()
+                    setter = signal.setter
+                    mutex.unlock()
                     latestBag += signal.onEventType(callback)
                 case let .event(.value(val)):
                     let isFirstEvent = latestBag.isEmpty
                     latestBag.dispose()
                     let signal = transform(val)
-                    mutex.protect { setter = signal.setter }
+                    mutex.lock()
+                    setter = signal.setter
+                    mutex.unlock()
                     latestBag += signal.onEventType { eventType in
                         switch eventType {
                         case .initial(let val?) where KO.isReadable:
